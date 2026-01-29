@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==================== ПЕРЕМЕННЫЕ ЦВЕТОВ ==================== */
+:root {
+  --color-dark: #0a0a0a;
+  --color-gold: #d4af37;
+  --color-brown: #8B6F47;
+  --color-light: #f5f5f5;
+  --color-text: #f5f5f5;
+}
+
+/* ==================== БАЗОВЫЕ СТИЛИ ==================== */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-dark);
+  color: var(--color-text);
+  font-family: Inter, system-ui, sans-serif;
+  line-height: 1.6;
+}
+
+/* ==================== КНОПКИ ==================== */
+.btn {
+  @apply px-6 py-3 rounded-md font-semibold transition-all duration-300;
+  cursor: pointer;
+}
+
+.btn-primary {
+  @apply bg-club-gold text-club-dark hover:bg-opacity-90;
+}
+
+.btn-secondary {
+  @apply border-2 border-club-gold text-club-gold hover:bg-club-gold hover:text-club-dark;
+}
+
+/* ==================== КОНТЕЙНЕР ==================== */
+.container-custom {
+  @apply max-w-7xl mx-auto px-4 md:px-8;
+}
+
+.section {
+  @apply py-16 md:py-24;
+}
+
+/* ==================== АНИМАЦИИ ==================== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.hover-lift {
+  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(212, 175, 55, 0.1);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-brown) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

@@ -1,0 +1,31 @@
+﻿version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: gentlemen_barber_db
+    environment:
+      POSTGRES_DB: gentlemen_barber
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    container_name: gentlemen_barber_api
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://admin:dev_password@postgres:5432/gentlemen_barber
+      TELEGRAM_TOKEN: your_token_here
+    depends_on:
+      - postgres
+    volumes:
+      - ./backend:/app
+
+volumes:
+  postgres_data:
