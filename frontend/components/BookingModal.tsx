@@ -32,7 +32,8 @@ export default function BookingModal({ isOpen, onClose, masterName }: BookingMod
 
         {masterName && (
           <p className="text-xs text-[var(--color-muted)] mb-4">
-            Предпочитаемый мастер: <span className="font-medium text-[var(--color-dark)]">{masterName}</span>
+            Предпочитаемый мастер:{' '}
+            <span className="font-medium text-[var(--color-dark)]">{masterName}</span>
           </p>
         )}
 
@@ -78,7 +79,8 @@ export default function BookingModal({ isOpen, onClose, masterName }: BookingMod
         </form>
 
         <p className="mt-3 text-[10px] text-[var(--color-muted)]">
-          Нажимая кнопку, вы соглашаетесь на обработку персональных данных. Сейчас форма отправляет данные только администратору клуба.
+          Нажимая кнопку, вы соглашаетесь на обработку персональных данных. Сейчас форма
+          отправляет данные только администратору клуба.
         </p>
       </div>
     </div>

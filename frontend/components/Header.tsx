@@ -17,9 +17,6 @@ export default function Header({ onBookClick }: HeaderProps) {
   const handleClick: MouseEventHandler<HTMLButtonElement> = (event) => {
     if (onBookClick) {
       onBookClick(event)
-    } else {
-      // временная заглушка — потом сюда повесим модальное окно / роут
-      console.log('Open booking (header button)')
     }
   }
 
@@ -70,7 +67,7 @@ export default function Header({ onBookClick }: HeaderProps) {
           </div>
         </div>
 
-        {/* НАКЛОНЁННЫЙ НИЗ: СПРАВА ПОЧТИ РОВНО, СЛЕВА ГЛУБОКО */}
+        {/* НАКЛОНЁННЫЙ НИЗ */}
         <div className="pointer-events-none absolute bottom-[-18px] left-0 w-full overflow-hidden leading-[0] z-10">
           <svg
             className="block w-full h-[36px]"
@@ -78,7 +75,6 @@ export default function Header({ onBookClick }: HeaderProps) {
             preserveAspectRatio="none"
             viewBox="0 0 100 20"
           >
-            {/* RIGHT_Y = 12 (под кнопкой почти ровно), LEFT_Y = 20 (под логотипом глубже) */}
             <polygon fill="#05060a" points="0,0 100,0 100,12 0,20" />
           </svg>
         </div>
