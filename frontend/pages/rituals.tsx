@@ -1,10 +1,22 @@
+import { useState } from 'react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import BookingModal from '../components/BookingModal'
 
 export default function RitualsPage() {
+  const [isBookingOpen, setIsBookingOpen] = useState(false)
+
+  const handleBookClick = () => {
+    setIsBookingOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsBookingOpen(false)
+  }
+
   return (
     <>
-      <Header />
+      <Header onBookClick={handleBookClick} />
 
       {/* HERO: заголовок и вводка (светлый) */}
       <section className="section bg-white text-[var(--color-dark)]">
@@ -73,7 +85,11 @@ export default function RitualsPage() {
                 <span className="text-[var(--color-accent-strong)] font-semibold">
                   от 1 800 ₽ · 60 мин
                 </span>
-                <button className="text-[11px] tracking-[0.18em] uppercase text-[var(--color-dark)] hover:text-[var(--color-accent-strong)]">
+                <button
+                  type="button"
+                  className="text-[11px] tracking-[0.18em] uppercase text-[var(--color-dark)] hover:text-[var(--color-accent-strong)]"
+                  onClick={handleBookClick}
+                >
                   записаться
                 </button>
               </div>
@@ -104,7 +120,11 @@ export default function RitualsPage() {
                 <span className="text-[var(--color-accent-strong)] font-semibold">
                   от 2 800 ₽ · 90 мин
                 </span>
-                <button className="text-[11px] tracking-[0.18em] uppercase text-[var(--color-dark)] hover:text-[var(--color-accent-strong)]">
+                <button
+                  type="button"
+                  className="text-[11px] tracking-[0.18em] uppercase text-[var(--color-dark)] hover:text-[var(--color-accent-strong)]"
+                  onClick={handleBookClick}
+                >
                   записаться
                 </button>
               </div>
@@ -190,7 +210,11 @@ export default function RitualsPage() {
             Если сложно определиться online, напишите администратору или позвоните —
             подскажем формат, мастера и время, чтобы первый визит сразу попал в точку.
           </p>
-          <button className="btn btn-primary text-lg px-8 py-4 mb-3">
+          <button
+            type="button"
+            className="btn btn-primary text-lg px-8 py-4 mb-3"
+            onClick={handleBookClick}
+          >
             Записаться на ритуал
           </button>
           <p className="text-[var(--color-muted)] text-sm">
@@ -206,6 +230,11 @@ export default function RitualsPage() {
       </section>
 
       <Footer />
+
+      <BookingModal
+        isOpen={isBookingOpen}
+        onClose={handleCloseModal}
+      />
     </>
   )
 }

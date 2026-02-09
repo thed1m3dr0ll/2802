@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import BookingModal from '../components/BookingModal'
 
 type ReviewSource = 'yandex' | '2gis' | 'site'
 
@@ -23,6 +24,16 @@ export default function Home() {
   const [reviews, setReviews] = useState<Review[]>([])
   const [reviewsLoading, setReviewsLoading] = useState(true)
 
+  const [isBookingOpen, setIsBookingOpen] = useState(false)
+
+  const handleBookClick = () => {
+    setIsBookingOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsBookingOpen(false)
+  }
+
   useEffect(() => {
     async function loadReviews() {
       try {
@@ -41,7 +52,7 @@ export default function Home() {
 
   return (
     <>
-      <Header />
+      <Header onBookClick={handleBookClick} />
 
       {/* ==================== БЛОК 0: МАНИФЕСТ КЛУБА ==================== */}
       <section className="section bg-white text-[var(--color-dark)]">
@@ -177,11 +188,19 @@ export default function Home() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 items-start">
-                <button className="btn btn-primary">
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleBookClick}
+                >
                   Записаться в один клик
                 </button>
 
-                <button className="btn btn-secondary">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => { window.location.href = '/rituals' }}
+                >
                   Посмотреть ритуалы
                 </button>
               </div>
@@ -322,7 +341,11 @@ export default function Home() {
                   <span className="text-[var(--color-accent-strong)] font-semibold">
                     от 1 800 ₽ · 60 мин
                   </span>
-                  <button className="text-[11px] tracking-[0.18em] uppercase text-[var(--color-dark)] hover:text-[var(--color-accent-strong)]">
+                  <button
+                    type="button"
+                    className="text-[11px] tracking-[0.18em] uppercase text-[var(--color-dark)] hover:text-[var(--color-accent-strong)]"
+                    onClick={handleBookClick}
+                  >
                     записаться
                   </button>
                 </div>
@@ -346,7 +369,11 @@ export default function Home() {
                   <span className="text-[var(--color-accent-strong)] font-semibold">
                     от 2 800 ₽ · 90 мин
                   </span>
-                  <button className="text-[11px] tracking-[0.18em] uppercase text-[var(--color-dark)] hover:text-[var(--color-accent-strong)]">
+                  <button
+                    type="button"
+                    className="text-[11px] tracking-[0.18em] uppercase text-[var(--color-dark)] hover:text-[var(--color-accent-strong)]"
+                    onClick={handleBookClick}
+                  >
                     записаться
                   </button>
                 </div>
@@ -394,6 +421,7 @@ export default function Home() {
                 Зачем человек пришёл, какой ритуал выбрал и с чем ушёл домой.
               </p>
               <button
+                type="button"
                 className="mt-2 text-[11px] tracking-[0.18em] uppercase text-[var(--color-dark)] hover:text-[var(--color-accent-strong)]"
                 onClick={() => { window.location.href = '/stories' }}
               >
@@ -519,7 +547,11 @@ export default function Home() {
                     Для тех, кто любит, когда всё «по линеечке» — в голове и в жизни.
                   </p>
                 </div>
-                <button className="mt-5 text-xs uppercase tracking-[0.18em] text-[var(--color-accent-strong)] hover:opacity-80 underline underline-offset-4">
+                <button
+                  type="button"
+                  className="mt-5 text-xs uppercase tracking-[0.18em] text-[var(--color-accent-strong)] hover:opacity-80 underline underline-offset-4"
+                  onClick={handleBookClick}
+                >
                   Записаться к этому мастеру
                 </button>
               </article>
@@ -538,7 +570,11 @@ export default function Home() {
                     Для тех, кто готов довериться и выйти другим человеком.
                   </p>
                 </div>
-                <button className="mt-5 text-xs uppercase tracking-[0.18em] text-[var(--color-accent-strong)] hover:opacity-80 underline underline-offset-4">
+                <button
+                  type="button"
+                  className="mt-5 text-xs uppercase tracking-[0.18em] text-[var(--color-accent-strong)] hover:opacity-80 underline underline-offset-4"
+                  onClick={handleBookClick}
+                >
                   Записаться к этому мастеру
                 </button>
               </article>
@@ -629,7 +665,11 @@ export default function Home() {
               Готовы зайти в клуб?
             </h2>
 
-            <button className="btn btn-primary text-lg px-8 py-4 mb-4">
+            <button
+              type="button"
+              className="btn btn-primary text-lg px-8 py-4 mb-4"
+              onClick={handleBookClick}
+            >
               Записаться онлайн
             </button>
 
@@ -650,6 +690,11 @@ export default function Home() {
       </section>
 
       <Footer />
+
+      <BookingModal
+        isOpen={isBookingOpen}
+        onClose={handleCloseModal}
+      />
     </>
   )
 }

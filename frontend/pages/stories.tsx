@@ -1,10 +1,22 @@
+import { useState } from 'react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import BookingModal from '../components/BookingModal'
 
 export default function StoriesPage() {
+  const [isBookingOpen, setIsBookingOpen] = useState(false)
+
+  const handleBookClick = () => {
+    setIsBookingOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsBookingOpen(false)
+  }
+
   return (
     <>
-      <Header />
+      <Header onBookClick={handleBookClick} />
 
       {/* HERO: идея историй (светлый) */}
       <section className="section bg-white text-[var(--color-dark)]">
@@ -183,7 +195,11 @@ export default function StoriesPage() {
             Начинается всё одинаково: вы выбираете ритуал и мастера, а мы забираем
             у города один час, чтобы вы вышли из клуба уже другим человеком.
           </p>
-          <button className="btn btn-primary text-lg px-8 py-4 mb-3">
+          <button
+            type="button"
+            className="btn btn-primary text-lg px-8 py-4 mb-3"
+            onClick={handleBookClick}
+          >
             Записаться в клуб
           </button>
           <p className="text-[var(--color-muted)] text-sm">
@@ -199,6 +215,11 @@ export default function StoriesPage() {
       </section>
 
       <Footer />
+
+      <BookingModal
+        isOpen={isBookingOpen}
+        onClose={handleCloseModal}
+      />
     </>
   )
 }

@@ -1,17 +1,26 @@
+import { useState } from 'react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import Link from 'next/link'
+import BookingModal from '../components/BookingModal'
 
 export default function MastersPage() {
-  // пока без реального модального окна — просто заглушки-обработчики
-  const handleBookClick = (masterId?: string) => {
-    // сюда потом повесим реальное модальное окно
-    console.log('Open booking for:', masterId ?? 'any')
+  const [isBookingOpen, setIsBookingOpen] = useState(false)
+  const [selectedMaster, setSelectedMaster] = useState<string | undefined>(undefined)
+
+  const handleBookClick = (masterName?: string) => {
+    setSelectedMaster(masterName)
+    setIsBookingOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsBookingOpen(false)
+    setSelectedMaster(undefined)
   }
 
   return (
     <>
-      <Header />
+      <Header onBookClick={() => handleBookClick()} />
 
       {/* HERO: кто эти люди (светлый) */}
       <section className="section bg-white text-[var(--color-dark)]">
@@ -79,7 +88,7 @@ export default function MastersPage() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => handleBookClick('master-1')}
+                  onClick={() => handleBookClick('Мастер №1')}
                   className="mt-5 text-xs uppercase tracking-[0.18em] text-[var(--color-accent-strong)] hover:opacity-80 underline underline-offset-4"
                 >
                   Записаться к этому мастеру
@@ -107,7 +116,7 @@ export default function MastersPage() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => handleBookClick('master-2')}
+                  onClick={() => handleBookClick('Мастер №2')}
                   className="mt-5 text-xs uppercase tracking-[0.18em] text-[var(--color-accent-strong)] hover:opacity-80 underline underline-offset-4"
                 >
                   Записаться к этому мастеру
@@ -232,6 +241,13 @@ export default function MastersPage() {
       </section>
 
       <Footer />
+
+      {/* Модалка записи */}
+      <BookingModal
+        isOpen={isBookingOpen}
+        onClose={handleCloseModal}
+        masterName={selectedMaster}
+      />
     </>
   )
 }

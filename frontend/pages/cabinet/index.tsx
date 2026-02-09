@@ -1,13 +1,25 @@
 // pages/cabinet/index.tsx
+import { useState } from 'react'
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
+import BookingModal from '../../components/BookingModal'
 
 export default function CabinetPage() {
   const guestName = 'Гость клуба'
 
+  const [isBookingOpen, setIsBookingOpen] = useState(false)
+
+  const handleBookClick = () => {
+    setIsBookingOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsBookingOpen(false)
+  }
+
   return (
     <>
-      <Header />
+      <Header onBookClick={handleBookClick} />
 
       {/* HERO: что такое кабинет (светлый) */}
       <section className="section bg-white text-[var(--color-dark)]">
@@ -78,7 +90,11 @@ export default function CabinetPage() {
                 Личный кабинет открывается после первого визита в клуб. Запишитесь
                 на любой ритуал — и мы создадим профиль с вашими настройками.
               </p>
-              <button className="mt-2 btn btn-primary btn-sm w-full">
+              <button
+                type="button"
+                className="mt-2 btn btn-primary btn-sm w-full"
+                onClick={handleBookClick}
+              >
                 Записаться в клуб
               </button>
             </div>
@@ -97,7 +113,11 @@ export default function CabinetPage() {
                     Ваше расписание в клубе
                   </h2>
                 </div>
-                <button className="text-[11px] uppercase tracking-[0.18em] text-[var(--color-dark)] hover:text-[var(--color-accent-strong)]">
+                <button
+                  type="button"
+                  className="text-[11px] uppercase tracking-[0.18em] text-[var(--color-dark)] hover:text-[var(--color-accent-strong)]"
+                  onClick={handleBookClick}
+                >
                   открыть календарь
                 </button>
               </div>
@@ -210,7 +230,11 @@ export default function CabinetPage() {
             Начните с первого визита. Дальше клуб возьмёт на себя историю образа,
             а личный кабинет станет местом, где всё это собрано в одном месте.
           </p>
-          <button className="btn btn-primary text-lg px-8 py-4 mb-3">
+          <button
+            type="button"
+            className="btn btn-primary text-lg px-8 py-4 mb-3"
+            onClick={handleBookClick}
+          >
             Записаться в клуб
           </button>
           <p className="text-[var(--color-muted)] text-sm">
@@ -226,6 +250,11 @@ export default function CabinetPage() {
       </section>
 
       <Footer />
+
+      <BookingModal
+        isOpen={isBookingOpen}
+        onClose={handleCloseModal}
+      />
     </>
   )
 }
