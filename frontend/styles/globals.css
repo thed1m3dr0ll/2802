@@ -2,51 +2,85 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ==================== ПЕРЕМЕННЫЕ ЦВЕТОВ ==================== */
+/* ========== ПАЛИТРА (4 ЦВЕТА) ========== */
+/* Меняешь значения здесь — меняется весь стиль сайта */
+
 :root {
-  --color-dark: #0a0a0a;
-  --color-gold: #d4af37;
-  --color-brown: #8B6F47;
-  --color-light: #f5f5f5;
-  --color-text: #f5f5f5;
+  --color-bg: #f5f6f8;        /* общий светлый фон страницы */
+  --color-surface: #ffffff;   /* фон карточек/секций */
+  --color-dark: #252b33;      /* основной тёмный для текста */
+  --color-muted: #72839a;     /* серо‑синий вторичный текст / фон */
+  --color-accent-soft: #e96f73; /* тёплый коралловый акцент (кнопки) */
+  --color-accent-strong: #c71124; /* глубокий красный акцент */
+  --color-text: #252b33;      /* основной цвет текста */
 }
 
-/* ==================== БАЗОВЫЕ СТИЛИ ==================== */
+/* ========== БАЗА ========== */
+
 html {
   scroll-behavior: smooth;
 }
 
 body {
-  background-color: var(--color-dark);
+  background-color: var(--color-bg);
   color: var(--color-text);
-  font-family: Inter, system-ui, sans-serif;
+  font-family: "Sitka", "Sitka Text", "Sitka Subheading", Georgia, serif;
   line-height: 1.6;
 }
 
-/* ==================== КНОПКИ ==================== */
+/* ========== КНОПКИ ========== */
+
 .btn {
-  @apply px-6 py-3 rounded-md font-semibold transition-all duration-300;
+  @apply px-6 py-3 rounded-md font-semibold;
+  transition: all 0.3s ease;
   cursor: pointer;
 }
 
+/* основная кнопка — коралловая, на светлом фоне */
 .btn-primary {
-  @apply bg-club-gold text-club-dark hover:bg-opacity-90;
+  background: linear-gradient(
+    135deg,
+    var(--color-accent-soft),
+    var(--color-accent-strong)
+  );
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(199, 17, 36, 0.35);
 }
 
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 32px rgba(199, 17, 36, 0.5);
+  opacity: 0.96;
+}
+
+/* вторичная кнопка — контур и текст в тёмно‑синем / красном */
 .btn-secondary {
-  @apply border-2 border-club-gold text-club-gold hover:bg-club-gold hover:text-club-dark;
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--color-dark);
+  color: var(--color-dark);
+  background-color: transparent;
 }
 
-/* ==================== КОНТЕЙНЕР ==================== */
+.btn-secondary:hover {
+  border-color: var(--color-accent-strong);
+  color: var(--color-accent-strong);
+  background-color: rgba(233, 111, 115, 0.08);
+}
+
+/* ========== КОНТЕЙНЕРЫ И СЕКЦИИ ========== */
+
 .container-custom {
   @apply max-w-7xl mx-auto px-4 md:px-8;
 }
 
+/* делаем отступы и подразумеваем светлый фон */
 .section {
   @apply py-16 md:py-24;
 }
 
-/* ==================== АНИМАЦИИ ==================== */
+/* ========== АНИМАЦИИ И ХОВЕРЫ ========== */
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -62,17 +96,30 @@ body {
   animation: fadeInUp 0.6s ease-out forwards;
 }
 
+/* карточки чуть подлетают и подсвечиваются серо‑синим/красным */
+
 .hover-lift {
-  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+  transition:
+    transform 0.3s ease-out,
+    box-shadow 0.3s ease-out,
+    background-color 0.3s ease-out;
 }
 
 .hover-lift:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(212, 175, 55, 0.1);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(37, 43, 51, 0.28);
+  background-color: rgba(114, 131, 154, 0.06);
 }
 
+/* ========== ГРАДИЕНТНЫЙ ТЕКСТ (H1 и т.п.) ========== */
+
 .text-gradient {
-  background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-brown) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-accent-soft) 0%,
+    var(--color-accent-strong) 40%,
+    var(--color-muted) 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

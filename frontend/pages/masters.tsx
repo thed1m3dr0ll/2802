@@ -1,110 +1,214 @@
-export default function Masters() {
-  const masters = [
-    {
-      name: "Классика и аккуратность",
-      specialty: "Мастер барбершопа",
-      description: "Специализируется на классических и офисных стрижках, аккуратной бороде и чистых линиях. Подходит тем, кому важны опрятность, универсальность и минимум лишнего шума в образе. Спокойный, внимательный к деталям, уважает личное пространство: можно поговорить, а можно просто помолчать под звук машинки.",
-      experience: "7+ лет",
-      rating: 4.95
-    },
-    {
-      name: "Фейды и динамика",
-      specialty: "Мастер барбершопа",
-      description: "Любит современные формы: фейды, текстурные стрижки, акцент на объём и плавные переходы. Работает так, чтобы образ был актуальным, но без лишней показушности. Легко поддерживает разговор, подскажет по стилю и уходу, если вы хотите чего‑то нового, но не знаете, с чего начать.",
-      experience: "6+ лет",
-      rating: 4.92
-    },
-    {
-      name: "Борода и характер",
-      specialty: "Мастер барбершопа",
-      description: "Сильная сторона — борода и мужские образы под насыщенную жизнь: предприниматели, айтишники, креативщики. Видит, как вписать бороду в ваш стиль, а не просто сделать «как на фото» на один день. Говорит по делу: честно скажет, если задумка не подойдёт по волосам или форме лица.",
-      experience: "8+ лет",
-      rating: 4.98
-    }
-  ]
+import Header from '../components/Header'
+import Footer from '../components/Footer'
 
+export default function MastersPage() {
   return (
     <>
-      {/* ==================== ИНТРО ==================== */}
-      <section className="section bg-gradient-to-b from-club-dark via-club-dark to-club-dark pt-32">
-        <div className="container-custom">
-          <div className="text-center mb-16">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 text-club-light">
-              Наши мастера
-            </h1>
-            <p className="text-lg text-club-light opacity-80 max-w-3xl mx-auto">
-              У каждого барбера — свой почерк, опыт и темы для разговора. Выберите того, кому будете доверять не один раз.
-            </p>
-          </div>
+      <Header />
+
+      {/* HERO: кто эти люди (светлый) */}
+      <section className="section bg-white text-[var(--color-dark)]">
+        <div className="container-custom max-w-3xl space-y-6">
+          <p className="text-[11px] uppercase tracking-[0.26em] text-[var(--color-muted)]">
+            совет клуба
+          </p>
+          <h1 className="text-3xl md:text-4xl font-semibold">
+            Люди, которым
+            <br />
+            не страшно доверить голову.
+          </h1>
+          <p className="text-sm text-[var(--color-muted)]">
+            В обычных барбершопах вы выбираете свободное кресло. В клубе — человека,
+            которому готовы доверить образ, настроение и час своей жизни.
+          </p>
+          <p className="text-sm text-[var(--color-muted)]">
+            У каждого мастера свой характер, темперамент и стиль работы. Это нормально:
+            кому‑то важна идеальная геометрия, кому‑то — ощущение «стал тем самым
+            собой». Важно найти «своего».
+          </p>
         </div>
       </section>
 
-      {/* ==================== МАСТЕРА ==================== */}
-      <section className="section bg-club-dark border-t border-club-gold border-opacity-20">
+      {/* СЕТКА МАСТЕРОВ */}
+      <section className="section bg-[#f6f7fa] border-t border-black/5">
         <div className="container-custom">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {masters.map((master, index) => (
-              <div key={index} className="bg-club-dark border border-club-gold border-opacity-30 rounded-lg overflow-hidden hover-lift">
-                {/* ФОТО (плейсхолдер) */}
-                <div className="w-full h-64 md:h-80 bg-gradient-to-b from-club-brown to-club-dark flex items-center justify-center">
-                  <div className="text-6xl">👤</div>
+          <div className="mb-10 flex flex-col lg:flex-row gap-10 items-start">
+            <div className="lg:w-1/3 space-y-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-[var(--color-dark)]">
+                Не «персонаж на фото»,
+                <br />
+                а человек, с которым вы по пути.
+              </h2>
+              <p className="text-sm text-[var(--color-muted)]">
+                Здесь нет формальных «био» с перечнем конкурсов. Гораздо важнее,
+                как мастер смотрит на мужской образ, как разговаривает и как вы
+                чувствуете себя в кресле.
+              </p>
+              <p className="text-xs text-[var(--color-muted)]">
+                Если сложно выбрать по описанию — можно прийти в клуб, посмотреть
+                вживую и решить, к кому хочется вернуться ещё.
+              </p>
+            </div>
+
+            <div className="lg:w-2/3 grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Мастер 1 */}
+              <article className="rounded-2xl border border-[var(--color-muted)]/25 bg-white p-6 flex flex-col justify-between hover:border-[var(--color-accent-strong)]/60 hover:shadow-[0_0_32px_rgba(191,37,37,0.25)] transition-all">
+                <div className="space-y-3">
+                  <p className="text-xs uppercase tracking-[0.18em] text-[var(--color-muted)]">
+                    точность и порядок
+                  </p>
+                  <h3 className="text-lg font-semibold text-[var(--color-dark)]">
+                    Мастер №1
+                  </h3>
+                  <p className="text-sm text-[var(--color-muted)]">
+                    Любит, когда всё чётко: линии, переходы, расписание.
+                    Спокоен, собран, аккуратен в деталях. Подойдёт, если вы цените
+                    структурированные формы и порядок в голове и на голове.
+                  </p>
+                  <p className="text-xs text-[var(--color-muted)]/80">
+                    Хороший выбор для тех, кто носит классические стрижки,
+                    работает в строгих дресс‑кодах и не любит сюрпризов.
+                  </p>
                 </div>
+                <button className="mt-5 text-xs uppercase tracking-[0.18em] text-[var(--color-accent-strong)] hover:opacity-80 underline underline-offset-4">
+                  Записаться к этому мастеру
+                </button>
+              </article>
 
-                {/* ИНФОРМАЦИЯ */}
-                <div className="p-6">
-                  <h3 className="text-2xl font-bold text-club-light mb-2">{master.name}</h3>
-                  <p className="text-club-gold text-sm mb-4">{master.specialty}</p>
-
-                  <p className="text-club-light opacity-80 text-sm mb-6">{master.description}</p>
-
-                  {/* ОПЫТ И РЕЙТИНГ */}
-                  <div className="flex justify-between items-center mb-6 pb-6 border-b border-club-gold border-opacity-20">
-                    <span className="text-club-gold text-xs">⭐ {master.rating}/5</span>
-                    <span className="text-club-light opacity-60 text-xs">{master.experience}</span>
-                  </div>
-
-                  {/* КНОПКА */}
-                  <button className="w-full btn btn-secondary">Записаться →</button>
+              {/* Мастер 2 */}
+              <article className="rounded-2xl border border-[var(--color-muted)]/25 bg-white p-6 flex flex-col justify-between hover:border-[var(--color-accent-strong)]/60 hover:shadow-[0_0_32px_rgba(191,37,37,0.25)] transition-all">
+                <div className="space-y-3">
+                  <p className="text-xs uppercase tracking-[0.18em] text-[var(--color-muted)]">
+                    образ и настроение
+                  </p>
+                  <h3 className="text-lg font-semibold text-[var(--color-dark)]">
+                    Мастер №2
+                  </h3>
+                  <p className="text-sm text-[var(--color-muted)]">
+                    Видит человека целиком: от роста волос до манеры сидеть
+                    и того, как вы заходите в помещение. Часто предлагает решения,
+                    о которых вы сами не думали — но потом к ним возвращаетесь.
+                  </p>
+                  <p className="text-xs text-[var(--color-muted)]/80">
+                    Для тех, кто готов чуть рискнуть ради живого образа,
+                    а не «ещё одной стрижки по фото из Pinterest».
+                  </p>
                 </div>
-              </div>
-            ))}
+                <button className="mt-5 text-xs uppercase tracking-[0.18em] text-[var(--color-accent-strong)] hover:opacity-80 underline underline-offset-4">
+                  Записаться к этому мастеру
+                </button>
+              </article>
 
-            {/* СКОРО В КОМАНДЕ */}
-            <div className="bg-club-dark border border-club-gold border-opacity-30 rounded-lg overflow-hidden hover-lift">
-              <div className="w-full h-64 md:h-80 bg-gradient-to-b from-club-brown to-club-dark flex items-center justify-center">
-                <div className="text-center">
-                  <p className="text-club-gold text-sm">🔐</p>
-                  <p className="text-club-gold font-bold mt-4">Скоро в открытом расписании</p>
+              {/* Мастер 3 / Ваш мастер */}
+              <article className="rounded-2xl border border-dashed border-[var(--color-muted)]/40 bg-white p-6 flex flex-col justify-between">
+                <div className="space-y-3">
+                  <p className="text-xs uppercase tracking-[0.18em] text-[var(--color-muted)]">
+                    свой человек
+                  </p>
+                  <h3 className="text-lg font-semibold text-[var(--color-dark)]/80">
+                    Ваш мастер
+                  </h3>
+                  <p className="text-sm text-[var(--color-muted)]">
+                    В каждом клубе в какой‑то момент появляется тот самый мастер,
+                    к которому вы записываетесь автоматически, не заглядывая в список.
+                    Это не всегда с первого визита — и это нормально.
+                  </p>
+                  <p className="text-xs text-[var(--color-muted)]/80">
+                    Можно прийти с задачей, характером и образом жизни — мы подскажем,
+                    с кого лучше начать знакомство.
+                  </p>
                 </div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-2xl font-bold text-club-light mb-4">Барбер, который уже с нами</h3>
-                <p className="text-club-light opacity-80 text-sm">
-                  Четвёртый мастер уже в команде и принимает гостей по внутренней записи. Сейчас мы настраиваем процессы и готовим обновлённый сайт, чтобы представить его официально.
+                <p className="mt-5 text-xs text-[var(--color-muted)]">
+                  Подбор мастера — через администратора клуба. Можно написать или позвонить.
                 </p>
-                <p className="text-club-light opacity-60 text-xs mt-4">
-                  Если хотите попасть к нему одним из первых — напишите администратору при записи.
-                </p>
-              </div>
+              </article>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* ЗАКРЫВАЮЩИЙ ТЕКСТ */}
-          <div className="text-center mt-16 p-8 bg-club-brown bg-opacity-10 border border-club-gold border-opacity-30 rounded-lg">
-            <p className="text-club-light opacity-80">
-              Не знаете, к кому записаться? Напишите пару слов о себе и своём образе жизни — мы предложим мастера, который подойдёт именно вам.
+      {/* БЛОК: как проходит визит (светлый) */}
+      <section className="section bg-white border-t border-black/5 text-[var(--color-dark)]">
+        <div className="container-custom grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="space-y-3">
+            <p className="text-[11px] uppercase tracking-[0.26em] text-[var(--color-muted)]">
+              как проходит час
             </p>
+            <h2 className="text-2xl md:text-3xl font-semibold">
+              Никакой магии — просто нормальный человеческий сервис.
+            </h2>
+          </div>
+          <div className="space-y-4 text-sm text-[var(--color-muted)]">
+            <div>
+              <h3 className="text-xs uppercase tracking-[0.18em] text-[var(--color-muted)] mb-1">
+                знакомство
+              </h3>
+              <p>
+                Сначала мастер слушает: чем вы занимаетесь, как обычно носите волосы,
+                что раздражает в зеркале и чего категорически не хочется.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-xs uppercase tracking-[0.18em] text-[var(--color-muted)] mb-1">
+                работа
+              </h3>
+              <p>
+                Потом начинается аккуратная работа без суеты. Можно говорить,
+                можно молчать — никаких обязательных small talk, если вы этого не любите.
+              </p>
+            </div>
+          </div>
+          <div className="space-y-4 text-sm text-[var(--color-muted)]">
+            <div>
+              <h3 className="text-xs uppercase tracking-[0.18em] text-[var(--color-muted)] mb-1">
+                результат
+              </h3>
+              <p>
+                На финише — образ, который можно повторить: мастер объясняет,
+                как укладываться дома и чем пользоваться, чтобы не зависеть
+                от одного «удачного раза».
+              </p>
+            </div>
+            <div>
+              <h3 className="text-xs uppercase tracking-[0.18em] text-[var(--color-muted)] mb-1">
+                история
+              </h3>
+              <p>
+                Ваши удачные решения сохраняются в клубе: длина, форма, фото,
+                любимый мастер. Чтобы следующий визит был продолжением истории,
+                а не попыткой вспомнить, «как там было тогда».
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ==================== CTA ==================== */}
-      <section className="section bg-club-dark border-t border-club-gold border-opacity-20">
+      {/* CTA — СВЕТЛЫЙ, перед футером */}
+      <section className="section bg-[#f6f7fa] border-t border-black/5">
         <div className="container-custom text-center">
-          <h2 className="text-4xl font-bold mb-8 text-club-light">Готовы встретиться?</h2>
-          <button className="btn btn-primary text-lg px-8 py-4">Записаться онлайн</button>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[var(--color-dark)]">
+            Выберите мастера — а потом он будет выбирать решения для вас.
+          </h2>
+          <p className="text-sm md:text-base text-[var(--color-muted)] max-w-2xl mx-auto mb-6">
+            Можно записаться к конкретному мастеру, а можно первым делом написать
+            администратору пару строк о себе — мы подскажем, с кем начать.
+          </p>
+          <button className="btn btn-primary text-lg px-8 py-4 mb-3">
+            Записаться к мастеру
+          </button>
+          <p className="text-[var(--color-muted)] text-sm">
+            или по телефону{' '}
+            <a
+              href="tel:+79877553000"
+              className="text-[var(--color-accent-strong)] hover:opacity-80 transition-colors"
+            >
+              +7 987 755 30 00
+            </a>
+          </p>
         </div>
       </section>
+
+      <Footer />
     </>
   )
 }
