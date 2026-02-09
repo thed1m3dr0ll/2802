@@ -1,5 +1,6 @@
 // components/Header.tsx
 import Link from 'next/link'
+import type { MouseEventHandler } from 'react'
 
 const navItems = [
   { href: '/rituals', label: 'Ритуалы' },
@@ -8,7 +9,20 @@ const navItems = [
   { href: '/cabinet', label: 'Кабинет' },
 ]
 
-export default function Header() {
+type HeaderProps = {
+  onBookClick?: MouseEventHandler<HTMLButtonElement>
+}
+
+export default function Header({ onBookClick }: HeaderProps) {
+  const handleClick: MouseEventHandler<HTMLButtonElement> = (event) => {
+    if (onBookClick) {
+      onBookClick(event)
+    } else {
+      // временная заглушка — потом сюда повесим модальное окно / роут
+      console.log('Open booking (header button)')
+    }
+  }
+
   return (
     <header className="relative z-30">
       <div className="relative bg-[#05060a] text-white">
@@ -46,7 +60,11 @@ export default function Header() {
             >
               +7 987 755 30 00
             </a>
-            <button className="rounded-full bg-[#e84545] text-white text-xs font-semibold px-4 py-2 shadow-md hover:bg-[#ff5555] transition">
+            <button
+              type="button"
+              onClick={handleClick}
+              className="rounded-full bg-[#e84545] text-white text-xs font-semibold px-4 py-2 shadow-md hover:bg-[#ff5555] transition"
+            >
               Записаться
             </button>
           </div>
@@ -61,10 +79,7 @@ export default function Header() {
             viewBox="0 0 100 20"
           >
             {/* RIGHT_Y = 12 (под кнопкой почти ровно), LEFT_Y = 20 (под логотипом глубже) */}
-            <polygon
-              fill="#05060a"
-              points="0,0 100,0 100,12 0,20"
-            />
+            <polygon fill="#05060a" points="0,0 100,0 100,12 0,20" />
           </svg>
         </div>
       </div>
