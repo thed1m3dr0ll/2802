@@ -1,7 +1,14 @@
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import Link from 'next/link'
 
 export default function MastersPage() {
+  // пока без реального модального окна — просто заглушки-обработчики
+  const handleBookClick = (masterId?: string) => {
+    // сюда потом повесим реальное модальное окно
+    console.log('Open booking for:', masterId ?? 'any')
+  }
+
   return (
     <>
       <Header />
@@ -70,7 +77,11 @@ export default function MastersPage() {
                     работает в строгих дресс‑кодах и не любит сюрпризов.
                   </p>
                 </div>
-                <button className="mt-5 text-xs uppercase tracking-[0.18em] text-[var(--color-accent-strong)] hover:opacity-80 underline underline-offset-4">
+                <button
+                  type="button"
+                  onClick={() => handleBookClick('master-1')}
+                  className="mt-5 text-xs uppercase tracking-[0.18em] text-[var(--color-accent-strong)] hover:opacity-80 underline underline-offset-4"
+                >
                   Записаться к этому мастеру
                 </button>
               </article>
@@ -94,13 +105,20 @@ export default function MastersPage() {
                     а не «ещё одной стрижки по фото из Pinterest».
                   </p>
                 </div>
-                <button className="mt-5 text-xs uppercase tracking-[0.18em] text-[var(--color-accent-strong)] hover:opacity-80 underline underline-offset-4">
+                <button
+                  type="button"
+                  onClick={() => handleBookClick('master-2')}
+                  className="mt-5 text-xs uppercase tracking-[0.18em] text-[var(--color-accent-strong)] hover:opacity-80 underline underline-offset-4"
+                >
                   Записаться к этому мастеру
                 </button>
               </article>
 
               {/* Мастер 3 / Ваш мастер */}
-              <article className="rounded-2xl border border-dashed border-[var(--color-muted)]/40 bg-white p-6 flex flex-col justify-between">
+              <Link
+                href="/cabinet"
+                className="rounded-2xl border border-dashed border-[var(--color-muted)]/40 bg-white p-6 flex flex-col justify-between hover:border-[var(--color-accent-strong)]/60 hover:bg-[rgba(191,37,37,0.03)] hover:shadow-[0_0_32px_rgba(191,37,37,0.18)] transition-all cursor-pointer"
+              >
                 <div className="space-y-3">
                   <p className="text-xs uppercase tracking-[0.18em] text-[var(--color-muted)]">
                     свой человек
@@ -119,9 +137,10 @@ export default function MastersPage() {
                   </p>
                 </div>
                 <p className="mt-5 text-xs text-[var(--color-muted)]">
-                  Подбор мастера — через администратора клуба. Можно написать или позвонить.
+                  Подбор мастера — через администратора клуба или в личном кабинете.
+                  Нажмите, чтобы продолжить.
                 </p>
-              </article>
+              </Link>
             </div>
           </div>
         </div>
@@ -193,7 +212,11 @@ export default function MastersPage() {
             Можно записаться к конкретному мастеру, а можно первым делом написать
             администратору пару строк о себе — мы подскажем, с кем начать.
           </p>
-          <button className="btn btn-primary text-lg px-8 py-4 mb-3">
+          <button
+            type="button"
+            className="btn btn-primary text-lg px-8 py-4 mb-3"
+            onClick={() => handleBookClick()}
+          >
             Записаться к мастеру
           </button>
           <p className="text-[var(--color-muted)] text-sm">
