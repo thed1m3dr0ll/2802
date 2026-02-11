@@ -1,3 +1,4 @@
+// pages/stories.tsx
 import { useState } from 'react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
@@ -18,23 +19,25 @@ export default function StoriesPage() {
     <>
       <Header onBookClick={handleBookClick} />
 
-      {/* HERO: идея историй (светлый) */}
-      <section className="section bg-white text-[var(--color-dark)]">
-        <div className="container-custom max-w-3xl space-y-6">
-          <p className="text-[11px] uppercase tracking-[0.26em] text-[var(--color-muted)]">
-            истории гостей
-          </p>
+      {/* ========== HERO: ИДЕЯ ИСТОРИЙ НА ТЁМНОМ ФОНЕ ========== */}
+      <section className="section section-dark relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="w-full h-full bg-[radial-gradient(circle_at_top,#5b1412_0,#050307_60%)] opacity-80" />
+        </div>
+
+        <div className="container-custom relative z-10 max-w-3xl space-y-6">
+          <p className="label-small text-club-muted">истории гостей</p>
           <h1 className="text-3xl md:text-4xl font-semibold">
             Не отзывы,
             <br />
             а вечера, которые что‑то поменяли.
           </h1>
-          <p className="text-sm text-[var(--color-muted)]">
-            Звёздочки и короткие «всё понравилось» мало что говорят о месте. Важно,
-            зачем человек пришёл, что происходило в кресле и с каким ощущением
-            он вышел в ночь из клуба.
+          <p className="text-sm md:text-base text-club-soft">
+            Звёздочки и короткие «всё понравилось» мало что говорят о месте.
+            Важно, зачем человек пришёл, что происходило в кресле и с каким
+            ощущением он вышел в ночь из клуба.
           </p>
-          <p className="text-sm text-[var(--color-muted)]">
+          <p className="text-sm md:text-base text-club-soft">
             Здесь мы собираем живые сюжеты: про неудачные макушки, бороды,
             которые никак не приживались, и про тот момент, когда в зеркале
             наконец увиделся «свой» человек.
@@ -42,19 +45,19 @@ export default function StoriesPage() {
         </div>
       </section>
 
-      {/* ЛЕНТА ИСТОРИЙ */}
-      <section className="section bg-[#f6f7fa]">
+      {/* ========== ЛЕНТА ИСТОРИЙ НА СВЕТЛОМ ЛИСТЕ ========== */}
+      <section className="section section-paper">
         <div className="container-custom">
           <div className="mb-10 flex flex-col lg:flex-row gap-10 items-start">
             <div className="lg:w-1/3 space-y-4">
-              <h2 className="text-2xl md:text-3xl font-semibold text-[var(--color-dark)]">
+              <h2 className="text-2xl md:text-3xl font-semibold text-[var(--text-dark)]">
                 Несколько вечеров из жизни клуба.
               </h2>
-              <p className="text-sm text-[var(--color-muted)]">
+              <p className="text-sm text-[var(--text-muted)]">
                 Имена можно поменять, но ощущения — нет. Это сюжеты, в которых
                 мужчины узнают себя, свои «до» и свои «после».
               </p>
-              <p className="text-xs text-[var(--color-muted)]">
+              <p className="text-xs text-[var(--text-muted)]">
                 Каждый вечер — это связка: человек, запрос, ритуал, мастер и то,
                 с чем гость ушёл домой.
               </p>
@@ -62,23 +65,25 @@ export default function StoriesPage() {
 
             <div className="lg:w-2/3 space-y-6">
               {/* История 1 */}
-              <article className="rounded-2xl bg-white border border-[var(--color-muted)]/15 p-6">
-                <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--color-muted)] mb-2">
+              <article className="card-paper-lifted hover-lift p-6">
+                <p className="label-small text-[var(--text-muted)] mb-2">
                   первый визит · ритуал «Вход» · 60 мин
                 </p>
-                <h3 className="text-lg md:text-xl font-semibold text-[var(--color-dark)] mb-3">
+                <h3 className="text-lg md:text-xl font-semibold text-[var(--text-dark)] mb-3">
                   «Макушка, которую никто не любил»
                 </h3>
-                <div className="space-y-3 text-sm text-[var(--color-muted)]">
+                <div className="space-y-3 text-sm text-[var(--text-muted)]">
                   <p>
                     Гость, который много лет ходил с одной и той же стрижкой
-                    «потому что только так не торчит макушка». В обычных барбершопах
-                    его просьба звучала как приговор, а не как задача.
+                    «потому что только так не торчит макушка». В обычных
+                    барбершопах его просьба звучала как приговор, а не как
+                    задача.
                   </p>
                   <p>
-                    На первом визите мы честно разобрали, что именно не нравится:
-                    не «вообще всё плохо», а конкретные вихры, линии и переходы.
-                    Мастер предложил путь не в один визит, а на пару месяцев вперёд.
+                    На первом визите мы честно разобрали, что именно не
+                    нравится: не «вообще всё плохо», а конкретные вихры, линии
+                    и переходы. Мастер предложил путь не в один визит, а на
+                    пару месяцев вперёд.
                   </p>
                   <p>
                     После «Входа» гость впервые вышел не с «терпимой стрижкой»,
@@ -89,53 +94,55 @@ export default function StoriesPage() {
               </article>
 
               {/* История 2 */}
-              <article className="rounded-2xl bg-white border border-[var(--color-muted)]/15 p-6">
-                <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--color-muted)] mb-2">
+              <article className="card-paper-lifted hover-lift p-6">
+                <p className="label-small text-[var(--text-muted)] mb-2">
                   голова + борода · ритуал «Резиденция» · 90 мин
                 </p>
-                <h3 className="text-lg md:text-xl font-semibold text-[var(--color-dark)] mb-3">
+                <h3 className="text-lg md:text-xl font-semibold text-[var(--text-dark)] mb-3">
                   «Когда “подровнять” стало образом»
                 </h3>
-                <div className="space-y-3 text-sm text-[var(--color-muted)]">
+                <div className="space-y-3 text-sm text-[var(--text-muted)]">
                   <p>
                     Сергей много лет просил в разных местах одно и то же:
                     «просто подровнять бороду». Каждый раз она выходила новой,
                     и ни одна версия не успевала стать привычной.
                   </p>
                   <p>
-                    В клуб он пришёл с запросом «хочу, чтобы это перестало быть лотереей».
-                    Мы совместили стрижку и бороду в одном ритуале, посмотрели,
-                    как он двигается, во что одевается и как разговаривает.
+                    В клуб он пришёл с запросом «хочу, чтобы это перестало быть
+                    лотереей». Мы совместили стрижку и бороду в одном ритуале,
+                    посмотрели, как он двигается, во что одевается и как
+                    разговаривает.
                   </p>
                   <p>
-                    Через пару визитов “подровнять” превратилось в конкретную форму
-                    и длину, которую можно повторять. Борода стала частью образа,
-                    а не экспериментом раз в месяц.
+                    Через пару визитов «подровнять» превратилось в конкретную
+                    форму и длину, которую можно повторять. Борода стала частью
+                    образа, а не экспериментом раз в месяц.
                   </p>
                 </div>
               </article>
 
               {/* История 3 */}
-              <article className="rounded-2xl bg-white border border-dashed border-[var(--color-muted)]/30 p-6">
-                <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--color-muted)] mb-2">
+              <article className="card-paper-lifted hover-lift p-6 border border-dashed border-[rgba(18,18,18,0.18)]">
+                <p className="label-small text-[var(--text-muted)] mb-2">
                   поздний слот · ритуал «Ночной совет»
                 </p>
-                <h3 className="text-lg md:text-xl font-semibold text-[var(--color-dark)] mb-3">
+                <h3 className="text-lg md:text-xl font-semibold text-[var(--text-dark)] mb-3">
                   «Час, когда выключили голову»
                 </h3>
-                <div className="space-y-3 text-sm text-[var(--color-muted)]">
+                <div className="space-y-3 text-sm text-[var(--text-muted)]">
                   <p>
                     После затяжной недели и нескончаемых созвонов гость пришёл
-                    в поздний слот, где нужно было не столько «сделать стрижку»,
-                    сколько вернуть себе лицо и дыхание.
+                    в поздний слот, где нужно было не столько «сделать
+                    стрижку», сколько вернуть себе лицо и дыхание.
                   </p>
                   <p>
-                    Мягкий свет, бар, горячее полотенце и мастер, который понимает,
-                    когда лучше помолчать. Весь ритуал прошёл в полголоса и с минимумом слов.
+                    Мягкий свет, бар, горячее полотенце и мастер, который
+                    понимает, когда лучше помолчать. Весь ритуал прошёл в
+                    полголоса и с минимумом слов.
                   </p>
                   <p>
-                    Вышел тот же человек, но уже не в режиме «надо успеть»,
-                    а в состоянии «я в порядке». И да, волосы легли так, что утром
+                    Вышел тот же человек, но уже не в режиме «надо успеть», а в
+                    состоянии «я в порядке». И да, волосы легли так, что утром
                     не пришлось заново воевать с укладкой.
                   </p>
                 </div>
@@ -145,25 +152,23 @@ export default function StoriesPage() {
         </div>
       </section>
 
-      {/* БЛОК: почему истории, а не отзывы (светлый) */}
-      <section className="section bg-white border-t border-black/5 text-[var(--color-dark)]">
+      {/* ========== БЛОК: ПОЧЕМУ ИСТОРИИ, А НЕ ОТЗЫВЫ (ТЁМНЫЙ) ========== */}
+      <section className="section section-dark">
         <div className="container-custom grid grid-cols-1 md:grid-cols-2 gap-10">
           <div className="space-y-4">
-            <p className="text-[11px] uppercase tracking-[0.26em] text-[var(--color-muted)]">
-              зачем это всё
-            </p>
+            <p className="label-small text-club-muted">зачем это всё</p>
             <h2 className="text-2xl md:text-3xl font-semibold">
               Истории помогают понять, ваш ли это клуб.
             </h2>
-            <p className="text-sm text-[var(--color-muted)]">
-              По чужим оценкам сложно понять, зайдёт ли вам место. А вот по чужим
-              историям — проще: узнаёте себя в запросах, типе работы, образе жизни —
-              значит, мы говорим на одном языке.
+            <p className="text-sm text-club-soft">
+              По чужим оценкам сложно понять, зайдёт ли вам место. А вот по
+              чужим историям — проще: узнаёте себя в запросах, типе работы,
+              образе жизни — значит, мы говорим на одном языке.
             </p>
           </div>
-          <div className="space-y-4 text-sm text-[var(--color-muted)]">
+          <div className="space-y-4 text-sm text-club-soft">
             <div>
-              <h3 className="text-xs uppercase tracking-[0.18em] text-[var(--color-muted)] mb-1">
+              <h3 className="text-xs uppercase tracking-[0.18em] text-club-muted mb-1">
                 если вы узнаёте себя
               </h3>
               <p>
@@ -173,40 +178,44 @@ export default function StoriesPage() {
               </p>
             </div>
             <div>
-              <h3 className="text-xs uppercase tracking-[0.18em] text-[var(--color-muted)] mb-1">
+              <h3 className="text-xs uppercase tracking-[0.18em] text-club-muted mb-1">
                 если у вас другая история
               </h3>
               <p>
-                Это нормально. В клубе достаточно времени, чтобы разобрать запрос
-                с нуля и придумать сценарий именно под вас.
+                Это нормально. В клубе достаточно времени, чтобы разобрать
+                запрос с нуля и придумать сценарий именно под вас.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA — СВЕТЛЫЙ, перед футером */}
-      <section className="section bg-[#f6f7fa] border-t border-black/5">
+      {/* ========== CTA: ПРИГЛАШЕНИЕ СТАТЬ НОВОЙ ИСТОРИЕЙ ========== */}
+      <section className="section section-dark border-t border-black/40">
         <div className="container-custom text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[var(--color-dark)]">
-            Хотите, чтобы здесь появилась ваша история?
+          <p className="label-small text-club-muted mb-3">
+            хотите, чтобы здесь появилась ваша история?
+          </p>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Всё начинается с одного визита.
           </h2>
-          <p className="text-sm md:text-base text-[var(--color-muted)] max-w-2xl mx-auto mb-6">
-            Начинается всё одинаково: вы выбираете ритуал и мастера, а мы забираем
-            у города один час, чтобы вы вышли из клуба уже другим человеком.
+          <p className="text-sm md:text-base text-club-soft max-w-2xl mx-auto mb-6">
+            Начинается всё одинаково: вы выбираете ритуал и мастера, а мы
+            забираем у города один час, чтобы вы вышли из клуба уже другим
+            человеком.
           </p>
           <button
             type="button"
-            className="btn btn-primary text-lg px-8 py-4 mb-3"
+            className="btn-primary mb-3"
             onClick={handleBookClick}
           >
-            Записаться в клуб
+            записаться в клуб
           </button>
-          <p className="text-[var(--color-muted)] text-sm">
+          <p className="text-club-soft text-sm">
             или по телефону{' '}
             <a
               href="tel:+79877553000"
-              className="text-[var(--color-accent-strong)] hover:opacity-80 transition-colors"
+              className="text-[var(--accent-gold-soft)] hover:opacity-80 transition-colors"
             >
               +7 987 755 30 00
             </a>
@@ -216,10 +225,7 @@ export default function StoriesPage() {
 
       <Footer />
 
-      <BookingModal
-        isOpen={isBookingOpen}
-        onClose={handleCloseModal}
-      />
+      <BookingModal isOpen={isBookingOpen} onClose={handleCloseModal} />
     </>
   )
 }

@@ -1,231 +1,195 @@
-import { useState } from 'react'
-import Header from '../components/Header'
-import Footer from '../components/Footer'
-import BookingModal from '../components/BookingModal'
+// pages/rituals.tsx
+import { useState } from 'react';
+import Head from 'next/head';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import BookingModal from '../components/BookingModal';
+
+type Ritual = {
+  id: number;
+  title: string;
+  label: string;
+  duration: string;
+  price: string;
+  description: string;
+  details: string;
+};
+
+const rituals: Ritual[] = [
+  {
+    id: 1,
+    label: 'классика клуба',
+    title: 'Стрижка Gentlemen',
+    duration: '60 минут',
+    price: '1 800 ₽',
+    description:
+      'Спокойная, аккуратная стрижка без экспериментов ради экспериментов. Чтобы утром вы узнали себя в зеркале — только свежее.',
+    details:
+      'Обсуждаем, чем вы живёте день, как носите волосы и что точно не хочется видеть на голове. Мастер подстраивает форму под ваш стиль жизни, а не под тренд в ленте.',
+  },
+  {
+    id: 2,
+    label: 'полный образ',
+    title: 'Стрижка + борода',
+    duration: '90 минут',
+    price: '2 800 ₽',
+    description:
+      'Час с лишним, чтобы привести в порядок и голову, и бороду. Без спешки, с вниманием к мелочам и линии роста волос.',
+    details:
+      'Форма бороды подчеркивает лицо, а не прячет его. Мастер объясняет, как поддерживать результат между визитами, чтобы вы не зависели от одной удачной записи.',
+  },
+  {
+    id: 3,
+    label: 'ритуал для себя',
+    title: 'Королевское бритьё',
+    duration: '60 минут',
+    price: '2 200 ₽',
+    description:
+      'Тёплые полотенца, масла, пена и аккуратная работа опасной бритвой — не ради шоу, а ради ощущения «наконец-то обо мне позаботились».',
+    details:
+      'Если вы обычно «на бегу» проходите мимо зеркала, этот час — редкая возможность остановиться. Многие гости возвращаются на бритьё, даже когда бороды уже нет.',
+  },
+  {
+    id: 4,
+    label: 'обновить форму',
+    title: 'Уход за бородой',
+    duration: '40 минут',
+    price: '1 200 ₽',
+    description:
+      'Чёткая линия, симметрия и длина, с которой комфортно жить каждый день, а не только в день визита.',
+    details:
+      'Подбираем форму под черты лица и привычки: кто-то любит идеальную геометрию, кто-то — живой, немного небрежный образ. В клубе есть варианты для обоих.',
+  },
+];
 
 export default function RitualsPage() {
-  const [isBookingOpen, setIsBookingOpen] = useState(false)
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [selectedRitual, setSelectedRitual] = useState<string | null>(null);
 
-  const handleBookClick = () => {
-    setIsBookingOpen(true)
-  }
+  const handleBookClick = (ritualTitle?: string) => {
+    setSelectedRitual(ritualTitle ?? null);
+    setIsBookingOpen(true);
+  };
 
   const handleCloseModal = () => {
-    setIsBookingOpen(false)
-  }
+    setIsBookingOpen(false);
+    setSelectedRitual(null);
+  };
 
   return (
     <>
-      <Header onBookClick={handleBookClick} />
+      <Head>
+        <title>Ритуалы — Gentlemen Barbershop Club</title>
+        <meta
+          name="description"
+          content="Ритуалы Gentlemen Barbershop Club: стрижка, борода и королевское бритьё в клубной атмосфере без спешки."
+        />
+        <link rel="canonical" href="https://gentlemen-nn.ru/rituals" />
+      </Head>
 
-      {/* HERO: заголовок и вводка (светлый) */}
-      <section className="section bg-white text-[var(--color-dark)]">
+      <Header onBookClick={() => handleBookClick()} />
+
+      {/* HERO: объясняем, что такое ритуал в клубе */}
+      <section className="section section-paper section-animate">
         <div className="container-custom max-w-3xl space-y-6">
-          <p className="text-[11px] uppercase tracking-[0.26em] text-[var(--color-muted)]">
-            клубные ритуалы
-          </p>
-          <h1 className="text-3xl md:text-4xl font-semibold">
-            Не услуги,
-            <br />
-            а сценарии вечера.
+          <p className="label-small text-club-muted">ритуалы клуба</p>
+          <h1 className="text-3xl md:text-4xl font-semibold text-[var(--text-dark)]">
+            Не «услуги по прайсу», а привычные ритуалы для нормальной жизни.
           </h1>
-          <p className="text-sm text-[var(--color-muted)]">
-            В прайс‑листах обычно пишут «стрижка», «борода», «комплекс».
-            Мы называем это ритуалами, потому что за час в кресле успевает
-            поменяться не только длина волос.
+          <p className="text-sm text-[var(--text-muted)]">
+            Мы называем это ритуалами, а не просто «стрижкой» или «бритьём».
+            В кресле вы не отрабатываете талон — вы берёте час, который работает
+            на образ, уверенность и спокойную голову.
           </p>
-          <p className="text-sm text-[var(--color-muted)]">
-            Каждый ритуал собран как готовый формат вечера: свет, темп работы,
-            уход и финальный образ. Вы выбираете сценарий, мы берём на себя детали.
+          <p className="text-sm text-[var(--text-muted)]">
+            Здесь нет «навязанного доп. ухода», только понятные форматы: пришли,
+            поговорили, выбрали ритуал под задачу — остальное сделает мастер.
           </p>
         </div>
       </section>
 
-      {/* СЕТКА РИТУАЛОВ */}
-      <section className="section bg-[#f6f7fa]">
+      {/* СЕКЦИЯ РИТУАЛОВ — тёмный клубный фон */}
+      <section className="section section-rituals section-animate">
         <div className="container-custom">
-          <div className="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-            <div className="space-y-3 max-w-xl">
-              <h2 className="text-2xl md:text-3xl font-semibold text-[var(--color-dark)]">
-                Три ритуала, которыми живёт клуб.
-              </h2>
-              <p className="text-sm text-[var(--color-muted)]">
-                Стартовое знакомство, выбор тех, кто остаётся, и закрытый формат
-                для своих. Этого набора достаточно, чтобы решить почти любую задачу
-                с волосами и бородой.
-              </p>
-            </div>
-            <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--color-muted)]">
-              цены и время могут меняться · актуальное — у администратора
+          <div className="mb-10 max-w-3xl">
+            <p className="label-small text-club-muted mb-2">
+              что конкретно мы делаем
             </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* РИТУАЛ 1: ВХОД */}
-            <article className="hover-lift rounded-2xl bg-white border border-[var(--color-muted)]/15 p-6 flex flex-col justify-between">
-              <div className="space-y-3">
-                <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--color-muted)]">
-                  знакомство с клубом
-                </p>
-                <h3 className="text-lg font-semibold text-[var(--color-dark)]">
-                  «Вход»
-                </h3>
-                <p className="text-sm text-[var(--color-muted)]">
-                  Ритуал для тех, кто только заходит в клуб или хочет честно обновить
-                  свой привычный образ. Спокойная консультация, стрижка, мойка и укладка —
-                  без лишних движений и навязанных «опций».
-                </p>
-                <ul className="mt-2 space-y-1 text-[13px] text-[var(--color-muted)]">
-                  <li>• Разбор того, как вы обычно носите волосы.</li>
-                  <li>• Точная стрижка под ваш образ жизни.</li>
-                  <li>• Мойка, укладка и рекомендации по уходу.</li>
-                </ul>
-              </div>
-              <div className="mt-5 flex items-center justify-between text-xs">
-                <span className="text-[var(--color-accent-strong)] font-semibold">
-                  от 1 800 ₽ · 60 мин
-                </span>
-                <button
-                  type="button"
-                  className="text-[11px] tracking-[0.18em] uppercase text-[var(--color-dark)] hover:text-[var(--color-accent-strong)]"
-                  onClick={handleBookClick}
-                >
-                  записаться
-                </button>
-              </div>
-            </article>
-
-            {/* РИТУАЛ 2: РЕЗИДЕНЦИЯ */}
-            <article className="hover-lift rounded-2xl bg-white border border-[var(--color-muted)]/15 p-6 flex flex-col justify-between relative overflow-hidden">
-              <div className="absolute inset-0 pointer-events-none opacity-[0.06] bg-[radial-gradient(circle_at_top,#bf2525_0,#ffffff_55%)]" />
-              <div className="relative space-y-3">
-                <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--color-muted)]">
-                  выбор клуба
-                </p>
-                <h3 className="text-lg font-semibold text-[var(--color-dark)]">
-                  «Резиденция»
-                </h3>
-                <p className="text-sm text-[var(--color-muted)]">
-                  Формат для тех, кто ценит, когда голова и борода собраны в один образ.
-                  Один мастер, один час с хвостиком и внимание к деталям вместо
-                  конвейера «отдельно голова, отдельно борода».
-                </p>
-                <ul className="mt-2 space-y-1 text-[13px] text-[var(--color-muted)]">
-                  <li>• Стрижка с учётом роста волос и особенностей головы.</li>
-                  <li>• Оформление бороды и усов под черты лица.</li>
-                  <li>• Горячее полотенце, уход и укладка.</li>
-                </ul>
-              </div>
-              <div className="relative mt-5 flex items-center justify-between text-xs">
-                <span className="text-[var(--color-accent-strong)] font-semibold">
-                  от 2 800 ₽ · 90 мин
-                </span>
-                <button
-                  type="button"
-                  className="text-[11px] tracking-[0.18em] uppercase text-[var(--color-dark)] hover:text-[var(--color-accent-strong)]"
-                  onClick={handleBookClick}
-                >
-                  записаться
-                </button>
-              </div>
-            </article>
-
-            {/* РИТУАЛ 3: НОЧНОЙ СОВЕТ */}
-            <article className="rounded-2xl bg-white border border-dashed border-[var(--color-muted)]/30 p-6 flex flex-col justify-between">
-              <div className="space-y-3">
-                <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--color-muted)]">
-                  закрытый формат
-                </p>
-                <h3 className="text-lg font-semibold text-[var(--color-dark)]">
-                  «Ночной совет»
-                </h3>
-                <p className="text-sm text-[var(--color-muted)]">
-                  Поздний формат для своих, когда город уже выдохнул.
-                  Больше времени, мягкий свет, бар и возможность наконец
-                  вытащить голову из недели и спокойно привести себя в порядок.
-                </p>
-                <ul className="mt-2 space-y-1 text-[13px] text-[var(--color-muted)]">
-                  <li>• Индивидуальный сценарий под запрос гостя.</li>
-                  <li>• Расширенный уход и внимание к деталям.</li>
-                  <li>• Время на разговор или молчание — как вам комфортнее.</li>
-                </ul>
-              </div>
-              <p className="mt-5 text-[11px] text-[var(--color-muted)]">
-                Доступен для гостей клуба. Подробности и приглашение — у администратора.
-              </p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      {/* БЛОК С FAQ / Пояснениями (светлый) */}
-      <section className="section bg-white text-[var(--color-dark)] border-t border-black/5">
-        <div className="container-custom grid grid-cols-1 md:grid-cols-2 gap-10">
-          <div className="space-y-4">
-            <p className="text-[11px] uppercase tracking-[0.26em] text-[var(--color-muted)]">
-              как выбрать ритуал
-            </p>
-            <h2 className="text-2xl md:text-3xl font-semibold">
-              Если сомневаетесь — скажите просто «хочу стать человеком».
+            <h2 className="text-3xl md:text-4xl font-semibold mb-3">
+              Ритуалы, с которых удобно начать знакомство с клубом.
             </h2>
-            <p className="text-sm text-[var(--color-muted)]">
-              На первом визите не обязательно разбираться в названиях. Расскажите,
-              как вы живёте, как обычно носите волосы и что именно раздражает в зеркале —
-              мастер поможет подобрать ритуал и формат.
+            <p className="text-club-soft text-sm md:text-base">
+              Можно прийти с конкретным запросом — «стрижка как в прошлый раз»,
+              а можно просто рассказать, как вы живёте день. Администратор и
+              мастер подскажут, с какого ритуала начать.
             </p>
           </div>
-          <div className="space-y-4 text-sm text-[var(--color-muted)]">
-            <div>
-              <h3 className="text-xs uppercase tracking-[0.18em] text-[var(--color-muted)] mb-1">
-                если нужно просто привести голову в порядок
-              </h3>
-              <p>Берите «Вход» — аккуратное обновление без радикальных шагов.</p>
-            </div>
-            <div>
-              <h3 className="text-xs uppercase tracking-[0.18em] text-[var(--color-muted)] mb-1">
-                если голова и борода живут разной жизнью
-              </h3>
-              <p>«Резиденция» собирает всё в единый образ одним мастером и за один вечер.</p>
-            </div>
-            <div>
-              <h3 className="text-xs uppercase tracking-[0.18em] text-[var(--color-muted)] mb-1">
-                если хочется выдохнуть после недели
-              </h3>
-              <p>
-                Спросите у администратора про «Ночной совет» — это отдельная история
-                для тех, кто уже стал гостем клуба.
-              </p>
-            </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            {rituals.map((ritual) => (
+              <article key={ritual.id} className="ritual-card hover-lift">
+                <p className="label-small text-club-muted mb-2">
+                  {ritual.label}
+                </p>
+                <h3 className="text-lg md:text-xl font-semibold text-[var(--text-dark-strong)] mb-1">
+                  {ritual.title}
+                </h3>
+
+                <div className="flex flex-wrap items-center gap-3 mb-4 text-xs text-club-muted">
+                  <span className="inline-flex items-center gap-1">
+                    <span className="feature-item-icon">⏱</span>
+                    <span>{ritual.duration}</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <span className="feature-item-icon">₽</span>
+                    <span>{ritual.price}</span>
+                  </span>
+                </div>
+
+                <p className="text-sm text-[var(--text-dark-strong)] mb-3">
+                  {ritual.description}
+                </p>
+                <p className="text-xs text-[var(--text-muted)] mb-5">
+                  {ritual.details}
+                </p>
+
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <button
+                    type="button"
+                    className="btn-primary-dark"
+                    onClick={() => handleBookClick(ritual.title)}
+                  >
+                    записаться на ритуал
+                  </button>
+                  <p className="text-[11px] text-club-soft max-w-xs">
+                    Можно оставить комментарий для мастера в записи, если есть
+                    ограничения или пожелания по сервису.
+                  </p>
+                </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* CTA — СВЕТЛЫЙ, перед футером */}
-      <section className="section bg-[#f6f7fa] border-t border-black/5">
+      {/* CTA перед футером */}
+      <section className="section section-paper section-animate">
         <div className="container-custom text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[var(--color-dark)]">
-            Выбирайте ритуал — за остальным следим мы.
+          <h2 className="text-2xl md:text-3xl font-semibold text-[var(--text-dark)] mb-4">
+            Выберите ритуал — остальное мы возьмём на себя.
           </h2>
-          <p className="text-sm md:text-base text-[var(--color-muted)] max-w-2xl mx-auto mb-6">
-            Если сложно определиться online, напишите администратору или позвоните —
-            подскажем формат, мастера и время, чтобы первый визит сразу попал в точку.
+          <p className="text-sm md:text-base text-[var(--text-muted)] max-w-2xl mx-auto mb-6">
+            Если сложно определиться, достаточно написать пару строк о себе.
+            Администратор подскажет, с чего начать — со стрижки, бороды или
+            просто часа тишины в кресле.
           </p>
           <button
             type="button"
-            className="btn btn-primary text-lg px-8 py-4 mb-3"
-            onClick={handleBookClick}
+            className="btn-primary"
+            onClick={() => handleBookClick()}
           >
-            Записаться на ритуал
+            записаться в клуб
           </button>
-          <p className="text-[var(--color-muted)] text-sm">
-            или по телефону{' '}
-            <a
-              href="tel:+79877553000"
-              className="text-[var(--color-accent-strong)] hover:opacity-80 transition-colors"
-            >
-              +7 987 755 30 00
-            </a>
-          </p>
         </div>
       </section>
 
@@ -234,7 +198,8 @@ export default function RitualsPage() {
       <BookingModal
         isOpen={isBookingOpen}
         onClose={handleCloseModal}
+        ritualName={selectedRitual}
       />
     </>
-  )
+  );
 }
