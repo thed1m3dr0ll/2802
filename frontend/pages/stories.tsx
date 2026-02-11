@@ -1,34 +1,48 @@
 // pages/stories.tsx
-import { useState } from 'react'
-import Header from '../components/Header'
-import Footer from '../components/Footer'
-import BookingModal from '../components/BookingModal'
+import { useState } from 'react';
+import Head from 'next/head';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import BookingModal from '../components/BookingModal';
 
 export default function StoriesPage() {
-  const [isBookingOpen, setIsBookingOpen] = useState(false)
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
 
   const handleBookClick = () => {
-    setIsBookingOpen(true)
-  }
+    setIsBookingOpen(true);
+  };
 
   const handleCloseModal = () => {
-    setIsBookingOpen(false)
-  }
+    setIsBookingOpen(false);
+  };
 
   return (
     <>
+      <Head>
+        <title>Истории гостей — барбершоп Gentlemen в Нижнем Новгороде</title>
+        <meta
+          name="description"
+          content="Истории гостей Gentlemen Barbershop Club: зачем мужчины приходят в клуб, какие ритуалы выбирают и с каким ощущением выходят в ночь из барбершопа на Белозёрской, 4."
+        />
+        <meta
+          name="keywords"
+          content="истории гостей барбершоп gentlemen, до и после стрижки, опыт гостей клуба, барбершоп нижний новгород истории"
+        />
+        <link rel="canonical" href="https://gentlemen-nn.ru/stories" />
+      </Head>
+
       <Header onBookClick={handleBookClick} />
 
-      {/* ========== HERO: ИДЕЯ ИСТОРИЙ НА ТЁМНОМ ФОНЕ ========== */}
+      {/* HERO: идея историй на тёмном фоне */}
       <section className="section section-dark relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="w-full h-full bg-[radial-gradient(circle_at_top,#5b1412_0,#050307_60%)] opacity-80" />
         </div>
 
         <div className="container-custom relative z-10 max-w-3xl space-y-6">
-          <p className="label-small text-club-muted">истории гостей</p>
+          <p className="label-small text-club-muted">истории гостей барбершопа Gentlemen</p>
           <h1 className="text-3xl md:text-4xl font-semibold">
-            Не отзывы,
+            Не просто отзывы,
             <br />
             а вечера, которые что‑то поменяли.
           </h1>
@@ -45,7 +59,7 @@ export default function StoriesPage() {
         </div>
       </section>
 
-      {/* ========== ЛЕНТА ИСТОРИЙ НА СВЕТЛОМ ЛИСТЕ ========== */}
+      {/* Лента историй на светлом листе */}
       <section className="section section-paper">
         <div className="container-custom">
           <div className="mb-10 flex flex-col lg:flex-row gap-10 items-start">
@@ -152,7 +166,7 @@ export default function StoriesPage() {
         </div>
       </section>
 
-      {/* ========== БЛОК: ПОЧЕМУ ИСТОРИИ, А НЕ ОТЗЫВЫ (ТЁМНЫЙ) ========== */}
+      {/* Блок: почему истории, а не только отзывы */}
       <section className="section section-dark">
         <div className="container-custom grid grid-cols-1 md:grid-cols-2 gap-10">
           <div className="space-y-4">
@@ -190,7 +204,7 @@ export default function StoriesPage() {
         </div>
       </section>
 
-      {/* ========== CTA: ПРИГЛАШЕНИЕ СТАТЬ НОВОЙ ИСТОРИЕЙ ========== */}
+      {/* CTA: приглашение стать новой историей */}
       <section className="section section-dark border-t border-black/40">
         <div className="container-custom text-center">
           <p className="label-small text-club-muted mb-3">
@@ -227,5 +241,5 @@ export default function StoriesPage() {
 
       <BookingModal isOpen={isBookingOpen} onClose={handleCloseModal} />
     </>
-  )
+  );
 }

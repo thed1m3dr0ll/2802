@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routes.reviews import router as reviews_router  # роутер отзывов
+from app.reviews import router as reviews_router  # роутер отзывов из app/reviews.py
 
 
 # Создаём приложение FastAPI

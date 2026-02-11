@@ -1,6 +1,7 @@
 // pages/_app.tsx
 import type { AppProps } from 'next/app';
 import { useEffect, useState } from 'react';
+import Script from 'next/script';
 import '../styles/globals.css';
 import Layout from '../components/Layout';
 
@@ -10,7 +11,6 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   // Прелоадер до полной загрузки страницы
   useEffect(() => {
     const handleLoad = () => {
-      // лёгкая задержка, чтобы спиннер не мигал
       setTimeout(() => setIsPageLoading(false), 200);
     };
 
@@ -61,6 +61,13 @@ export default function MyApp({ Component, pageProps }: AppProps) {
       <Layout>
         <Component {...pageProps} />
       </Layout>
+
+      {/* Виджет онлайн-записи YCLIENTS */}
+      <Script
+        src="https://w1258165.yclients.com/widgetJS"
+        strategy="afterInteractive"
+        charSet="UTF-8"
+      />
     </>
   );
 }

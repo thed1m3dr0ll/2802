@@ -1,7 +1,8 @@
 from datetime import date
 from typing import List
 
-from fastapi import APIRouter, Depends, Query, HTTPException, Header
+from fastapi import APIRouter, Depends, Query, HTTPException, Header, status
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, constr, conint
 import asyncpg
 import os
@@ -39,7 +40,7 @@ class Review(BaseModel):
 
 class ReviewCreate(BaseModel):
     author: constr(min_length=1, max_length=80)
-    source: constr(regex="^(yandex|2gis|site)$")
+    source: constr(pattern="^(yandex|2gis|site)$")
     rating: conint(ge=1, le=5)
     text: constr(min_length=5, max_length=2000)
     date: date
@@ -48,6 +49,19 @@ class ReviewCreate(BaseModel):
 async def require_admin(x_admin_token: str = Header(...)):
     if not ADMIN_TOKEN or x_admin_token != ADMIN_TOKEN:
         raise HTTPException(status_code=401, detail="Unauthorized")
+
+
+@router.post("/admin/auth", include_in_schema=False)
+async def admin_auth(x_admin_token: str = Header(...)):
+    """
+    Простой чек админ-токена для фронта.
+    """
+    if not ADMIN_TOKEN or x_admin_token != ADMIN_TOKEN:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"ok": True},
+    )
 
 
 @router.get(

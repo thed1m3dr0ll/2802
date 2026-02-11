@@ -1,21 +1,35 @@
 // pages/cabinet/index.tsx
-import { useState } from 'react'
-import Header from '../../components/Header'
-import Footer from '../../components/Footer'
-import BookingModal from '../../components/BookingModal'
+import { useState } from 'react';
+import Head from 'next/head';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
+import BookingModal from '../../components/BookingModal';
 
 export default function CabinetPage() {
-  const guestName = 'Гость клуба'
-  const [isBookingOpen, setIsBookingOpen] = useState(false)
+  const guestName = 'Гость клуба';
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
 
-  const handleBookClick = () => setIsBookingOpen(true)
-  const handleCloseModal = () => setIsBookingOpen(false)
+  const handleBookClick = () => setIsBookingOpen(true);
+  const handleCloseModal = () => setIsBookingOpen(false);
 
   return (
     <>
+      <Head>
+        <title>Личный кабинет — Gentlemen Barbershop Club</title>
+        <meta
+          name="description"
+          content="Личный кабинет гостя Gentlemen Barbershop Club: история визитов, выбранные мастера, ритуалы, рекомендации по уходу и ближайшие записи в барбершопе на Белозёрской, 4."
+        />
+        <meta
+          name="keywords"
+          content="личный кабинет барбершоп, история визитов gentlemen, мои мастера, рекомендации по уходу, клубный кабинет gentlemen"
+        />
+        <link rel="canonical" href="https://gentlemen-nn.ru/cabinet" />
+      </Head>
+
       <Header onBookClick={handleBookClick} />
 
-      {/* ========== HERO: ЧТО ТАКОЕ КАБИНЕТ (ТЁМНЫЙ) ========== */}
+      {/* HERO: что такое кабинет (тёмный) */}
       <section className="section section-dark relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="w-full h-full bg-[radial-gradient(circle_at_top,#5b1412_0,#050307_60%)] opacity-80" />
@@ -41,7 +55,7 @@ export default function CabinetPage() {
         </div>
       </section>
 
-      {/* ========== ОБЩИЙ ЛЭЙАУТ КАБИНЕТА НА СВЕТЛОМ ЛИСТЕ ========== */}
+      {/* Общий лэйаут кабинета на светлом листе */}
       <section className="section section-paper">
         <div className="container-custom grid grid-cols-1 lg:grid-cols-[260px,1fr] gap-8">
           {/* Сайдбар */}
@@ -220,7 +234,7 @@ export default function CabinetPage() {
         </div>
       </section>
 
-      {/* ========== CTA ПЕРЕД ФУТЕРОМ (ТЁМНЫЙ) ========== */}
+      {/* CTA перед футером (тёмный) */}
       <section className="section section-dark border-t border-black/40">
         <div className="container-custom text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -254,5 +268,5 @@ export default function CabinetPage() {
 
       <BookingModal isOpen={isBookingOpen} onClose={handleCloseModal} />
     </>
-  )
+  );
 }

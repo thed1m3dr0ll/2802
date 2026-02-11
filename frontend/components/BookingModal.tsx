@@ -1,5 +1,6 @@
 // components/BookingModal.tsx
 import { useState, useEffect, useRef } from 'react';
+import { openYclients } from '../lib/openYclients';
 
 type BookingModalProps = {
   isOpen: boolean;
@@ -32,6 +33,7 @@ export default function BookingModal({
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [comment, setComment] = useState('');
   const [errors, setErrors] = useState<{ name?: string; phone?: string }>({});
 
   const nameInputRef = useRef<HTMLInputElement | null>(null);
@@ -58,6 +60,20 @@ export default function BookingModal({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, isSending, onClose]);
+
+  // сброс при открытии/закрытии
+  useEffect(() => {
+    if (!isOpen) {
+      setScenario('collect_head');
+      setDate('');
+      setTime('');
+      setName('');
+      setPhone('');
+      setComment('');
+      setErrors({});
+      setIsSending(false);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -86,10 +102,11 @@ export default function BookingModal({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validate()) return;
+
     setIsSending(true);
+
     try {
-      // сюда позже придёт реальный запрос к API
-      console.log({
+      const payload = {
         scenario,
         date,
         time,
@@ -97,7 +114,14 @@ export default function BookingModal({
         ritualName,
         name,
         phone,
-      });
+        comment,
+      };
+
+      // сюда позже добавишь реальный запрос к своему API / Telegram / CRM
+      console.log('Booking payload:', payload);
+
+      // открываем виджет YCLIENTS с контекстом
+      openYclients(payload);
     } finally {
       setIsSending(false);
       onClose();
@@ -139,7 +163,7 @@ export default function BookingModal({
               id="booking-modal-title"
               className="booking-modal-title text-2xl md:text-[26px] font-semibold leading-snug mb-2 max-w-xs"
             >
-              Оставьте заявку — администратор свяжется с вами
+              Оставьте заявку — затем откроется онлайн‑запись
             </h2>
 
             {masterName && (
@@ -242,21 +266,20 @@ export default function BookingModal({
               </div>
             </div>
 
-            {/* Дата / время */}
+            {/* Дата / время (желательное) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <p className="booking-modal-label mb-1">Дата визита</p>
+                <p className="booking-modal-label mb-1">Желаемая дата визита</p>
                 <input
                   type="date"
                   className="booking-input"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  required
                 />
               </div>
 
               <div>
-                <p className="booking-modal-label mb-1">Время</p>
+                <p className="booking-modal-label mb-1">Желаемое время</p>
                 <input
                   type="time"
                   className="booking-input"
@@ -266,7 +289,8 @@ export default function BookingModal({
                   max="22:00"
                 />
                 <p className="mt-1 text-[10px] text-[var(--text-muted)]">
-                  Принимаем гостей с 10:00 до 22:00.
+                  Принимаем гостей с 10:00 до 22:00. Точное время вы выберете в
+                  онлайн‑записи.
                 </p>
               </div>
             </div>
@@ -287,6 +311,8 @@ export default function BookingModal({
               <textarea
                 className="booking-textarea"
                 placeholder={commentPlaceholder}
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
               />
             </div>
 
@@ -302,7 +328,7 @@ export default function BookingModal({
                     отправляем…
                   </>
                 ) : (
-                  'отправить заявку'
+                  'продолжить к онлайн‑записи'
                 )}
               </button>
             </div>
@@ -310,8 +336,9 @@ export default function BookingModal({
 
           <p className="booking-modal-footnote mt-2">
             Нажимая кнопку, вы соглашаетесь на обработку персональных данных.
-            Сейчас форма отправляет данные администратору клуба; формат вечера,
-            ритуал и время визита уточнят при созвоне.
+            Сначала заявка попадёт администратору клуба, после чего откроется
+            окно онлайн‑записи YCLIENTS, где вы зафиксируете точное время
+            визита.
           </p>
         </div>
       </div>
