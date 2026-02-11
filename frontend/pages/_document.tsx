@@ -54,16 +54,17 @@ export default function Document() {
           content="https://gentlemen-barber.ru/og-image.jpg"
         />
 
-        {/* CSP — мягкий вариант для dev, без markdown-ссылок */}
+        {/* CSP: Метрика, YCLIENTS, Google Fonts (CSS + font files) */}
         <meta
           httpEquiv="Content-Security-Policy"
           content="
             default-src 'self';
             img-src 'self' https: data:;
-            script-src 'self' 'unsafe-inline' 'unsafe-eval' https://mc.yandex.ru;
-            style-src 'self' 'unsafe-inline';
-            connect-src 'self' http://localhost:8000 https://mc.yandex.ru;
-            frame-src https://yandex.ru;
+            script-src 'self' 'unsafe-inline' 'unsafe-eval' https://mc.yandex.ru https://w1258165.yclients.com;
+            style-src 'self' 'unsafe-inline' https://w1258165.yclients.com https://fonts.googleapis.com;
+            font-src 'self' https://fonts.gstatic.com;
+            connect-src 'self' http://localhost:8000 https://mc.yandex.ru wss://mc.yandex.ru;
+            frame-src https://yandex.ru https://b1258165.yclients.com https://w1258165.yclients.com http://localhost:3000;
           "
         />
       </Head>

@@ -2,11 +2,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { openYclients } from '../lib/openYclients';
 
+type BookingInitialContext = {
+  masterName?: string;
+  ritualName?: string;
+} | null;
+
 type BookingModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  masterName?: string;
-  ritualName?: string | null;
+  initialContext?: BookingInitialContext;
 };
 
 const SCENARIOS = [
@@ -23,8 +27,7 @@ const SCENARIOS = [
 export default function BookingModal({
   isOpen,
   onClose,
-  masterName,
-  ritualName,
+  initialContext,
 }: BookingModalProps) {
   const [scenario, setScenario] = useState<string>('collect_head');
   const [date, setDate] = useState<string>('');
@@ -39,6 +42,9 @@ export default function BookingModal({
   const nameInputRef = useRef<HTMLInputElement | null>(null);
 
   const isNightScenario = scenario === 'turn_off_head';
+
+  const masterName = initialContext?.masterName;
+  const ritualName = initialContext?.ritualName;
 
   // автофокус на имени при открытии
   useEffect(() => {
@@ -61,7 +67,7 @@ export default function BookingModal({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, isSending, onClose]);
 
-  // сброс при открытии/закрытии
+  // сброс при закрытии
   useEffect(() => {
     if (!isOpen) {
       setScenario('collect_head');
@@ -117,10 +123,23 @@ export default function BookingModal({
         comment,
       };
 
-      // сюда позже добавишь реальный запрос к своему API / Telegram / CRM
-      console.log('Booking payload:', payload);
+      // 1. Отправляем заявку в свой бэкенд (можно обернуть в try/catch отдельно)
+      try {
+        await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/booking-intents/`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          },
+        );
+      } catch (err) {
+        console.error('Failed to send booking intent', err);
+        // даже если бэкенд недоступен, всё равно даём открыть виджет
+      }
 
-      // открываем виджет YCLIENTS с контекстом
+      // 2. Открываем виджет YCLIENTS с контекстом
+      console.log('Booking payload:', payload);
       openYclients(payload);
     } finally {
       setIsSending(false);
@@ -220,7 +239,9 @@ export default function BookingModal({
                   ref={nameInputRef}
                   type="text"
                   name="name"
-                  className={`booking-input ${errors.name ? 'error' : ''}`}
+                  className={`booking-input ${
+                    errors.name ? 'error' : ''
+                  }`}
                   placeholder="Имя"
                   value={name}
                   onChange={(e) => {
@@ -245,7 +266,9 @@ export default function BookingModal({
                 <input
                   type="tel"
                   name="phone"
-                  className={`booking-input ${errors.phone ? 'error' : ''}`}
+                  className={`booking-input ${
+                    errors.phone ? 'error' : ''
+                  }`}
                   placeholder="+7 (___) ___-__-__"
                   value={phone}
                   onChange={(e) => {
@@ -269,7 +292,9 @@ export default function BookingModal({
             {/* Дата / время (желательное) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <p className="booking-modal-label mb-1">Желаемая дата визита</p>
+                <p className="booking-modal-label mb-1">
+                  Желаемая дата визита
+                </p>
                 <input
                   type="date"
                   className="booking-input"

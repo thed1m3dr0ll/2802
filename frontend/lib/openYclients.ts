@@ -24,6 +24,9 @@ export function openYclients(context?: YclientsContext) {
 
   if (context) {
     console.log('YCLIENTS context:', context);
+
+    // пример: можно повесить свои кастомные события для аналитики
+    // window.dataLayer?.push({ event: 'yclients_open', ...context });
   }
 
   if (window.yWidget && typeof window.yWidget.show === 'function') {

@@ -1,25 +1,25 @@
 // pages/masters.tsx
-import { useState } from 'react'
-import Header from '../components/Header'
-import Footer from '../components/Footer'
-import Link from 'next/link'
-import BookingModal from '../components/BookingModal'
+import { useState } from 'react';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import Link from 'next/link';
+import BookingModal from '../components/BookingModal';
 
 export default function MastersPage() {
-  const [isBookingOpen, setIsBookingOpen] = useState(false)
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [selectedMaster, setSelectedMaster] = useState<string | undefined>(
-    undefined
-  )
+    undefined,
+  );
 
   const handleBookClick = (masterName?: string) => {
-    setSelectedMaster(masterName)
-    setIsBookingOpen(true)
-  }
+    setSelectedMaster(masterName);
+    setIsBookingOpen(true);
+  };
 
   const handleCloseModal = () => {
-    setIsBookingOpen(false)
-    setSelectedMaster(undefined)
-  }
+    setIsBookingOpen(false);
+    setSelectedMaster(undefined);
+  };
 
   return (
     <>
@@ -269,8 +269,10 @@ export default function MastersPage() {
       <BookingModal
         isOpen={isBookingOpen}
         onClose={handleCloseModal}
-        masterName={selectedMaster}
+        initialContext={
+          selectedMaster ? { masterName: selectedMaster } : undefined
+        }
       />
     </>
-  )
+  );
 }

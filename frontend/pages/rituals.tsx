@@ -206,7 +206,9 @@ export default function RitualsPage() {
       <BookingModal
         isOpen={isBookingOpen}
         onClose={handleCloseModal}
-        ritualName={selectedRitual}
+        initialContext={
+          selectedRitual ? { ritualName: selectedRitual } : undefined
+        }
       />
     </>
   );

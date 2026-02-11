@@ -34,7 +34,27 @@ export default function Home() {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const firstFieldRef = useRef<HTMLButtonElement | null>(null);
 
-  const handleBookClick = () => setIsBookingOpen(true);
+  // контекст брони: выбранный мастер / ритуал
+  const [bookingContext, setBookingContext] = useState<{
+    masterName?: string;
+    ritualName?: string;
+  } | null>(null);
+
+  const handleBookClick = () => {
+    setBookingContext(null);
+    setIsBookingOpen(true);
+  };
+
+  const handleBookWithMaster = (masterName: string) => {
+    setBookingContext({ masterName });
+    setIsBookingOpen(true);
+  };
+
+  const handleBookWithRitual = (ritualName: string) => {
+    setBookingContext({ ritualName });
+    setIsBookingOpen(true);
+  };
+
   const handleCloseModal = () => setIsBookingOpen(false);
 
   useEffect(() => {
@@ -321,6 +341,15 @@ export default function Home() {
               <p className="text-xs text-[var(--accent-gold-soft)]">
                 от 1 800 ₽ · около 60 минут · мужская стрижка в Gentlemen
               </p>
+              <div className="mt-4">
+                <button
+                  type="button"
+                  className="btn-primary-dark"
+                  onClick={() => handleBookWithRitual('Собрать голову')}
+                >
+                  выбрать этот ритуал
+                </button>
+              </div>
             </article>
 
             <article className="card-glass hover-lift px-6 py-6 ritual-card">
@@ -338,6 +367,15 @@ export default function Home() {
               <p className="text-xs text-[var(--accent-gold-soft)]">
                 от 2 800 ₽ · около 90 минут · стрижка + борода
               </p>
+              <div className="mt-4">
+                <button
+                  type="button"
+                  className="btn-primary-dark"
+                  onClick={() => handleBookWithRitual('Собрать образ')}
+                >
+                  выбрать этот ритуал
+                </button>
+              </div>
             </article>
 
             <article className="card-glass hover-lift px-6 py-6 ritual-card">
@@ -353,6 +391,15 @@ export default function Home() {
               <p className="text-xs text-[var(--accent-gold-soft)]">
                 от 800 ₽ · 30–45 минут · коррекция контура
               </p>
+              <div className="mt-4">
+                <button
+                  type="button"
+                  className="btn-primary-dark"
+                  onClick={() => handleBookWithRitual('Чистый контур')}
+                >
+                  выбрать этот ритуал
+                </button>
+              </div>
             </article>
 
             <article className="card-glass hover-lift px-6 py-6 ritual-card">
@@ -371,6 +418,15 @@ export default function Home() {
               <p className="text-xs text-[var(--accent-gold-soft)]">
                 доступен гостям с историей 5+ визитов · детали и стоимость у администратора
               </p>
+              <div className="mt-4">
+                <button
+                  type="button"
+                  className="btn-primary-dark"
+                  onClick={() => handleBookWithRitual('Выключить голову')}
+                >
+                  обсудить ночной ритуал
+                </button>
+              </div>
             </article>
           </div>
 
@@ -518,7 +574,7 @@ export default function Home() {
               <button
                 type="button"
                 className="text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80 underline underline-offset-4"
-                onClick={handleBookClick}
+                onClick={() => handleBookWithMaster('Елена')}
               >
                 записаться к елене
               </button>
@@ -551,7 +607,7 @@ export default function Home() {
               <button
                 type="button"
                 className="text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80 underline underline-offset-4"
-                onClick={handleBookClick}
+                onClick={() => handleBookWithMaster('Максим')}
               >
                 записаться к максиму
               </button>
@@ -584,7 +640,7 @@ export default function Home() {
               <button
                 type="button"
                 className="text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80 underline underline-offset-4"
-                onClick={handleBookClick}
+                onClick={() => handleBookWithMaster('Алексей')}
               >
                 записаться к алексею
               </button>
@@ -618,7 +674,7 @@ export default function Home() {
               <button
                 type="button"
                 className="text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80 underline underline-offset-4"
-                onClick={handleBookClick}
+                onClick={() => handleBookWithMaster('Роман')}
               >
                 записаться к роману
               </button>
@@ -976,7 +1032,11 @@ export default function Home() {
 
       <Footer />
 
-      <BookingModal isOpen={isBookingOpen} onClose={handleCloseModal} />
+      <BookingModal
+        isOpen={isBookingOpen}
+        onClose={handleCloseModal}
+        initialContext={bookingContext}
+      />
 
       <ScrollToTopButton />
       <ContactWidget />
