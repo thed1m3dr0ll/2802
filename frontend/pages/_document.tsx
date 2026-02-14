@@ -26,10 +26,7 @@ export default function Document() {
           property="og:description"
           content="Ритуалы для головы и бороды, ночные форматы и спокойная атмосфера клуба на Белозёрской, 4."
         />
-        <meta
-          property="og:url"
-          content="https://gentlemen-barber.ru/"
-        />
+        <meta property="og:url" content="https://gentlemen-barber.ru/" />
         <meta
           property="og:image"
           content="https://gentlemen-barber.ru/og-image.jpg"
@@ -54,7 +51,13 @@ export default function Document() {
           content="https://gentlemen-barber.ru/og-image.jpg"
         />
 
-        {/* CSP: Метрика, YCLIENTS, Google Fonts (CSS + font files) */}
+        {/* Google Fonts */}
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+        />
+
+        {/* CSP: Метрика, YCLIENTS, Google Fonts, API */}
         <meta
           httpEquiv="Content-Security-Policy"
           content="

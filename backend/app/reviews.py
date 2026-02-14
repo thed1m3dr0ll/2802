@@ -1,112 +1,55 @@
+# app/routes/reviews.py
+
 from datetime import date
-from typing import List
+from typing import Literal, List
 
-from fastapi import APIRouter, Depends, Query, HTTPException, Header, status
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel, constr, conint
 import asyncpg
-import os
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 
-
-router = APIRouter(
-    prefix="",
-    tags=["reviews"],  # блок в Swagger
-)
-
-
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://admin:dev_password@postgres:5432/gentlemen_barber",
-)
-ADMIN_TOKEN = os.getenv("ADMIN_TOKEN", "")
-
-
-async def get_conn():
-    conn = await asyncpg.connect(DATABASE_URL)
-    try:
-        yield conn
-    finally:
-        await conn.close()
+from app.db import get_db_connection
 
 
 class Review(BaseModel):
     id: int
     author: str
-    source: str  # 'yandex' | '2gis' | 'site'
+    source: Literal["yandex", "2gis", "site"]
     rating: int
     text: str
     date: date
 
 
-class ReviewCreate(BaseModel):
-    author: constr(min_length=1, max_length=80)
-    source: constr(pattern="^(yandex|2gis|site)$")
-    rating: conint(ge=1, le=5)
-    text: constr(min_length=5, max_length=2000)
-    date: date
+router = APIRouter(prefix="/reviews", tags=["reviews"])
 
 
-async def require_admin(x_admin_token: str = Header(...)):
-    if not ADMIN_TOKEN or x_admin_token != ADMIN_TOKEN:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+async def get_conn() -> asyncpg.Connection:
+    conn = await get_db_connection()
+    if conn is None:
+        raise HTTPException(status_code=500, detail="Database connection not available")
+    return conn
 
 
-@router.post("/admin/auth", include_in_schema=False)
-async def admin_auth(x_admin_token: str = Header(...)):
+@router.get("/", response_model=List[Review])
+async def list_reviews(conn: asyncpg.Connection = Depends(get_conn)) -> List[Review]:
     """
-    Простой чек админ-токена для фронта.
+    Список отзывов для сайта.
+    Берём реальные данные из таблицы public.reviews,
+    сортируем по дате (сначала новые), ограничиваем 10 шт.
     """
-    if not ADMIN_TOKEN or x_admin_token != ADMIN_TOKEN:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-    return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content={"ok": True},
-    )
-
-
-@router.get(
-    "/reviews/",
-    response_model=List[Review],
-    include_in_schema=True,
-)
-async def get_reviews(
-    conn=Depends(get_conn),
-    offset: int = Query(0, ge=0),
-    limit: int = Query(10, ge=1, le=50),
-):
     rows = await conn.fetch(
         """
-        SELECT id, author, source, rating, text, date
-        FROM reviews
+        SELECT
+            id,
+            author,
+            source,
+            rating,
+            text,
+            date
+        FROM public.reviews
         ORDER BY date DESC, id DESC
-        OFFSET $1 LIMIT $2
-        """,
-        offset,
-        limit,
-    )
-    return [Review(**dict(r)) for r in rows]
-
-
-@router.post(
-    "/admin/reviews/",
-    response_model=Review,
-    include_in_schema=True,
-)
-async def create_review(
-    review: ReviewCreate,
-    conn=Depends(get_conn),
-    _admin=Depends(require_admin),  # проверка токена
-):
-    row = await conn.fetchrow(
+        LIMIT 10;
         """
-        INSERT INTO reviews (author, source, rating, text, date)
-        VALUES ($1, $2, $3, $4, $5)
-        RETURNING id, author, source, rating, text, date
-        """,
-        review.author,
-        review.source,
-        review.rating,
-        review.text,
-        review.date,
     )
-    return Review(**dict(row))
+
+    reviews: List[Review] = [Review(**dict(row)) for row in rows]
+    return reviews

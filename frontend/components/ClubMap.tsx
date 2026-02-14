@@ -31,18 +31,26 @@ export default function ClubMap() {
           </div>
         </div>
 
-        <div className="card-paper overflow-hidden h-[260px] md:h-[320px]">
-          {/* Временный iframe Яндекс.Карты — подставь свой конструктор/ссылку */}
-          <iframe
-            src="https://yandex.ru/map-widget/v1/?um=constructor%3A&source=constructor"
-            title="Карта проезда к клубу Gentlemen на Белозёрской, 4"
-            width="100%"
-            height="100%"
-            style={{ border: 0 }}
-            loading="lazy"
-          />
+        <div className="card-paper overflow-hidden h-[260px] md:h-[320px] rounded-2xl border border-[var(--card-border)]">
+          <div
+            className="h-full w-full"
+            style={{
+              // премиальный монохром: глубокий контраст, лёгкий «пыльный» оттенок
+              filter: 'grayscale(0.85) sepia(0.12) contrast(1.32) brightness(0.94)',
+            }}
+          >
+            <iframe
+              src="https://yandex.ru/map-widget/v1/?um=constructor%3A&source=constructor"
+              title="Карта проезда к клубу Gentlemen на Белозёрской, 4"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              loading="lazy"
+              className="h-full w-full"
+            />
+          </div>
         </div>
       </div>
     </section>
-  )
+  );
 }

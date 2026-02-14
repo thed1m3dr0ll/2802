@@ -1,14 +1,12 @@
 // pages/_app.tsx
 import type { AppProps } from 'next/app';
 import { useEffect, useState } from 'react';
-import Script from 'next/script';
 import '../styles/globals.css';
 import Layout from '../components/Layout';
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   const [isPageLoading, setIsPageLoading] = useState(true);
 
-  // Прелоадер до полной загрузки страницы
   useEffect(() => {
     const handleLoad = () => {
       setTimeout(() => setIsPageLoading(false), 200);
@@ -25,10 +23,8 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     };
   }, []);
 
-  // Анимация появления секций при скролле
   useEffect(() => {
     const elements = document.querySelectorAll<HTMLElement>('.section-animate');
-
     if (!elements.length) return;
 
     const observer = new IntersectionObserver(
@@ -40,13 +36,10 @@ export default function MyApp({ Component, pageProps }: AppProps) {
           }
         });
       },
-      {
-        threshold: 0.2,
-      }
+      { threshold: 0.2 }
     );
 
     elements.forEach((el) => observer.observe(el));
-
     return () => observer.disconnect();
   }, []);
 
@@ -61,13 +54,6 @@ export default function MyApp({ Component, pageProps }: AppProps) {
       <Layout>
         <Component {...pageProps} />
       </Layout>
-
-      {/* Виджет онлайн-записи YCLIENTS */}
-      <Script
-        src="https://w1258165.yclients.com/widgetJS"
-        strategy="afterInteractive"
-        charSet="UTF-8"
-      />
     </>
   );
 }

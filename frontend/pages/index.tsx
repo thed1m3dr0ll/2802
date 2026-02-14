@@ -9,6 +9,15 @@ import WorksGallery from '../components/WorksGallery';
 import ScrollToTopButton from '../components/ScrollToTopButton';
 import ContactWidget from '../components/ContactWidget';
 
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  Target01Icon,
+  Scissor01Icon,
+  Location01Icon,
+  TimeScheduleIcon,
+  DrinkIcon,
+} from '@hugeicons/core-free-icons';
+
 type ReviewSource = 'yandex' | '2gis' | 'site';
 
 interface Review {
@@ -25,20 +34,21 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 function getSourceLabel(source: ReviewSource) {
   if (source === 'yandex') return 'Яндекс Карты';
   if (source === '2gis') return '2ГИС';
-  return 'Сайт клуба Gentlemen';
+  return 'Сайт клуба Джентльмены Культуры';
 }
 
 export default function Home() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
-  const [isBookingOpen, setIsBookingOpen] = useState(false);
-  const firstFieldRef = useRef<HTMLButtonElement | null>(null);
+  const [reviewsError, setReviewsError] = useState<string | null>(null);
 
-  // контекст брони: выбранный мастер / ритуал
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [bookingContext, setBookingContext] = useState<{
     masterName?: string;
     ritualName?: string;
   } | null>(null);
+
+  const firstFieldRef = useRef<HTMLButtonElement | null>(null);
 
   const handleBookClick = () => {
     setBookingContext(null);
@@ -55,16 +65,23 @@ export default function Home() {
     setIsBookingOpen(true);
   };
 
-  const handleCloseModal = () => setIsBookingOpen(false);
+  const handleCloseModal = () => {
+    setIsBookingOpen(false);
+  };
 
   useEffect(() => {
     async function loadReviews() {
       try {
+        setReviewsError(null);
         const res = await fetch(`${API_URL}/reviews/`);
+        if (!res.ok) {
+          throw new Error('Failed to load reviews');
+        }
         const data = (await res.json()) as Review[];
         setReviews(data);
       } catch (e) {
         console.error('Failed to load reviews', e);
+        setReviewsError('Отзывы временно недоступны');
       } finally {
         setReviewsLoading(false);
       }
@@ -77,19 +94,19 @@ export default function Home() {
     <>
       <Head>
         <title>
-          Барбершоп Gentlemen Нижний Новгород | Стрижка и борода от 1800₽
+          Барбершоп Джентльмены Культуры | Стрижка и борода от 1 800₽
         </title>
         <meta
           name="description"
-          content="Премиум барбершоп на Белозёрской, 4. Мужские стрижки, моделирование бороды, королевское бритьё. Запись онлайн +7 987 755 30 00."
+          content="Премиум барбершоп‑клуб «Джентльмены Культуры» на Белозёрской, 4. Мужские стрижки, борода, ритуалы и ночной формат для своих."
         />
         <meta
           name="keywords"
-          content="барбершоп нижний новгород, мужская стрижка нн, стрижка борода, барбершоп белозерская, gentlemen barbershop, gentlemen нижний новгород отзывы"
+          content="барбершоп нижний новгород, мужская стрижка нн, стрижка борода, барбершоп белозерская, gentlemen barbershop, джентльмены культуры отзывы"
         />
         <meta
           property="og:title"
-          content="Барбершоп Gentlemen — премиум-клуб мужских стрижек в НН"
+          content="Барбершоп‑клуб «Джентльмены Культуры» — премиум‑формат в НН"
         />
         <meta
           property="og:description"
@@ -103,27 +120,52 @@ export default function Home() {
       <Header onBookClick={handleBookClick} />
 
       {/* СЛОЙ 1: SEO‑полоса над героем */}
-      <section className="section section-paper border-b border-[var(--card-border)]">
-        <div className="container-custom flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-          <div>
-            <p className="label-small text-[var(--text-muted)]">
-              Барбершоп Gentlemen · Нижний Новгород, Белозёрская, 4
+      <section className="section-paper section-hero-top border-b border-[var(--card-border)]">
+        <div className="container-custom flex flex-col gap-4 py-4 md:py-5 md:flex-row md:items-stretch md:justify-between">
+          {/* Слева: адрес + оффер */}
+          <div className="w-full md:max-w-xl">
+            <p className="label-small text-[var(--text-muted)] flex items-center gap-2 mb-1">
+              <HugeiconsIcon
+                icon={Location01Icon}
+                size={18}
+                className="lux-icon"
+              />
+              <span className="text-[13px] md:text-[14px]">
+                Нижний Новгород · Белозёрская, 4
+              </span>
             </p>
-            <h1 className="text-xl md:text-2xl font-semibold text-[var(--text-dark)]">
-              Мужские стрижки и борода от 1 800 ₽ в премиум барбершоп‑клубе Gentlemen
+
+            <h1 className="mt-1 text-[20px] leading-snug md:text-[28px] md:leading-snug font-semibold text-[var(--text-dark-strong)]">
+              Мужские стрижки и борода от{' '}
+              <span className="font-bold">1 800 ₽</span> в{' '}
+              <span className="font-semibold text-[var(--accent-red)]">
+                премиум
+              </span>{' '}
+              барбершоп‑клубе «Джентльмены Культуры»
             </h1>
           </div>
-          <div className="flex flex-col items-start md:items-end gap-2 text-sm">
-            <button
-              type="button"
-              className="btn-primary"
-              onClick={handleBookClick}
-            >
-              Записаться онлайн
-            </button>
-            <p className="text-[var(--text-muted)]">
-              Только по предварительной записи · +7 987 755 30 00
-            </p>
+
+          {/* Справа: колонка с CTA, прижатая вниз */}
+          <div className="w-full md:w-auto flex flex-col md:items-end md:min-h-[120px]">
+            <div className="flex flex-col gap-2 md:gap-1 mt-auto md:items-end">
+              <button
+                type="button"
+                className="btn-primary w-full md:w-auto"
+                onClick={handleBookClick}
+              >
+                записаться онлайн
+              </button>
+
+              <p className="text-[13px] md:text-[14px] text-[var(--text-muted)] md:text-right">
+                Только по предварительной записи ·{' '}
+                <a
+                  href="tel:+79877553000"
+                  className="text-[var(--accent-red)] hover:opacity-80 transition"
+                >
+                  +7 987 755 30 00
+                </a>
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -133,21 +175,23 @@ export default function Home() {
         id="hero"
         className="section section-dark relative overflow-hidden section-animate"
       >
-        <div className="absolute inset-0 hero-glow-layer">
-          <div className="w-full h-full bg-[radial-gradient(circle_at_top,#5b1412_0,#050307_60%)] opacity-80" />
+        {/* спокойный фон‑градиент */}
+        <div className="absolute inset-0 hero-glow-layer pointer-events-none">
+          <div className="w-full h-full bg-gradient-to-br from-[#180405] via-[#050307] to-[#050307]" />
         </div>
 
         <div className="container-custom relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+          {/* Левая колонка: текст */}
           <div className="space-y-6 max-w-xl">
             <p className="label-small text-club-muted">
               мужской барбершоп‑клуб · нижний новгород
             </p>
 
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight max-w-xl">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight">
               Закрытый мужской клуб стрижек и ритуалов для тех, кто ценит себя
             </h2>
 
-            <p className="text-club-soft text-sm md:text-base">
+            <p className="text-club-soft text-[15px] md:text-base">
               Атмосферный барбершоп‑клуб на Белозёрской, 4: тёмный зал, тёплый
               свет, мягкие кресла и мастера, которым можно доверить голову и
               бороду без оговорок.
@@ -174,41 +218,44 @@ export default function Home() {
               </button>
             </div>
 
-            <p className="text-[11px] text-club-muted max-w-md">
-              Только по предварительной записи · ул. Белозёрская, 4 ·
-              пространство 18+ с уважением к личному времени и ритуалам гостей.
+            <p className="text-[13px] text-club-muted max-w-md">
+              Ул. Белозёрская, 4 · пространство 18+ с уважением к личному
+              времени и ритуалам гостей.
             </p>
           </div>
 
+          {/* Правая колонка: фото + карточка клуба */}
           <div className="space-y-4">
             <figure className="card-dark overflow-hidden">
               <picture>
-                <source
-                  srcSet="/images/club/club-main.webp"
-                  type="image/webp"
-                />
+                <source srcSet="/images/club/club-main.webp" type="image/webp" />
                 <img
                   src="/images/club/club-main.jpg"
-                  alt="Интерьер барбершоп‑клуба Gentlemen на Белозёрской"
+                  alt="Интерьер барбершоп‑клуба Джентльмены Культуры на Белозёрской"
                   className="hero-image"
                   loading="lazy"
                 />
               </picture>
               <figcaption className="sr-only">
-                Интерьер барбершоп‑клуба Gentlemen на Белозёрской
+                Интерьер барбершоп‑клуба Джентльмены Культуры на Белозёрской
               </figcaption>
             </figure>
 
             <div className="card-glass px-6 py-5">
-              <div className="flex items-center justify-between mb-3">
-                <p className="label-small text-club-muted">
-                  клубный формат · only by invitation
-                </p>
-                <span className="label-small text-[var(--accent-gold)]">
-                  только по записи
-                </span>
+              <div className="mb-3">
+                <div className="grid grid-cols-2 gap-x-6 text-[12px] uppercase tracking-[0.16em] text-club-muted">
+                  <div>клубный формат</div>
+                  <div className="text-right text-[var(--accent-gold)]">
+                    only by
+                  </div>
+                  <div>только по записи</div>
+                  <div className="text-right text-[var(--accent-gold)]">
+                    invitation
+                  </div>
+                </div>
               </div>
-              <div className="space-y-2 text-sm card-dark-text">
+
+              <div className="space-y-2 text-[14px] card-dark-text max-w-md">
                 <p>
                   — Камерное пространство с мягким светом, где можно спрятаться
                   от города хотя бы на час.
@@ -234,49 +281,118 @@ export default function Home() {
       {/* УТП / ПРЕИМУЩЕСТВА */}
       <section className="section section-paper section-animate">
         <div className="container-custom">
-          <h2 className="text-2xl md:text-3xl font-semibold text-[var(--text-dark)] mb-6">
-            Почему выбирают Gentlemen
-          </h2>
-          <div className="benefits-grid">
-            <div className="benefit-item">
-              <div className="benefit-icon">🎯</div>
-              <h3 className="text-base font-semibold mb-2">
-                Персональный подход в клубном формате
-              </h3>
-              <p className="text-sm text-[var(--text-muted)]">
-                Запоминаем ваши предпочтения, удачные решения и историю образа,
-                чтобы каждый визит в Gentlemen в Нижнем Новгороде начинался не с нуля.
+          <div className="max-w-3xl mx-auto">
+            <header className="mb-10 text-center">
+              <p className="label-small tracking-[0.22em] uppercase text-[var(--accent-gold-soft)] mb-2">
+                почему выбирают клуб
               </p>
+              <h2 className="text-2xl md:text-3xl font-semibold text-[var(--text-dark-strong)]">
+                Почему выбирают клуб «Джентльмены Культуры»
+              </h2>
+            </header>
+
+            <div className="relative pl-10 md:pl-16">
+              <div className="hidden md:block pointer-events-none absolute left-6 top-2 bottom-4">
+                <div className="w-px h-full bg-gradient-to-b from-[rgba(255,255,255,0.5)] via-[rgba(170,140,105,0.7)] to-[rgba(0,0,0,0.35)]" />
+              </div>
+
+              <div className="space-y-8 md:space-y-9">
+                {/* 1 */}
+                <div className="flex gap-4">
+                  <div className="flex flex-col items-center pt-1">
+                    <div className="benefit-icon mb-2">
+                      <HugeiconsIcon
+                        icon={Target01Icon}
+                        size={28}
+                        className="lux-icon"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-[16px] md:text-[17px] font-semibold mb-1.5 text-[var(--text-dark-strong)]">
+                      Персональный подход в клубном формате
+                    </h3>
+                    <p className="text-[14px] md:text-[15px] text-[var(--text-muted)] leading-relaxed">
+                      Запоминаем ваши предпочтения, удачные решения и историю
+                      образа, чтобы каждый визит в клуб «Джентльмены Культуры»
+                      начинался не с нуля.
+                    </p>
+                  </div>
+                </div>
+
+                {/* 2 */}
+                <div className="flex gap-4">
+                  <div className="flex flex-col items-center pt-1">
+                    <div className="benefit-icon mb-2">
+                      <HugeiconsIcon
+                        icon={Scissor01Icon}
+                        size={28}
+                        className="lux-icon"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-[16px] md:text-[17px] font-semibold mb-1.5 text-[var(--text-dark-strong)]">
+                      Мастера с опытом и единым почерком
+                    </h3>
+                    <p className="text-[14px] md:text-[15px] text-[var(--text-muted)] leading-relaxed">
+                      Опыт от 5 лет, внутренняя школа и стандарты клуба — не
+                      потоковая смена, а команда, которая разделяет почерк
+                      «Джентльменов Культуры».
+                    </p>
+                  </div>
+                </div>
+
+                {/* 3 */}
+                <div className="flex gap-4">
+                  <div className="flex flex-col items-center pt-1">
+                    <div className="benefit-icon mb-2">
+                      <HugeiconsIcon
+                        icon={TimeScheduleIcon}
+                        size={28}
+                        className="lux-icon"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-[16px] md:text-[17px] font-semibold mb-1.5 text-[var(--text-dark-strong)]">
+                      Строго по записи и по времени
+                    </h3>
+                    <p className="text-[14px] md:text-[15px] text-[var(--text-muted)] leading-relaxed">
+                      Планируем ритуалы так, чтобы вы приходили на своё время и
+                      не сидели в живой очереди у стойки администратора.
+                    </p>
+                  </div>
+                </div>
+
+                {/* 4 */}
+                <div className="flex gap-4">
+                  <div className="flex flex-col items-center pt-1">
+                    <div className="benefit-icon mb-2">
+                      <HugeiconsIcon
+                        icon={DrinkIcon}
+                        size={28}
+                        className="lux-icon"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-[16px] md:text-[17px] font-semibold mb-1.5 text-[var(--text-dark-strong)]">
+                      Атмосфера закрытого мужского клуба
+                    </h3>
+                    <p className="text-[14px] md:text-[15px] text-[var(--text-muted)] leading-relaxed">
+                      Бар, мягкий свет и гости, которым близок спокойный формат
+                      без суеты и лишнего шума.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="benefit-item">
-              <div className="benefit-icon">✂️</div>
-              <h3 className="text-base font-semibold mb-2">
-                Мастера с опытом и единым почерком
-              </h3>
-              <p className="text-sm text-[var(--text-muted)]">
-                Опыт от 5 лет, внутренняя школа и стандарты клуба — не потоковая смена,
-                а команда, которая разделяет почерк Gentlemen.
-              </p>
-            </div>
-            <div className="benefit-item">
-              <div className="benefit-icon">🕐</div>
-              <h3 className="text-base font-semibold mb-2">
-                Строго по записи и по времени
-              </h3>
-              <p className="text-sm text-[var(--text-muted)]">
-                Планируем ритуалы так, чтобы вы приходили на своё время и не сидели
-                в живой очереди у стойки администратора.
-              </p>
-            </div>
-            <div className="benefit-item">
-              <div className="benefit-icon">🍷</div>
-              <h3 className="text-base font-semibold mb-2">
-                Атмосфера мужского клуба
-              </h3>
-              <p className="text-sm text-[var(--text-muted)]">
-                Бар, мягкий свет и гости, которым близок спокойный формат без суеты
-                и лишнего шума.
-              </p>
+
+            <div className="mt-8 text-center">
+              <button className="text-[12px] md:text-[13px] tracking-[0.18em] uppercase text-[var(--accent-red)] hover:opacity-80">
+                манифест клуба
+              </button>
             </div>
           </div>
         </div>
@@ -287,22 +403,25 @@ export default function Home() {
         <div className="container-custom max-w-4xl space-y-7">
           <p className="label-small text-[var(--accent-red)]">манифест клуба</p>
 
-          <h2 className="text-3xl md:text-4xl font-semibold tracking-wide text-[var(--text-dark)] max-w-3xl">
-            Мы не просто стрижём — мы строим отношения с гостями клуба
+          <h2 className="text-3xl md:text-4xl font-semibold tracking-wide text-[var(--text-dark-strong)] max-w-3xl">
+            Мы не просто стрижём — мы{' '}
+            <span className="text-[var(--accent-red)]">строим отношения</span> с
+            гостями клуба
           </h2>
 
-          <p className="text-sm text-[var(--text-muted)]">
+          <p className="text-[14px] md:text-[15px] text-[var(--text-muted)]">
             Мы не продаём ещё одну стрижку по записи. Каждый визит — часть
             истории: любимый мастер, понятный образ и место, куда хочется
             возвращаться.
           </p>
-          <p className="text-sm text-[var(--text-muted)]">
+          <p className="text-[14px] md:text-[15px] text-[var(--text-muted)]">
             Личные предпочтения, удачные решения и ритуалы фиксируются в клубном
             кабинете, чтобы каждый следующий визит начинался не с нуля.
           </p>
-          <p className="text-sm text-[var(--text-muted)]">
+          <p className="text-[14px] md:text-[15px] text-[var(--text-muted)]">
             Если нужен просто недорогой срез кончиков, вокруг достаточно
-            салонов. Если нужно своё место в городе — для этого есть Gentlemen.
+            салонов. Если нужно своё место в городе — для этого есть клуб
+            «Джентльмены Культуры».
           </p>
         </div>
       </section>
@@ -312,34 +431,38 @@ export default function Home() {
         id="club"
         className="section section-dark section-rug-photo section-animate"
       >
-        <div className="container-custom">
-          <div className="text-center mb-10 max-w-3xl mx-auto">
+        <div className="container-custom flex flex-col items-center">
+          <div className="w-full max-w-3xl text-center mb-10 mx-auto">
             <p className="label-small text-club-muted mb-2">
               какие ритуалы живут в клубе
             </p>
             <h2 className="text-3xl md:text-4xl font-semibold mb-3">
               Мужские стрижки и ритуалы для головы и бороды
             </h2>
-            <p className="text-club-soft text-sm md:text-base">
-              Первый визит, мужская стрижка, борода, аккуратный контур и ночной формат
-              для своих — вместо длинного прайса только понятные форматы, которые
-              действительно нужны гостям барбершопа Gentlemen на Белозёрской, 4.
+            <p className="text-club-soft text-[15px] md:text-base max-w-2xl mx-auto">
+              Первый визит, мужская стрижка, борода, аккуратный контур и ночной
+              формат для своих — вместо длинного прайса только понятные форматы,
+              которые действительно нужны гостям барбершопа Джентльмены Культуры
+              на Белозёрской, 4.
             </p>
           </div>
 
-          <div className="max-w-xl mx-auto space-y-6">
+          <div className="w-full max-w-lg space-y-6 mx-auto">
             <article className="card-glass hover-lift px-6 py-6 ritual-card">
-              <p className="label-small text-club-muted mb-2">первый визит</p>
-              <h3 className="text-lg font-semibold card-dark-title mb-2">
+              <p className="label-small text-club-muted mb-2 text-left">
+                первый визит
+              </p>
+              <h3 className="text-lg font-semibold card-dark-title mb-2 text-left">
                 «Собрать голову» — первая мужская стрижка в клубе
               </h3>
-              <p className="text-sm card-dark-text mb-3">
-                Ритуал для тех, кто приходит в барбершоп Gentlemen впервые.
-                Консультация, мужская стрижка, мытьё головы, укладка и понятные
-                рекомендации, как носить новую форму без стилиста под боком.
+              <p className="text-[14px] md:text-[15px] card-dark-text mb-3 text-left">
+                Ритуал для тех, кто приходит в клуб «Джентльмены Культуры»
+                впервые. Консультация, мужская стрижка, мытьё головы, укладка и
+                понятные рекомендации, как носить новую форму без стилиста под
+                боком.
               </p>
-              <p className="text-xs text-[var(--accent-gold-soft)]">
-                от 1 800 ₽ · около 60 минут · мужская стрижка в Gentlemen
+              <p className="text-[13px] text-[var(--accent-gold-soft)] text-left">
+                от 1 800 ₽ · около 60 минут · мужская стрижка
               </p>
               <div className="mt-4">
                 <button
@@ -353,18 +476,19 @@ export default function Home() {
             </article>
 
             <article className="card-glass hover-lift px-6 py-6 ritual-card">
-              <p className="label-small text-club-muted mb-2">
+              <p className="label-small text-club-muted mb-2 text-left">
                 голова и борода
               </p>
-              <h3 className="text-lg font-semibold card-dark-title mb-2">
+              <h3 className="text-lg font-semibold card-dark-title mb-2 text-left">
                 «Собрать образ» — стрижка и борода под один сценарий
               </h3>
-              <p className="text-sm card-dark-text mb-3">
+              <p className="text-[14px] md:text-[15px] card-dark-text mb-3 text-left">
                 Когда голова и борода давно живут разной жизнью. Мастер собирает
-                всё в единый образ: мужская стрижка, моделирование бороды, форма,
-                линии, длина и уход, чтобы зеркало радовало не только в день визита.
+                всё в единый образ: мужская стрижка, моделирование бороды,
+                форма, линии, длина и уход, чтобы зеркало радовало не только в
+                день визита.
               </p>
-              <p className="text-xs text-[var(--accent-gold-soft)]">
+              <p className="text-[13px] text-[var(--accent-gold-soft)] text-left">
                 от 2 800 ₽ · около 90 минут · стрижка + борода
               </p>
               <div className="mt-4">
@@ -379,16 +503,18 @@ export default function Home() {
             </article>
 
             <article className="card-glass hover-lift px-6 py-6 ritual-card">
-              <p className="label-small text-club-muted mb-2">быстрый формат</p>
-              <h3 className="text-lg font-semibold card-dark-title mb-2">
+              <p className="label-small text-club-muted mb-2 text-left">
+                быстрый формат
+              </p>
+              <h3 className="text-lg font-semibold card-dark-title mb-2 text-left">
                 «Чистый контур» — освежить линии без полной стрижки
               </h3>
-              <p className="text-sm card-dark-text mb-3">
+              <p className="text-[14px] md:text-[15px] card-dark-text mb-3 text-left">
                 Когда в целом всё устраивает, но поплыл край: виски, шея,
                 борода. Небольшой ритуал, чтобы освежить контуры и вернуть
                 ощущение собранности без радикальных изменений длины.
               </p>
-              <p className="text-xs text-[var(--accent-gold-soft)]">
+              <p className="text-[13px] text-[var(--accent-gold-soft)] text-left">
                 от 800 ₽ · 30–45 минут · коррекция контура
               </p>
               <div className="mt-4">
@@ -403,20 +529,21 @@ export default function Home() {
             </article>
 
             <article className="card-glass hover-lift px-6 py-6 ritual-card">
-              <p className="label-small text-club-muted mb-2">
+              <p className="label-small text-club-muted mb-2 text-left">
                 закрытый формат · для своих
               </p>
-              <h3 className="text-lg font-semibold card-dark-title mb-2">
+              <h3 className="text-lg font-semibold card-dark-title mb-2 text-left">
                 «Выключить голову» — ночной клубный ритуал
               </h3>
-              <p className="text-sm card-dark-text mb-3">
-                Поздний ритуал для гостей, которые уже успели стать частью клуба.
-                Больше времени, мягкий свет, бар и расширенный уход для головы и
-                бороды, чтобы выйти не только с новой головой, но и с другим
-                состоянием.
+              <p className="text-[14px] md:text-[15px] card-dark-text mb-3 text-left">
+                Поздний ритуал для гостей, которые уже успели стать частью
+                клуба. Больше времени, мягкий свет, бар и расширенный уход для
+                головы и бороды, чтобы выйти не только с новой головой, но и с
+                другим состоянием.
               </p>
-              <p className="text-xs text-[var(--accent-gold-soft)]">
-                доступен гостям с историей 5+ визитов · детали и стоимость у администратора
+              <p className="text-[13px] text-[var(--accent-gold-soft)] text-left">
+                доступен гостям с историей 5+ визитов · детали и стоимость у
+                администратора
               </p>
               <div className="mt-4">
                 <button
@@ -430,8 +557,8 @@ export default function Home() {
             </article>
           </div>
 
-          <div className="mt-10 text-center space-y-2">
-            <p className="text-club-soft text-sm">
+          <div className="mt-10 w-full max-w-lg text-center space-y-2 mx-auto">
+            <p className="text-club-soft text-[14px] md:text-[15px]">
               Точные цены и свободные слоты можно уточнить у администратора или
               выбрать ритуал онлайн.
             </p>
@@ -451,73 +578,79 @@ export default function Home() {
       {/* ИСТОРИИ ГОСТЕЙ (ТИЗЕР) */}
       <section className="section section-paper section-animate">
         <div className="container-custom">
-          <div className="mb-8 max-w-3xl">
+          <div className="mb-8 max-w-3xl mx-auto text-center">
             <p className="label-small text-[var(--text-muted)] mb-2">
-              до и после · истории образов
+              ДО и ПОСЛЕ · истории образов
             </p>
-            <h2 className="text-2xl md:text-3xl font-semibold text-[var(--text-dark)] mb-3">
+            <h2 className="text-2xl md:text-3xl font-semibold text-[var(--text-dark-strong)] mb-3">
               Как меняется образ, когда есть свой клуб
             </h2>
-            <p className="text-sm md:text-base text-[var(--text-muted)]">
-              Реальные гости Gentlemen: зачем приходили, какой ритуал выбрали и
-              с чем ушли.
+            <p className="text-[14px] md:text-[15px] text-[var(--text-muted)]">
+              Реальные гости клуба «Джентльмены Культуры»: зачем приходили, какой
+              ритуал выбрали и с чем ушли.
             </p>
           </div>
 
-          <div className="gallery-grid">
-            <article className="gallery-item">
+          <div className="flex justify-center overflow-x-auto gap-6 pb-2 -mx-4 md:mx-0 px-4 md:px-0">
+            {/* карточка 1 */}
+            <article className="gallery-item flex-none w-64 md:w-72 h-80 md:h-80 rounded-2xl border border-[#e1d4c4]/60 bg-[#15110d] overflow-hidden relative">
               <img
-                src="/images/stories/story-1.jpg"
-                alt="До и после: классическая стрижка и борода"
+                src="/images/stories/barbershop-story-first-visit.webp"
+                alt="До и после: классическая мужская стрижка и борода"
                 loading="lazy"
+                className="w-full h-full object-cover"
               />
-              <div className="gallery-overlay">
-                <h3 className="text-sm font-semibold mb-1">
+              <div className="gallery-overlay absolute inset-0 flex flex-col items-center justify-end px-3 pb-4 md:pb-5 bg-gradient-to-t from-black/65 via-black/20 to-transparent text-[#f3ebe0] text-center">
+                <h3 className="text-[13px] font-semibold mb-1 leading-snug tracking-[0.12em] uppercase">
                   «Собрать образ» перед важной встречей
                 </h3>
-                <p className="text-xs text-[#f3ebe0]">
+                <p className="text-[12px] text-[#f3ebe0]/85 leading-snug">
                   Мастер: Елена · стрижка + борода, образ для переговоров.
                 </p>
               </div>
             </article>
 
-            <article className="gallery-item">
+            {/* карточка 2 */}
+            <article className="gallery-item flex-none w-64 md:w-72 h-80 md:h-80 rounded-2xl border border-[#e1d4c4]/60 bg-[#15110d] overflow-hidden relative">
               <img
-                src="/images/stories/story-2.jpg"
-                alt="Ночной ритуал в клубе Gentlemen"
+                src="/images/stories/barbershop-story-night-ritual.webp"
+                alt="Ночной клубный ритуал с баром и уходом"
                 loading="lazy"
+                className="w-full h-full object-cover"
               />
-              <div className="gallery-overlay">
-                <h3 className="text-sm font-semibold mb-1">
+              <div className="gallery-overlay absolute inset-0 flex flex-col items-center justify-end px-3 pb-4 md:pb-5 bg-gradient-to-t from-black/65 via-black/20 to-transparent text-[#f3ebe0] text-center">
+                <h3 className="text-[13px] font-semibold mb-1 leading-snug tracking-[0.12em] uppercase">
                   «Выключить голову» после сложной недели
                 </h3>
-                <p className="text-xs text-[#f3ebe0]">
+                <p className="text-[12px] text-[#f3ebe0]/85 leading-snug">
                   Мастер: Роман · ночной формат, расширенный уход и бар.
                 </p>
               </div>
             </article>
 
-            <article className="gallery-item">
+            {/* карточка 3 */}
+            <article className="gallery-item flex-none w-64 md:w-72 h-80 md:h-80 rounded-2xl border border-[#e1d4c4]/60 bg-[#15110d] overflow-hidden relative">
               <img
-                src="/images/stories/story-3.jpg"
-                alt="Чистый контур бороды"
+                src="/images/stories/barbershop-story-clean-contour.webp"
+                alt="Чистый контур бороды и висков"
                 loading="lazy"
+                className="w-full h-full object-cover"
               />
-              <div className="gallery-overlay">
-                <h3 className="text-sm font-semibold mb-1">
+              <div className="gallery-overlay absolute inset-0 flex flex-col items-center justify-end px-3 pb-4 md:pb-5 bg-gradient-to-t from-black/65 via-black/20 to-transparent text-[#f3ebe0] text-center">
+                <h3 className="text-[13px] font-semibold mb-1 leading-snug tracking-[0.12em] uppercase">
                   «Чистый контур» вместо полной стрижки
                 </h3>
-                <p className="text-xs text-[#f3ebe0]">
+                <p className="text-[12px] text-[#f3ebe0]/85 leading-snug">
                   Мастер: Максим · обновили линии, оставили длину.
                 </p>
               </div>
             </article>
           </div>
 
-          <div className="mt-6">
+          <div className="mt-6 text-center">
             <button
               type="button"
-              className="text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80"
+              className="text-[12px] md:text-[13px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80"
               onClick={() => {
                 window.location.href = '/stories';
               }}
@@ -529,16 +662,16 @@ export default function Home() {
       </section>
 
       {/* МАСТЕРА */}
-      <section id="masters" className="section section-dark section-animate">
+      <section id="masters" className="section section-paper section-animate">
         <div className="container-custom">
           <div className="text-center mb-10 max-w-3xl mx-auto">
-            <p className="label-small text-club-muted mb-2">
-              совет клуба gentlemen
+            <p className="label-small text-[var(--text-muted)] mb-2">
+              совет клуба джентльмены культуры
             </p>
-            <h2 className="text-3xl md:text-4xl font-semibold mb-3">
-              Мастера барбершопа Gentlemen в Нижнем Новгороде
+            <h2 className="text-3xl md:text-4xl font-semibold mb-3 text-[var(--text-dark-strong)]">
+              Мастера барбершопа «Джентльмены Культуры» в Нижнем Новгороде
             </h2>
-            <p className="text-club-soft text-sm md:text-base">
+            <p className="text-[14px] md:text-[15px] text-[var(--text-muted)]">
               Не случайные мастера по графику, а команда с характером и вкусом.
               Вы выбираете не кресло — вы выбираете человека, которому готовы
               доверить голову и бороду.
@@ -547,9 +680,9 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Елена */}
-            <article className="card-paper-lifted hover-lift p-6 flex flex-col justify-between">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-200">
+            <article className="card-paper-lifted hover-lift p-6 flex flex-col justify-between bg-[var(--paper-bg)]">
+              <div className="border-b border-[var(--card-border)] pb-4 mb-4 flex items-center gap-4">
+                <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200">
                   <img
                     src="/images/masters/elena.jpg"
                     alt="ТОП‑барбер Елена"
@@ -558,22 +691,22 @@ export default function Home() {
                   />
                 </div>
                 <div>
-                  <p className="label-small text-[var(--text-muted)]">
+                  <p className="label-small text-[var(--text-muted-strong)]">
                     ТОП барбер
                   </p>
-                  <h3 className="text-lg font-semibold text-[var(--text-dark)]">
+                  <h3 className="text-lg font-semibold text-[var(--text-dark-strong)]">
                     Елена
                   </h3>
                 </div>
               </div>
-              <p className="text-sm text-[var(--text-muted)] mb-4">
+              <p className="text-[14px] md:text-[15px] leading-relaxed text-[var(--text-dark)] mb-4">
                 Видит детали, которые другие пропускают. Любит чистые формы,
                 аккуратные переходы и естественную укладку, которую легко
                 повторить дома.
               </p>
               <button
                 type="button"
-                className="text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80 underline underline-offset-4"
+                className="text-[12px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80 underline underline-offset-4"
                 onClick={() => handleBookWithMaster('Елена')}
               >
                 записаться к елене
@@ -581,9 +714,9 @@ export default function Home() {
             </article>
 
             {/* Максим */}
-            <article className="card-paper-lifted hover-lift p-6 flex flex-col justify-between">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-200">
+            <article className="card-paper-lifted hover-lift p-6 flex flex-col justify-between bg-[var(--paper-bg)]">
+              <div className="border-b border-[var(--card-border)] pb-4 mb-4 flex items-center gap-4">
+                <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200">
                   <img
                     src="/images/masters/maksim.jpg"
                     alt="ТОП‑барбер Максим"
@@ -592,21 +725,21 @@ export default function Home() {
                   />
                 </div>
                 <div>
-                  <p className="label-small text-[var(--text-muted)]">
+                  <p className="label-small text-[var(--text-muted-strong)]">
                     ТОП барбер
                   </p>
-                  <h3 className="text-lg font-semibold text-[var(--text-dark)]">
+                  <h3 className="text-lg font-semibold text-[var(--text-dark-strong)]">
                     Максим
                   </h3>
                 </div>
               </div>
-              <p className="text-sm text-[var(--text-muted)] mb-4">
+              <p className="text-[14px] md:text-[15px] leading-relaxed text-[var(--text-dark)] mb-4">
                 Спокойный характер и уверенная рука. Делает современные стрижки
                 и фейды без лишнего шоу, когда важнее результат, а не разговоры.
               </p>
               <button
                 type="button"
-                className="text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80 underline underline-offset-4"
+                className="text-[12px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80 underline underline-offset-4"
                 onClick={() => handleBookWithMaster('Максим')}
               >
                 записаться к максиму
@@ -614,9 +747,9 @@ export default function Home() {
             </article>
 
             {/* Алексей */}
-            <article className="card-paper-lifted hover-lift p-6 flex flex-col justify-between">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-200">
+            <article className="card-paper-lifted hover-lift p-6 flex flex-col justify-between bg-[var(--paper-bg)]">
+              <div className="border-b border-[var(--card-border)] pb-4 mb-4 flex items-center gap-4">
+                <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200">
                   <img
                     src="/images/masters/aleksei.jpg"
                     alt="ТОП‑барбер Алексей"
@@ -625,21 +758,21 @@ export default function Home() {
                   />
                 </div>
                 <div>
-                  <p className="label-small text-[var(--text-muted)]">
+                  <p className="label-small text-[var(--text-muted-strong)]">
                     ТОП барбер
                   </p>
-                  <h3 className="text-lg font-semibold text-[var(--text-dark)]">
+                  <h3 className="text-lg font-semibold text-[var(--text-dark-strong)]">
                     Алексей
                   </h3>
                 </div>
               </div>
-              <p className="text-sm text-[var(--text-muted)] mb-4">
+              <p className="text-[14px] md:text-[15px] leading-relaxed text-[var(--text-dark)] mb-4">
                 Отвечает за образ целиком: стрижка, борода, линии — чтобы всё
                 собиралось в одну картинку без крайностей и перегибов.
               </p>
               <button
                 type="button"
-                className="text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80 underline underline-offset-4"
+                className="text-[12px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80 underline underline-offset-4"
                 onClick={() => handleBookWithMaster('Алексей')}
               >
                 записаться к алексею
@@ -647,9 +780,9 @@ export default function Home() {
             </article>
 
             {/* Роман */}
-            <article className="card-paper-lifted hover-lift p-6 flex flex-col justify-between">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-200">
+            <article className="card-paper-lifted hover-lift p-6 flex flex-col justify-between bg-[var(--paper-bg)]">
+              <div className="border-b border-[var(--card-border)] pb-4 mb-4 flex items-center gap-4">
+                <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200">
                   <img
                     src="/images/masters/roman.jpg"
                     alt="Арт‑директор Роман"
@@ -658,22 +791,22 @@ export default function Home() {
                   />
                 </div>
                 <div>
-                  <p className="label-small text-[var(--text-muted)]">
+                  <p className="label-small text-[var(--text-muted-strong)]">
                     арт‑директор клуба
                   </p>
-                  <h3 className="text-lg font-semibold text-[var(--text-dark)]">
+                  <h3 className="text-lg font-semibold text-[var(--text-dark-strong)]">
                     Роман
                   </h3>
                 </div>
               </div>
-              <p className="text-sm text-[var(--text-muted)] mb-4">
+              <p className="text-[14px] md:text-[15px] leading-relaxed text-[var(--text-dark)] mb-4">
                 Отвечает за почерк клуба и сложные запросы. Настраивает форму
                 под характер и образ жизни, курирует ночные форматы и обучает
                 команду.
               </p>
               <button
                 type="button"
-                className="text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80 underline underline-offset-4"
+                className="text-[12px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80 underline underline-offset-4"
                 onClick={() => handleBookWithMaster('Роман')}
               >
                 записаться к роману
@@ -688,15 +821,14 @@ export default function Home() {
         <div className="container-custom">
           <div className="text-center mb-10 max-w-3xl mx-auto">
             <p className="label-small text-club-muted mb-2">
-              голоса гостей барбершопа Gentlemen
+              голоса гостей клуба
             </p>
             <h2 className="text-3xl md:text-4xl font-semibold mb-3">
-              5.0 по отзывам гостей клуба в Нижнем Новгороде
+              5.0 по отзывам гостей «Джентльменов Культуры» в Нижнем Новгороде
             </h2>
-            <p className="text-club-soft text-sm md:text-base">
-              Здесь — короткая выборка отзывов о барбершопе Gentlemen на
-              Белозёрской, 4. Полные списки всегда можно посмотреть на Яндекс
-              Картах и в 2ГИС.
+            <p className="text-club-soft text-[14px] md:text-[15px]">
+              Здесь — короткая выборка отзывов о клубе на Белозёрской, 4.
+              Полные списки всегда можно посмотреть на Яндекс Картах и в 2ГИС.
             </p>
           </div>
 
@@ -705,75 +837,81 @@ export default function Home() {
               href="https://yandex.ru/maps/org/dzhentlmeny_kultury/101569682800/reviews/?ll=43.875272%2C56.348966&z=17"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/20 text-xs uppercase tracking-[0.16em] text-club-soft hover:bg-white/10 transition"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/20 text-[12px] uppercase tracking-[0.16em] text-club-soft hover:bg-white/10 transition"
             >
               <span className="w-2 h-2 rounded-full bg-[#ffcc00]" />
-              все отзывы о Gentlemen на яндекс картах
+              все отзывы о клубе на яндекс картах
             </a>
             <a
               href="https://2gis.ru/n_novgorod/firm/70000001080133566/tab/reviews"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/20 text-xs uppercase tracking-[0.16em] text-club-soft hover:bg.white/10 transition"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/20 text-[12px] uppercase tracking-[0.16em] text-club-soft hover:bg-white/10 transition"
             >
               <span className="w-2 h-2 rounded-full bg-[#00b25c]" />
-              все отзывы о Gentlemen в 2ГИС
+              все отзывы о клубе в 2ГИС
             </a>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {reviewsLoading && (
               <p className="text-club-muted text-center col-span-full">
                 Загружаем отзывы гостей…
               </p>
             )}
 
+            {!reviewsLoading && reviewsError && (
+              <p className="text-club-soft text-center col-span-full text-[14px]">
+                Отзывы временно недоступны, но клуб продолжает жить своей
+                атмосферой — скоро всё вернём.
+              </p>
+            )}
+
+            {!reviewsLoading && !reviewsError && reviews.length === 0 && (
+              <p className="text-club-soft text-center col-span-full text-[14px]">
+                Пока нет опубликованных отзывов, но гости уже оставляют
+                впечатления в клубе.
+              </p>
+            )}
+
             {!reviewsLoading &&
-              (() => {
-                const fromYandex = reviews.filter((r) => r.source === 'yandex');
-                const from2Gis = reviews.filter((r) => r.source === '2gis');
-                const fromSite = reviews.filter((r) => r.source === 'site');
+              !reviewsError &&
+              reviews.map((review) => {
+                const formattedDate = review.date
+                  ? new Date(
+                      review.date + 'T00:00:00',
+                    ).toLocaleDateString('ru-RU', {
+                      day: '2-digit',
+                      month: 'long',
+                      year: 'numeric',
+                    })
+                  : null;
 
-                const pickRandom = (arr: Review[], count: number) => {
-                  const copy = [...arr];
-                  for (let i = copy.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [copy[i], copy[j]] = [copy[j], copy[i]];
-                  }
-                  return copy.slice(0, count);
-                };
-
-                const selected: Review[] = [
-                  ...pickRandom(fromYandex, 4),
-                  ...pickRandom(from2Gis, 4),
-                  ...pickRandom(fromSite, 4),
-                ];
-
-                return selected.map((review) => (
+                return (
                   <article
                     key={review.id}
                     className="card-glass px-6 py-6 flex flex-col justify-between hover-lift"
                   >
-                    <p className="text-sm card-dark-text italic mb-4">
+                    <p className="text-[14px] card-dark-text italic mb-4">
                       «{review.text}»
                     </p>
                     <div className="flex items-baseline justify-between gap-3">
                       <div>
-                        <p className="text-[var(--accent-gold-soft)] font-semibold text-sm">
-                          {review.author || 'Гость клуба Gentlemen'}
+                        <p className="text-[var(--accent-gold-soft)] font-semibold text-[14px]">
+                          {review.author || 'Гость клуба'}
                         </p>
-                        <p className="text-[11px] text-club-muted mt-1">
-                          {getSourceLabel(review.source)} ·{' '}
-                          {new Date(review.date).toLocaleDateString('ru-RU')}
+                        <p className="text-[12px] text-club-muted mt-1">
+                          {getSourceLabel(review.source)}
+                          {formattedDate ? ` • ${formattedDate}` : ''}
                         </p>
                       </div>
-                      <p className="text-[var(--accent-red)] text-sm">
+                      <p className="text-[var(--accent-red)] text-[14px]">
                         {'★'.repeat(review.rating)}
                       </p>
                     </div>
                   </article>
-                ));
-              })()}
+                );
+              })}
           </div>
         </div>
       </section>
@@ -785,13 +923,12 @@ export default function Home() {
             <p className="label-small text-[var(--text-muted)] mb-2">
               клубные подборки
             </p>
-            <h2 className="text-3xl md:text-4xl font-semibold text-[var(--text-dark)] mb-3">
+            <h2 className="text-3xl md:text-4xl font-semibold text-[var(--text-dark-strong)] mb-3">
               Истории, ритуалы и рекомендации в одном месте
             </h2>
-            <p className="text-sm md:text-base text-[var(--text-muted)]">
-              Вместо бесконечных пунктов меню — три карты, с которых удобно
-              начать знакомство с клубом: ритуалы, истории гостей и личный
-              кабинет.
+            <p className="text-[14px] md:text-[15px] text-[var(--text-muted)]">
+              Вместо длинного меню — три витрины, с которых проще всего начать
+              знакомство с клубом.
             </p>
           </div>
 
@@ -806,16 +943,18 @@ export default function Home() {
                 />
               </div>
               <div className="card-showcase-body">
-                <h3 className="text-sm font-semibold tracking-[0.12em] uppercase">
-                  Ритуальная карта
-                </h3>
-                <p className="text-[13px] text-[var(--text-muted)] mb-3">
-                  Все клубные ритуалы в одном месте: от первого визита до
-                  ночного формата «Выключить голову».
-                </p>
+                <div>
+                  <h3 className="text-[14px] font-semibold tracking-[0.12em] uppercase">
+                    Ритуальная карта
+                  </h3>
+                  <p className="card-showcase-text">
+                    Все форматы клубных ритуалов — от первого визита до ночного
+                    «Выключить голову».
+                  </p>
+                </div>
                 <button
                   type="button"
-                  className="text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80"
+                  className="mt-4 text-[12px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80"
                   onClick={() => {
                     window.location.href = '/rituals';
                   }}
@@ -835,16 +974,18 @@ export default function Home() {
                 />
               </div>
               <div className="card-showcase-body">
-                <h3 className="text-sm font-semibold tracking-[0.12em] uppercase">
-                  Истории гостей
-                </h3>
-                <p className="text-[13px] text-[var(--text-muted)] mb-3">
-                  Живые сюжеты: зачем мужчины приходят в клуб и с каким
-                  ощущением выходят в ночь после ритуала.
-                </p>
+                <div>
+                  <h3 className="text-[14px] font-semibold tracking-[0.12em] uppercase">
+                    Истории гостей
+                  </h3>
+                  <p className="card-showcase-text">
+                    Короткие сюжеты о том, зачем мужчины приходят в клуб и с чем
+                    уходят после ритуала.
+                  </p>
+                </div>
                 <button
                   type="button"
-                  className="text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80"
+                  className="mt-4 text-[12px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80"
                   onClick={() => {
                     window.location.href = '/stories';
                   }}
@@ -864,16 +1005,18 @@ export default function Home() {
                 />
               </div>
               <div className="card-showcase-body">
-                <h3 className="text-sm font-semibold tracking-[0.12em] uppercase">
-                  Клубный кабинет
-                </h3>
-                <p className="text-[13px] text-[var(--text-muted)] mb-3">
-                  История визитов, любимые мастера и персональные рекомендации
-                  по уходу — всё собрано в одном месте.
-                </p>
+                <div>
+                  <h3 className="text-[14px] font-semibold tracking-[0.12em] uppercase">
+                    Клубный кабинет
+                  </h3>
+                  <p className="card-showcase-text">
+                    История визитов, мастера и персональные рекомендации по
+                    уходу в одном личном кабинете.
+                  </p>
+                </div>
                 <button
                   type="button"
-                  className="text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80"
+                  className="text-[12px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80"
                   onClick={() => {
                     window.location.href = '/cabinet';
                   }}
@@ -892,11 +1035,11 @@ export default function Home() {
           <p className="label-small text-[var(--text-muted)] mb-2">
             ответы до звонка
           </p>
-          <h2 className="text-2xl md:text-3xl font-semibold text-[var(--text-dark)] mb-5">
+          <h2 className="text-2xl md:text-3xl font-semibold text-[var(--text-dark-strong)] mb-5">
             Частые вопросы о клубе
           </h2>
 
-          <div className="space-y-4 text-sm md:text-base text-[var(--text-muted)]">
+          <div className="space-y-4 text-[14px] md:text-[15px] text-[var(--text-muted)]">
             <details className="rounded-xl border border-[var(--card-border)] bg-white/90 px-4 py-3">
               <summary className="cursor-pointer font-semibold text-[var(--text-dark-strong)]">
                 Работаете по записи или можно прийти без звонка?
@@ -907,7 +1050,7 @@ export default function Home() {
               </p>
             </details>
 
-            <details className="rounded-xl border border-[var(--card-border)] bg.white/90 px-4 py-3">
+            <details className="rounded-xl border border-[var(--card-border)] bg-white/90 px-4 py-3">
               <summary className="cursor-pointer font-semibold text-[var(--text-dark-strong)]">
                 Сколько по времени длится визит?
               </summary>
@@ -918,7 +1061,7 @@ export default function Home() {
               </p>
             </details>
 
-            <details className="rounded-xl border border-[var(--card-border)] bg.white/90 px-4 py-3">
+            <details className="rounded-xl border border-[var(--card-border)] bg-white/90 px-4 py-3">
               <summary className="cursor-pointer font-semibold text-[var(--text-dark-strong)]">
                 Можно ли прийти с ребёнком или семьёй?
               </summary>
@@ -929,7 +1072,7 @@ export default function Home() {
               </p>
             </details>
 
-            <details className="rounded-xl border border-[var(--card-border)] bg.white/90 px-4 py-3">
+            <details className="rounded-xl border border-[var(--card-border)] bg-white/90 px-4 py-3">
               <summary className="cursor-pointer font-semibold text-[var(--text-dark-strong)]">
                 Как отменить или перенести запись?
               </summary>
@@ -946,19 +1089,20 @@ export default function Home() {
       {/* ПОДАРОЧНЫЙ СЕРТИФИКАТ */}
       <section className="section section-dark section-animate">
         <div className="container-custom grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-          <div>
+          {/* Левая колонка */}
+          <div className="max-w-xl">
             <p className="label-small text-club-muted mb-2">
               подарок, который точно используют
             </p>
             <h2 className="text-2xl md:text-3xl font-semibold mb-4">
-              Подарочные сертификаты клуба Gentlemen
+              Подарочные сертификаты клуба «Джентльмены Культуры»
             </h2>
-            <p className="text-club-soft text-sm md:text-base mb-4">
+            <p className="text-club-soft text-[14px] md:text-[15px] mb-4">
               Сертификат на ритуал или сумму — спокойный способ подарить человеку
               время на себя: стрижка, борода, уход и клубная атмосфера вместо
               очередного сувенира.
             </p>
-            <ul className="text-club-soft text-sm space-y-1 mb-5">
+            <ul className="text-club-soft text-[14px] space-y-1 mb-5">
               <li>— Фиксированные номиналы или под конкретный ритуал.</li>
               <li>— Электронный вариант и плотная открытка в конверте.</li>
               <li>— Срок действия — 3 месяца с даты покупки.</li>
@@ -972,22 +1116,15 @@ export default function Home() {
             </button>
           </div>
 
+          {/* Правая колонка: фото сертификата */}
           <div className="card-paper-lifted p-6">
-            <div className="border border-[var(--card-border)] rounded-xl px-5 py-4 bg-[var(--paper-bg)]">
-              <p className="label-small text-[var(--text-muted)] mb-3">
-                пример сертификата
-              </p>
-              <p className="text-lg font-semibold text-[var(--text-dark-strong)] mb-1">
-                Gentlemen Barbershop Club
-              </p>
-              <p className="text-sm text-[var(--text-muted)] mb-4">
-                Подарочный сертификат на клубный ритуал «Собрать образ» или
-                услуги на сумму 3&nbsp;000 ₽.
-              </p>
-              <p className="text-[11px] text-[var(--text-muted)]">
-                Дата выдачи, номер сертификата и условия использования
-                указываются при оформлении.
-              </p>
+            <div className="border border-[var(--card-border)] rounded-xl overflow-hidden bg-[var(--paper-bg)]">
+              <img
+                src="/images/club/gift-certificate-preview.jpg"
+                alt="Подарочный сертификат клуба «Джентльмены Культуры»"
+                className="w-full h-auto object-cover"
+                loading="lazy"
+              />
             </div>
           </div>
         </div>
@@ -1002,7 +1139,7 @@ export default function Home() {
           <h2 className="text-3xl md:text-4xl font-semibold mb-4">
             Оставьте заявку — подберём время и ритуал под ваш вечер
           </h2>
-          <p className="text-club-soft text-sm md:text-base mb-6">
+          <p className="text-club-soft text-[14px] md:text-[15px] mb-6">
             Напишите или позвоните администратору, если сложно выбрать формат
             онлайн. Подскажем мастера, ритуал и время, чтобы первый визит сразу
             попал в точку.
@@ -1016,7 +1153,7 @@ export default function Home() {
             записаться онлайн
           </button>
 
-          <p className="text-club-soft text-sm">
+          <p className="text-club-soft text-[14px]">
             или по телефону{' '}
             <a
               href="tel:+79877553000"
@@ -1035,7 +1172,7 @@ export default function Home() {
       <BookingModal
         isOpen={isBookingOpen}
         onClose={handleCloseModal}
-        initialContext={bookingContext}
+        initialContext={bookingContext || undefined}
       />
 
       <ScrollToTopButton />

@@ -5,27 +5,32 @@ import Footer from '../components/Footer';
 import Link from 'next/link';
 import BookingModal from '../components/BookingModal';
 
+type MasterContext = {
+  masterId?: string;
+  masterName?: string;
+};
+
 export default function MastersPage() {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
-  const [selectedMaster, setSelectedMaster] = useState<string | undefined>(
-    undefined,
+  const [selectedMaster, setSelectedMaster] = useState<MasterContext | null>(
+    null,
   );
 
-  const handleBookClick = (masterName?: string) => {
-    setSelectedMaster(masterName);
+  const handleBookClick = (master?: MasterContext) => {
+    setSelectedMaster(master ?? null);
     setIsBookingOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsBookingOpen(false);
-    setSelectedMaster(undefined);
+    setSelectedMaster(null);
   };
 
   return (
     <>
       <Header onBookClick={() => handleBookClick()} />
 
-      {/* HERO: кто эти люди (светлый, клубная палитра) */}
+      {/* HERO: кто эти люди */}
       <section className="section section-paper section-animate">
         <div className="container-custom max-w-3xl space-y-6">
           <p className="label-small text-[var(--text-muted)]">совет клуба</p>
@@ -45,55 +50,64 @@ export default function MastersPage() {
         </div>
       </section>
 
-      {/* СЕТКА МАСТЕРОВ — широкие карточки с фото слева */}
-      <section className="section section-dark section-animate">
+      {/* КАРТОЧКИ МАСТЕРОВ — СТОЛБИКОМ */}
+      <section className="section section-paper section-animate">
         <div className="container-custom">
           <div className="mb-10 max-w-3xl">
-            <p className="label-small text-club-muted mb-2">
+            <p className="label-small text-[var(--text-muted)] mb-2">
               не персонажи на фото
             </p>
-            <h2 className="text-3xl md:text-4xl font-semibold mb-3">
+            <h2 className="text-3xl md:text-4xl font-semibold mb-3 text-[var(--text-dark)]">
               Вы выбираете не кресло, а человека.
             </h2>
-            <p className="text-club-soft text-sm md:text-base">
+            <p className="text-sm md:text-base text-[var(--text-muted)]">
               Здесь нет формальных «био» с перечнем конкурсов. Важнее, как
               мастер смотрит на мужской образ, как разговаривает и как вы
               чувствуете себя в кресле рядом с ним.
             </p>
           </div>
 
-          <div className="space-y-6">
+          <div className="flex flex-col gap-5">
             {/* Карточка 1 — Совет клуба */}
-            <article className="card-master-wide hover-lift flex flex-col md:flex-row">
-              <div className="card-master-photo">
+            <article className="card-paper-lifted hover-lift flex gap-5 bg-[var(--paper-bg)] min-h-[220px]">
+              <div className="w-[240px] md:w-[280px] flex-shrink-0 overflow-hidden rounded-2xl">
                 <img
                   src="/images/masters/master-1.jpg"
                   alt="Команда барбершоп‑клуба Gentlemen"
+                  className="h-full w-full object-cover"
+                  loading="lazy"
                 />
               </div>
-              <div className="card-master-body">
-                <div className="card-master-headline">
-                  <p className="label-small text-[var(--text-muted)]">
+
+              <div className="flex flex-col justify-between flex-1 py-2">
+                <div>
+                  <p className="label-small text-[var(--accent-gold-soft)] mb-1">
                     команда gentlemen
                   </p>
-                  <h3 className="text-lg font-semibold text-[var(--text-dark)]">
+                  <h3 className="text-base md:text-lg font-semibold text-[var(--text-dark-strong)] mb-2">
                     Совет клуба Gentlemen
                   </h3>
+                  <p className="text-sm text-[var(--text-dark)] mb-2 leading-relaxed">
+                    На этом снимке — ядро команды: люди, которые собрали клуб с
+                    первых гостей. Характеры разные, но у всех одно отношение к
+                    времени гостя и тому, что происходит в кресле.
+                  </p>
+                  <p className="text-xs md:text-sm text-[var(--text-muted)] leading-relaxed">
+                    Если вы приходите впервые, выберите удобное время — вас
+                    встретит кто‑то из совета, и с этого начнётся личная история
+                    в клубе.
+                  </p>
                 </div>
-                <p className="text-sm text-[var(--text-muted)] mb-4">
-                  На этом снимке — ядро команды: люди, которые собрали клуб с
-                  первых гостей. У каждого свой характер и почерк, но всех объединяет
-                  уважение к времени гостя и к тому, что происходит в кресле.
-                </p>
-                <p className="text-xs text-[var(--text-muted)]/80 mb-4">
-                  Если вы приходите впервые, достаточно выбрать удобное время —
-                  вас встретит кто‑то из этого кадра, и с этого начнётся ваша
-                  личная история в клубе.
-                </p>
+
                 <button
                   type="button"
-                  onClick={() => handleBookClick('Совет клуба')}
-                  className="text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80 underline underline-offset-4"
+                  onClick={() =>
+                    handleBookClick({
+                      masterId: 'staff_council',
+                      masterName: 'Совет клуба',
+                    })
+                  }
+                  className="mt-3 text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80 underline underline-offset-4"
                 >
                   записаться к мастеру из совета
                 </button>
@@ -101,35 +115,45 @@ export default function MastersPage() {
             </article>
 
             {/* Карточка 2 — команда в работе */}
-            <article className="card-master-wide hover-lift flex flex-col md:flex-row">
-              <div className="card-master-photo">
+            <article className="card-paper-lifted hover-lift flex gap-5 bg-[var(--paper-bg)] min-h-[220px]">
+              <div className="w-[240px] md:w-[280px] flex-shrink-0 overflow-hidden rounded-2xl">
                 <img
                   src="/images/masters/master-2.jpg"
                   alt="Команда барбершоп‑клуба Gentlemen за работой"
+                  className="h-full w-full object-cover"
+                  loading="lazy"
                 />
               </div>
-              <div className="card-master-body">
-                <div className="card-master-headline">
-                  <p className="label-small text-[var(--text-muted)]">
+
+              <div className="flex flex-col justify-between flex-1 py-2">
+                <div>
+                  <p className="label-small text-[var(--accent-gold-soft)] mb-1">
                     образ и атмосфера
                   </p>
-                  <h3 className="text-lg font-semibold text-[var(--text-dark)]">
+                  <h3 className="text-base md:text-lg font-semibold text-[var(--text-dark-strong)] mb-2">
                     Команда в работе, а не в позе
                   </h3>
+                  <p className="text-sm text-[var(--text-dark)] mb-2 leading-relaxed">
+                    Общие кадры с креслами — обычный вечер в клубе. Кто‑то
+                    стрижёт, кто‑то обсуждает дела, кто‑то просто молчит и
+                    отдыхает. Без шоу и поз ради контента.
+                  </p>
+                  <p className="text-xs md:text-sm text-[var(--text-muted)] leading-relaxed">
+                    Один любит идеальную геометрию, другой — живой, чуть
+                    небрежный образ. Внутри команды найдётся человек под ваш
+                    характер, работу и привычки.
+                  </p>
                 </div>
-                <p className="text-sm text-[var(--text-muted)] mb-4">
-                  Общие кадры с креслами — это обычный вечер в клубе: кто‑то стрижёт,
-                  кто‑то обсуждает дела, кто‑то просто молчит и отдыхает. Здесь можно
-                  быть собой, а не «клиентом по талону».
-                </p>
-                <p className="text-xs text-[var(--text-muted)]/80 mb-4">
-                  Один любит идеальную геометрию, другой — живой, чуть небрежный образ.
-                  Внутри команды найдётся человек под ваш характер, работу и привычки.
-                </p>
+
                 <button
                   type="button"
-                  onClick={() => handleBookClick('Подбор мастера')}
-                  className="text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80 underline underline-offset-4"
+                  onClick={() =>
+                    handleBookClick({
+                      masterId: 'staff_pick_master',
+                      masterName: 'Подбор мастера',
+                    })
+                  }
+                  className="mt-3 text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80 underline underline-offset-4"
                 >
                   подобрать мастера под себя
                 </button>
@@ -139,34 +163,37 @@ export default function MastersPage() {
             {/* Карточка 3 — Ваш мастер / ссылка в кабинет */}
             <Link
               href="/cabinet"
-              className="card-master-wide hover-lift flex flex-col md:flex-row cursor-pointer"
+              className="card-paper-lifted hover-lift flex gap-5 bg-[var(--paper-bg)] min-h-[220px] cursor-pointer"
             >
-              <div className="card-master-photo">
+              <div className="w-[240px] md:w-[280px] flex-shrink-0 overflow-hidden rounded-2xl">
                 <img
                   src="/images/masters/master-your.jpg"
                   alt="Ваш мастер в клубе Gentlemen"
+                  className="h-full w-full object-cover"
+                  loading="lazy"
                 />
               </div>
-              <div className="card-master-body">
-                <div className="card-master-headline">
-                  <p className="label-small text-[var(--text-muted)]">
+
+              <div className="flex flex-col justify-between flex-1 py-2">
+                <div>
+                  <p className="label-small text-[var(--accent-gold-soft)] mb-1">
                     свой человек в клубе
                   </p>
-                  <h3 className="text-lg font-semibold text-[var(--text-dark)]/90">
+                  <h3 className="text-base md:text-lg font-semibold text-[var(--text-dark-strong)] mb-2">
                     Ваш мастер на общем фото
                   </h3>
+                  <p className="text-sm text-[var(--text-dark)] mb-2 leading-relaxed">
+                    На этих групповых снимках будущий «ваш» мастер уже есть —
+                    просто вы пока не знаете, кто именно. Иногда совпадает с
+                    первого визита, иногда — через пару попыток.
+                  </p>
+                  <p className="text-xs md:text-sm text-[var(--text-muted)] leading-relaxed">
+                    Достаточно описать задачу и то, как вы живёте день —
+                    администратор подскажет, с кого начать знакомство.
+                  </p>
                 </div>
-                <p className="text-sm text-[var(--text-muted)] mb-4">
-                  На этих групповых снимках будущий «ваш» мастер уже есть — просто вы
-                  пока не знаете, кто именно. Иногда совпадение происходит с первого
-                  визита, иногда — через пару попыток.
-                </p>
-                <p className="text-xs text-[var(--text-muted)]/80 mb-4">
-                  Можно прийти с задачей, родом деятельности и тем, как вы живёте день —
-                  администратор подскажет, с кого начать знакомство, а дальше вы уже
-                  будете возвращаться к своему человеку сами.
-                </p>
-                <p className="text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] underline underline-offset-4">
+
+                <p className="mt-3 text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] underline underline-offset-4">
                   перейти в кабинет и закрепить своего мастера
                 </p>
               </div>
@@ -175,7 +202,7 @@ export default function MastersPage() {
         </div>
       </section>
 
-      {/* БЛОК: как проходит визит (светлый) */}
+      {/* БЛОК: как проходит визит */}
       <section className="section section-paper section-animate">
         <div className="container-custom grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="space-y-3">
@@ -236,7 +263,7 @@ export default function MastersPage() {
       {/* CTA — перед футером */}
       <section className="section section-dark section-animate">
         <div className="container-custom text-center">
-          <h2 className="text-3xl md:text-4xl font-semibold mb-4">
+          <h2 className="text-3л md:text-4xl font-semibold mb-4">
             Выберите мастера — а потом он будет выбирать решения для вас.
           </h2>
           <p className="text-club-soft text-sm md:text-base max-w-2xl mx-auto mb-6">
@@ -265,13 +292,10 @@ export default function MastersPage() {
 
       <Footer />
 
-      {/* Модалка записи */}
       <BookingModal
         isOpen={isBookingOpen}
         onClose={handleCloseModal}
-        initialContext={
-          selectedMaster ? { masterName: selectedMaster } : undefined
-        }
+        initialContext={selectedMaster || undefined}
       />
     </>
   );
