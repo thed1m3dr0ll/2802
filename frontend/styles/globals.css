@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 /* =========================================================
    ЛОКАЛЬНЫЙ ШРИФТ
    ========================================================== */
@@ -13,6 +14,7 @@
   font-style: normal;
   font-display: swap;
 }
+
 
 /* =========================================================
    ПАЛИТРА — ТЁМНЫЙ КЛУБНЫЙ СТИЛЬ
@@ -32,9 +34,10 @@
   --card-light: #ffffff;
   --card-border: rgba(18, 18, 18, 0.16);
 
+  /* текст — осветлил muted, чтобы лучше читался на тёмном */
   --text-main: #f6f1ea;
-  --text-soft: #d3c7bb;
-  --text-muted: #a39688;
+  --text-soft: #e2d8cc;
+  --text-muted: #c7b8aa;
   --text-dark: #352721;
   --text-dark-strong: #241611;
 
@@ -47,8 +50,8 @@
   /* бронза для иконок */
   --accent-bronze: #cd7f32;
 
-  --shadow-strong: 0 26px 70px rgba(0, 0, 0, 0.85);
-  --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.6);
+  --shadow-strong: 0 26px 70px rgba(0, 0, 0, 0.75);
+  --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.5);
 
   /* базовые системные токены под фон и текст */
   --bg-main: var(--page-bg);
@@ -59,6 +62,7 @@
   --text-main-soft: #f6f1ea;
   --text-muted-strong: #e2d8cc;
 }
+
 
 /* =========================================================
    БАЗОВАЯ ВЁРСТКА / ТИПОГРАФИКА
@@ -74,7 +78,7 @@ body {
   font-family: "CAT Linz", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
   line-height: 1.6;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 h1,
@@ -96,6 +100,7 @@ p {
   color: var(--text-muted-strong);
 }
 
+
 /* =========================================================
    КОНТЕЙНЕРЫ И СЕКЦИИ
    ========================================================== */
@@ -114,39 +119,28 @@ p {
   @apply py-6 md:py-8;
 }
 
-/* тёмные секции: ровный фон + лёгкая внутренняя тень */
+/* тёмные секции: ровный фон, без тяжёлых внутренних теней */
 .section-dark {
   background: var(--bg-main);
   color: var(--text-main-soft);
-  box-shadow: inset 0 40px 80px rgba(0, 0, 0, 0.8);
+  box-shadow: none;
 }
 
-/* светлая «бумажная» секция */
+/* светлая «бумажная» секция — без грязных ореолов по краям */
 .section-paper {
   position: relative;
   background: var(--paper-bg);
   color: var(--text-dark);
-  box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.5),
-    0 20px 60px rgba(0, 0, 0, 0.4);
+  box-shadow: none;
 }
 
-/* градиент снизу выключаем, чтобы не было тяжёлого пятна */
-.section-paper::before {
-  content: none;
-}
-
-.section-paper::after {
-  content: none;
-}
-
-/* бумага с мягкой волной сверху как единичный акцент */
+/* бумага с мягкой волной сверху как единичный акцент, без доп. тени */
 .section-wave-top {
   position: relative;
   background: var(--paper-bg);
   color: var(--text-dark);
   overflow: hidden;
-  box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.5),
-    0 20px 60px rgba(0, 0, 0, 0.4);
+  box-shadow: none;
 }
 
 .section-wave-top::before {
@@ -163,7 +157,6 @@ p {
     radial-gradient(160px 80px at 75% 100%, #f7f3ee 0, #f7f3ee 55%, transparent 70%),
     radial-gradient(120px 60px at 100% 100%, #f7f3ee 0, #f7f3ee 55%, transparent 70%);
   transform: translateX(-25%);
-  box-shadow: 0 -18px 40px rgba(0, 0, 0, 0.5);
 }
 
 /* секция ритуалов без ковра */
@@ -175,6 +168,7 @@ p {
 .section-rug-photo::before {
   content: none;
 }
+
 
 /* =========================================================
    ХЕДЕР, НАВИГАЦИЯ, ПРОГРЕСС-ЛИНИЯ
@@ -201,7 +195,7 @@ p {
 
 .nav-link {
   position: relative;
-  font-size: 14px;
+  font-size: 15px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: rgba(246, 241, 234, 0.7);
@@ -210,6 +204,11 @@ p {
 
 .nav-link:hover {
   color: #ffffff;
+}
+
+.nav-link:focus-visible {
+  outline: 2px solid var(--accent-red-soft);
+  outline-offset: 3px;
 }
 
 .nav-link--active {
@@ -244,94 +243,44 @@ p {
   transition: width 0.12s ease-out;
 }
 
-/* =========================================================
-   КНОПКИ
-   ========================================================== */
+  /* =========================================================
+    КНОПКИ
+    ========================================================== */
 
-.btn {
-  @apply px-6 py-3 rounded-md font-semibold;
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
+  .btn {
+    @apply rounded-md font-semibold;
+    transition: all 0.2s ease-out;
+    cursor: pointer;
+  }
 
-.btn-primary {
-  border-radius: 9999px;
-  padding: 0.9rem 2.4rem;
-  background: var(--accent-red);
-  color: #ffffff;
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.9);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-size: 13px;
-  transform: translateY(0) scale(1);
-  transition:
-    transform 0.2s ease-out,
-    box-shadow 0.2s ease-out,
-    background 0.2s ease-out;
-}
+  /* ГЛАВНЫЙ CTA (запись онлайн, записаться в клуб) */
+  .btn-primary,
+  .btn-primary-dark {
+    border-radius: 9999px;
+    padding: 1rem 2.6rem;
+    min-height: 44px; /* гарантированный тач-таргет */
+    background: var(--accent-red);
+    color: #ffffff;
+    box-shadow: var(--shadow-strong);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-size: 15px;
+    font-weight: 600;
+    transform: translateY(0) scale(1);
+    transition:
+      transform 0.2s ease-out,
+      box-shadow 0.2s ease-out,
+      background 0.2s ease-out,
+      filter 0.2s ease-out;
+  }
 
-.btn-primary:hover {
-  background: var(--accent-red-dark);
-  transform: translateY(-1px) scale(1.03);
-  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.95);
-}
-
-.btn-secondary {
-  border-radius: 9999px;
-  padding: 0.85rem 2.2rem;
-  border: 1px solid rgba(245, 239, 230, 0.55);
-  background-color: transparent;
-  color: var(--text-soft);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-size: 13px;
-}
-
-.btn-secondary:hover {
-  background: rgba(245, 239, 230, 0.06);
-  border-color: #ffffff;
-  color: #ffffff;
-}
-
-.btn-primary-dark {
-  border-radius: 9999px;
-  padding: 0.9rem 2.4rem;
-  background: var(--accent-red);
-  color: #ffffff;
-  font-weight: 600;
-  box-shadow: var(--shadow-strong);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  font-size: 13px;
-  transform: translateY(0) scale(1);
-  transition:
-    transform 0.2s ease-out,
-    box-shadow 0.2s ease-out,
-    background 0.2s ease-out;
-}
-
-.btn-primary-dark:hover {
-  background: var(--accent-red-dark);
-  transform: translateY(-1px) scale(1.04);
-}
-
-.btn-secondary-dark {
-  border-radius: 9999px;
-  padding: 0.85rem 2.2rem;
-  border: 1px solid rgba(245, 239, 230, 0.45);
-  background: transparent;
-  color: var(--text-soft);
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-size: 13px;
-}
-
-.btn-secondary-dark:hover {
-  background: rgba(0, 0, 0, 0.6);
-  border-color: #ffffff;
-  color: #ffffff;
-}
+  /* ВТОРОСТЕПЕННЫЕ CTA */
+  .btn-secondary,
+  .btn-secondary-dark {
+    border-radius: 9999px;
+    padding: 0.85rem 2.4rem;
+    min-height: 40px; /* близко к рекомендованным 44px */
+  }
 
 /* =========================================================
    КАРТОЧКИ / ХОВЕР
@@ -354,7 +303,7 @@ p {
   background: #080406;
   border-radius: 26px;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: var(--shadow-strong);
+  box-shadow: var(--shadow-soft);
   overflow: hidden;
 }
 
@@ -364,7 +313,7 @@ p {
 
 .card-dark-text {
   color: var(--text-muted-strong);
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .card-glass {
@@ -439,7 +388,7 @@ p {
 
 /* текст фиксированной высоты, чтобы кнопки были на одной линии */
 .card-showcase-text {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text-muted-strong);
   margin-bottom: 10px;
   min-height: 56px;
@@ -449,4 +398,30 @@ p {
 .lux-icon {
   color: var(--accent-bronze);
   filter: drop-shadow(0 0 6px rgba(205, 127, 50, 0.45));
+}
+
+
+/* =========================================================
+   ДОСТУПНОСТЬ: ОБЩИЕ FOCUS-СОСТОЯНИЯ
+   ========================================================== */
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--accent-red-soft);
+  outline-offset: 3px;
+}
+
+@keyframes loading-bar {
+  0% {
+    transform: translateX(-40%) scaleX(0.4);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateX(0%) scaleX(0.9);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(60%) scaleX(0.4);
+    opacity: 0.4;
+  }
 }

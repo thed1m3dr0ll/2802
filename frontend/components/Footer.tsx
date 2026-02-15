@@ -1,12 +1,19 @@
 // components/Footer.tsx
+import Link from "next/link";
+import { trackPhoneClick } from "../lib/analytics";
+
 const socialLinks = {
-  instagram: "https://instagram.com/gentlemennn",
+  instagram: "https://instagram.com/",
   vk: "https://vk.ru/barbershop_gentlemen",
   telegram: "https://t.me/roman_chernof",
 };
 
 export default function Footer() {
   const year = new Date().getFullYear();
+
+  const handlePhoneClick = () => {
+    trackPhoneClick("footer");
+  };
 
   return (
     <footer className="mt-16 relative">
@@ -50,29 +57,41 @@ export default function Footer() {
             </p>
             <ul className="space-y-1">
               <li>
-                <a href="/" className="text-white/80 hover:text-white">
+                <Link href="/" className="text-white/80 hover:text-white">
                   Главная
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/rituals" className="text-white/80 hover:text-white">
+                <Link
+                  href="/rituals"
+                  className="text-white/80 hover:text-white"
+                >
                   Ритуалы клуба
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/stories" className="text-white/80 hover:text-white">
+                <Link
+                  href="/stories"
+                  className="text-white/80 hover:text-white"
+                >
                   Истории гостей
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/masters" className="text-white/80 hover:text-white">
+                <Link
+                  href="/masters"
+                  className="text-white/80 hover:text-white"
+                >
                   Мастера клуба
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/cabinet" className="text-white/80 hover:text-white">
+                <Link
+                  href="/cabinet"
+                  className="text-white/80 hover:text-white"
+                >
                   Личный кабинет
-                </a>
+                </Link>
               </li>
             </ul>
           </nav>
@@ -91,6 +110,7 @@ export default function Footer() {
               <p>
                 <a
                   href="tel:+79877553000"
+                  onClick={handlePhoneClick}
                   className="text-[var(--accent-gold-soft)] hover:text-[#ffd27a] transition-colors"
                 >
                   +7 987 755 30 00
@@ -166,15 +186,16 @@ export default function Footer() {
         <div className="container-custom mt-6 pt-4 border-t border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
           <p className="text-[10px] text-white/40 max-w-md">
             Сайт носит информационный характер и не является публичной офертой.
-            Нажимая кнопки записи, вы соглашаетесь на обработку персональных данных.
+            Нажимая кнопки записи, вы соглашаетесь на обработку персональных
+            данных.
           </p>
           <div className="flex gap-4 text-[10px] text-white/50">
-            <a href="/privacy" className="hover:text-white">
+            <Link href="/privacy" className="hover:text-white">
               Политика конфиденциальности
-            </a>
-            <a href="/terms" className="hover:text-white">
+            </Link>
+            <Link href="/terms" className="hover:text-white">
               Пользовательское соглашение
-            </a>
+            </Link>
           </div>
         </div>
       </div>

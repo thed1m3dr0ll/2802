@@ -1,5 +1,6 @@
 // components/BookingModal.tsx
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from "react";
+import { trackBookingSuccess } from "../lib/analytics";
 
 type BookingInitialContext = {
   masterId?: string;
@@ -33,113 +34,113 @@ type FieldErrors = {
   phone?: string;
 };
 
-type FormStatus = 'idle' | 'submitting' | 'success' | 'error';
+type FormStatus = "idle" | "submitting" | "success" | "error";
 
-const STAFF_ROLE: Record<string, 'art_director' | 'top_master'> = {
-  '3533027': 'art_director',
-  '3498549': 'top_master',
-  '3498548': 'top_master',
-  '4910723': 'top_master',
+const STAFF_ROLE: Record<string, "art_director" | "top_master"> = {
+  "3533027": "art_director",
+  "3498549": "top_master",
+  "3498548": "top_master",
+  "4910723": "top_master",
 };
 
 const SERVICE_BY_ROLE: Record<
   string,
   { art_director: string; top_master: string }
 > = {
-  'Мужская стрижка': {
-    art_director: '21341952',
-    top_master: '17209453',
+  "Мужская стрижка": {
+    art_director: "21341952",
+    top_master: "17209453",
   },
   'Комплекс "стрижка + борода"': {
-    art_director: '21342282',
-    top_master: '17404423',
+    art_director: "21342282",
+    top_master: "17404423",
   },
-  'Моделирование бороды': {
-    art_director: '21342075',
-    top_master: '17404445',
+  "Моделирование бороды": {
+    art_director: "21342075",
+    top_master: "17404445",
   },
-  'Детская стрижка': {
-    art_director: '21357813',
-    top_master: '17404447',
+  "Детская стрижка": {
+    art_director: "21357813",
+    top_master: "17404447",
   },
-  'Стрижка машинкой': {
-    art_director: '21357876',
-    top_master: '17404449',
+  "Стрижка машинкой": {
+    art_director: "21357876",
+    top_master: "17404449",
   },
-  'Удаление воском': {
-    art_director: '24828141',
-    top_master: '17404455',
+  "Удаление воском": {
+    art_director: "24828141",
+    top_master: "17404455",
   },
-  'Опасное бритье': {
-    art_director: '21358053',
-    top_master: '17404464',
+  "Опасное бритье": {
+    art_director: "21358053",
+    top_master: "17404464",
   },
-  'Укладка': {
-    art_director: '24828258',
-    top_master: '17404468',
+  Укладка: {
+    art_director: "24828258",
+    top_master: "17404468",
   },
-  'Черная маска': {
-    art_director: '24827991',
-    top_master: '17404469',
+  "Черная маска": {
+    art_director: "24827991",
+    top_master: "17404469",
   },
-  'Стрижка отец + сын': {
-    art_director: '21357765',
-    top_master: '17404475',
+  "Стрижка отец + сын": {
+    art_director: "21357765",
+    top_master: "17404475",
   },
-  'Стрижка ножницами': {
-    art_director: '21357735',
-    top_master: '17404481',
+  "Стрижка ножницами": {
+    art_director: "21357735",
+    top_master: "17404481",
   },
-  'Камуфляж головы': {
-    art_director: '21358224',
-    top_master: '17404491',
+  "Камуфляж головы": {
+    art_director: "21358224",
+    top_master: "17404491",
   },
-  'Камуфляж бороды': {
-    art_director: '21358284',
-    top_master: '17404495',
+  "Камуфляж бороды": {
+    art_director: "21358284",
+    top_master: "17404495",
   },
-  'Патчи': {
-    art_director: '24828357',
-    top_master: '17965734',
+  Патчи: {
+    art_director: "24828357",
+    top_master: "17965734",
   },
-  'Премиум уход за кожей головы и волосами': {
-    art_director: '21357675',
-    top_master: '19282256',
+  "Премиум уход за кожей головы и волосами": {
+    art_director: "21357675",
+    top_master: "19282256",
   },
-  'Детокс уход бороды и кожи лица': {
-    art_director: '21357723',
-    top_master: '19281924',
+  "Детокс уход бороды и кожи лица": {
+    art_director: "21357723",
+    top_master: "19281924",
   },
 };
 
 const ritualGroups = [
   {
-    id: 'group-hair',
-    title: 'Стрижка и образ',
-    items: ['Детская стрижка', 'Стрижка ножницами', 'Стрижка машинкой'],
+    id: "group-hair",
+    title: "Стрижка и образ",
+    items: ["Детская стрижка", "Стрижка ножницами", "Стрижка машинкой"],
   },
   {
-    id: 'group-beard',
-    title: 'Борода и бритьё',
+    id: "group-beard",
+    title: "Борода и бритьё",
     items: [
-      'Опасное бритье',
-      'Камуфляж бороды',
-      'Детокс уход бороды и кожи лица',
+      "Опасное бритье",
+      "Камуфляж бороды",
+      "Детокс уход бороды и кожи лица",
     ],
   },
   {
-    id: 'group-care',
-    title: 'Уход и кожа',
+    id: "group-care",
+    title: "Уход и кожа",
     items: [
-      'Премиум уход за кожей головы и волосами',
-      'Черная маска',
-      'Патчи',
+      "Премиум уход за кожей головы и волосами",
+      "Черная маска",
+      "Патчи",
     ],
   },
   {
-    id: 'group-extra',
-    title: 'Дополнительно',
-    items: ['Камуфляж головы', 'Укладка', 'Удаление воском'],
+    id: "group-extra",
+    title: "Дополнительно",
+    items: ["Камуфляж головы", "Укладка", "Удаление воском"],
   },
 ];
 
@@ -148,22 +149,24 @@ export default function BookingModal({
   onClose,
   initialContext,
 }: BookingModalProps) {
-  const [status, setStatus] = useState<FormStatus>('idle');
+  const [status, setStatus] = useState<FormStatus>("idle");
   const [globalError, setGlobalError] = useState<string | null>(null);
 
   const [rituals, setRituals] = useState<RitualService[]>([]);
   const [masters, setMasters] = useState<Staff[]>([]);
-  const [openRitualGroupId, setOpenRitualGroupId] = useState<string | null>(null);
+  const [openRitualGroupId, setOpenRitualGroupId] = useState<string | null>(
+    null,
+  );
 
-  const [date, setDate] = useState<string>('');
-  const [masterId, setMasterId] = useState<string>(''); // '' = не выбран
+  const [date, setDate] = useState<string>("");
+  const [masterId, setMasterId] = useState<string>(""); // '' = не выбран
   const [ritualId, setRitualId] = useState<string | null>(null);
   const [slots, setSlots] = useState<string[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
 
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [comment, setComment] = useState('');
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [comment, setComment] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
 
   const [step, setStep] = useState<Step>(1);
@@ -171,13 +174,21 @@ export default function BookingModal({
   const [showSuccessToast, setShowSuccessToast] = useState(false);
 
   const nameInputRef = useRef<HTMLInputElement | null>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
 
   const masterIdFromContext = initialContext?.masterId;
   const masterNameFromContext = initialContext?.masterName;
-  const ritualIdFromContext = initialContext?.ritualId;
+  // const ritualIdFromContext = initialContext?.ritualId;
   const ritualNameFromContext = initialContext?.ritualName;
 
-  const isSending = status === 'submitting';
+  const isSending = status === "submitting";
+
+  // Фокус: вернуть на триггер после закрытия
+  useEffect(() => {
+    if (!isOpen && triggerRef.current) {
+      triggerRef.current.focus();
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen && step === 5 && nameInputRef.current) {
@@ -185,33 +196,35 @@ export default function BookingModal({
     }
   }, [isOpen, step]);
 
+  // ESC для закрытия
   useEffect(() => {
     if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !isSending) {
+      if (e.key === "Escape" && !isSending) {
         onClose();
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, isSending, onClose]);
 
+  // Сброс состояния при закрытии
   useEffect(() => {
     if (!isOpen) {
-      setStatus('idle');
+      setStatus("idle");
       setGlobalError(null);
-      setDate('');
+      setDate("");
       setMasters([]);
       setRituals([]);
-      setMasterId('');
+      setMasterId("");
       setRitualId(null);
       setSlots([]);
       setSelectedSlot(null);
-      setName('');
-      setPhone('');
-      setComment('');
+      setName("");
+      setPhone("");
+      setComment("");
       setErrors({});
       setStep(1);
       setIsLoadingSlots(false);
@@ -219,7 +232,7 @@ export default function BookingModal({
     }
   }, [isOpen]);
 
-  // услуги и мастера
+  // Загрузка услуг и мастеров
   useEffect(() => {
     if (!isOpen) return;
 
@@ -251,9 +264,11 @@ export default function BookingModal({
           : [];
         setMasters(mastersData);
       } catch (e) {
-        if (e instanceof DOMException && e.name === 'AbortError') return;
-        console.error('Failed to load YCLIENTS dictionaries', e);
-        setGlobalError('Не удалось загрузить данные для записи. Попробуйте ещё раз.');
+        if (e instanceof DOMException && e.name === "AbortError") return;
+        console.error("Failed to load YCLIENTS dictionaries", e);
+        setGlobalError(
+          "Не удалось загрузить данные для записи. Попробуйте ещё раз.",
+        );
       }
     }
 
@@ -262,7 +277,7 @@ export default function BookingModal({
     return () => controller.abort();
   }, [isOpen]);
 
-  // слоты по дате + мастер + ритуал
+  // Загрузка слотов по дате + мастеру + ритуалу
   useEffect(() => {
     if (!isOpen) return;
     if (!date || !masterId || !ritualId) {
@@ -280,8 +295,8 @@ export default function BookingModal({
 
         const baseUrl = process.env.NEXT_PUBLIC_API_URL;
         const params = new URLSearchParams();
-        params.set('date', date);
-        params.set('staff_id', masterId);
+        params.set("date", date);
+        params.set("staff_id", masterId);
 
         if (ritualId) {
           const ritual = rituals.find((r) => r.id === ritualId);
@@ -290,14 +305,14 @@ export default function BookingModal({
           let serviceIdToUse = ritualId;
 
           if (ritualName) {
-            const role = STAFF_ROLE[masterId] ?? 'top_master';
+            const role = STAFF_ROLE[masterId] ?? "top_master";
             const byRole = SERVICE_BY_ROLE[ritualName];
             if (byRole) {
               serviceIdToUse = byRole[role];
             }
           }
 
-          params.set('service_id', serviceIdToUse);
+          params.set("service_id", serviceIdToUse);
         }
 
         const res = await fetch(
@@ -315,15 +330,17 @@ export default function BookingModal({
 
         if (slotsData.length === 0) {
           setGlobalError(
-            'На выбранный день у этого мастера нет свободных окон. Попробуйте другую дату или мастера.',
+            "На выбранный день у этого мастера нет свободных окон. Попробуйте другую дату или мастера.",
           );
         }
       } catch (e) {
-        if (e instanceof DOMException && e.name === 'AbortError') return;
-        console.error('Failed to load slots', e);
+        if (e instanceof DOMException && e.name === "AbortError") return;
+        console.error("Failed to load slots", e);
         setSlots([]);
         setSelectedSlot(null);
-        setGlobalError('Не удалось загрузить свободное время. Попробуйте выбрать другую дату.');
+        setGlobalError(
+          "Не удалось загрузить свободное время. Попробуйте выбрать другую дату.",
+        );
       } finally {
         setIsLoadingSlots(false);
       }
@@ -340,12 +357,12 @@ export default function BookingModal({
     const nextErrors: FieldErrors = {};
 
     if (name.trim().length < 2) {
-      nextErrors.name = 'Минимум 2 символа';
+      nextErrors.name = "Минимум 2 символа";
     }
 
     const phoneRegex = /^\+7\s?\(?\d{3}\)?\s?\d{3}-?\d{2}-?\d{2}$/;
     if (!phoneRegex.test(phone.trim())) {
-      nextErrors.phone = 'Неверный формат телефона';
+      nextErrors.phone = "Неверный формат телефона";
     }
 
     setErrors(nextErrors);
@@ -358,19 +375,20 @@ export default function BookingModal({
 
     if (!validateContacts()) return;
     if (!date || !masterId || !ritualId || !selectedSlot) {
-      setGlobalError('Проверьте, что выбраны дата, мастер, ритуал и время.');
+      setGlobalError("Проверьте, что выбраны дата, мастер, ритуал и время.");
       return;
     }
 
-    setStatus('submitting');
+    setStatus("submitting");
 
     try {
       const ritual = rituals.find((r) => r.id === ritualId);
-      const ritualNameActual = ritualNameFromContext || ritual?.name || undefined;
+      const ritualNameActual =
+        ritualNameFromContext || ritual?.name || undefined;
 
       let serviceIdToUse = ritualId;
       if (ritualNameActual) {
-        const role = STAFF_ROLE[masterId] ?? 'top_master';
+        const role = STAFF_ROLE[masterId] ?? "top_master";
         const byRole = SERVICE_BY_ROLE[ritualNameActual];
         if (byRole) {
           serviceIdToUse = byRole[role];
@@ -384,8 +402,7 @@ export default function BookingModal({
         ritualName: ritualNameActual,
         masterId,
         masterName:
-          masterNameFromContext ||
-          masters.find((m) => m.id === masterId)?.name,
+          masterNameFromContext || masters.find((m) => m.id === masterId)?.name,
         date,
         time: selectedSlot || undefined,
         name,
@@ -393,32 +410,30 @@ export default function BookingModal({
         comment,
       };
 
-      // booking-intents: оставляем, но он не ломает запись, даже если упал
+      // booking-intents: не критично для самой записи
       try {
         await fetch(`${baseUrl}/booking-intents/`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(intentPayload),
         });
       } catch (err) {
-        console.error('Failed to send booking intent', err);
+        console.error("Failed to send booking intent", err);
       }
 
-      // собираем datetime для backend (формат "YYYY-MM-DD HH:MM")
       const datetime = `${date} ${selectedSlot}`;
 
-      // вызов /yclients/book по схеме BookingRequest
       try {
         const res = await fetch(`${baseUrl}/yclients/book`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             serviceId: Number(serviceIdToUse),
             staffId: Number(masterId),
             datetime,
             name,
             phone,
-            email: '',
+            email: "",
             comment,
           }),
         });
@@ -428,8 +443,8 @@ export default function BookingModal({
           const message =
             data?.detail ||
             data?.message ||
-            'Не удалось создать запись. Попробуйте другое время или мастера.';
-          setStatus('error');
+            "Не удалось создать запись. Попробуйте другое время или мастера.";
+          setStatus("error");
           setGlobalError(message);
           return;
         }
@@ -438,27 +453,34 @@ export default function BookingModal({
         if (data && data.success === false) {
           const message =
             data.message ||
-            'Не удалось создать запись. Попробуйте другое время или мастера.';
-          setStatus('error');
+            "Не удалось создать запись. Попробуйте другое время или мастера.";
+          setStatus("error");
           setGlobalError(message);
           return;
         }
       } catch (err) {
-        console.error('Failed to create YCLIENTS booking', err);
-        setStatus('error');
+        console.error("Failed to create YCLIENTS booking", err);
+        setStatus("error");
         setGlobalError(
-          'Сервис записи временно недоступен. Мы свяжемся с вами для подтверждения.',
+          "Сервис записи временно недоступен. Мы свяжемся с вами для подтверждения.",
         );
         return;
       }
 
-      setStatus('success');
+      // Успешная запись: трекаем цель и ведём на thank-you
+      setStatus("success");
+      trackBookingSuccess();
       setShowSuccessToast(true);
       onClose();
-      setTimeout(() => setShowSuccessToast(false), 3500);
+      setTimeout(() => {
+        setShowSuccessToast(false);
+      }, 3500);
+
+      // Жёсткий редирект (под Директ/Метрику надёжнее, чем SPA-переход)
+      window.location.href = "/thank-you";
     } finally {
-      if (status !== 'error') {
-        setStatus('idle');
+      if (status !== "error") {
+        setStatus("idle");
       }
     }
   };
@@ -468,7 +490,7 @@ export default function BookingModal({
     (ritualId ? rituals.find((r) => r.id === ritualId)?.name : undefined);
 
   const selectedMaster =
-    masters.find((m) => m.id === (masterIdFromContext || masterId || '')) ||
+    masters.find((m) => m.id === (masterIdFromContext || masterId || "")) ||
     undefined;
   const selectedMasterName =
     masterNameFromContext || selectedMaster?.name || undefined;
@@ -476,7 +498,7 @@ export default function BookingModal({
   const commentPlaceholder =
     selectedRitualName
       ? `Например: «хочу именно ритуал “${selectedRitualName}”», «важно уложиться к началу встречи», «нужен поздний слот после 20:00».`
-      : 'Например: «освежить стрижку», «собрать образ с бородой», «нужен поздний слот после 20:00».';
+      : "Например: «освежить стрижку», «собрать образ с бородой», «нужен поздний слот после 20:00».";
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget && !isSending) {
@@ -498,19 +520,19 @@ export default function BookingModal({
     <div
       className={`flex items-center gap-2 rounded-full px-3 py-1 text-xs ${
         active
-          ? 'bg-[var(--accent-soft)] text-[var(--accent-strong)] shadow-sm'
+          ? "bg-[var(--accent-soft)] text-[var(--accent-strong)] shadow-sm"
           : done
-          ? 'bg-transparent text-[var(--text-muted-strong)]'
-          : 'bg-transparent text-[var(--text-muted-soft)]'
+          ? "bg-transparent text-[var(--text-muted-strong)]"
+          : "bg-transparent text-[var(--text-muted-soft)]"
       }`}
     >
       <span
         className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] ${
           active
-            ? 'bg-[var(--accent-strong)] text-[var(--text-on-accent)]'
+            ? "bg-[var(--accent-strong)] text-[var(--text-on-accent)]"
             : done
-            ? 'bg-[var(--accent-soft)] text-[var(--accent-strong)]'
-            : 'border border-[var(--border-subtle)] text-[var(--text-muted-soft)]'
+            ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+            : "border border-[var(--border-subtle)] text-[var(--text-muted-soft)]"
         }`}
       >
         {index}
@@ -521,7 +543,7 @@ export default function BookingModal({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-end md:items-center justify-center bg-[rgba(43,31,26,0.86)] backdrop-blur-md px-0 md:px-4"
+      className="fixed inset-0 z-[100] flex items-end justify-center bg-[rgba(15,10,8,0.9)] px-0 backdrop-blur-md md:items-center md:px-4"
       onClick={handleOverlayClick}
       role="dialog"
       aria-modal="true"
@@ -538,71 +560,78 @@ export default function BookingModal({
           ×
         </button>
 
-        <div className="mb-4 md:mb-5 space-y-3">
-          <p className="mb-1 text-[10px] md:text-[11px] uppercase tracking-[0.16em] text-[var(--text-muted)]">
-            запись в клуб
+        {/* Заголовок + мини-объяснение */}
+        <div className="mb-4 space-y-3 md:mb-5">
+          <p className="mb-1 text-[10px] uppercase tracking-[0.16em] text-[var(--text-muted)] md:text-[11px]">
+            клубная запись
           </p>
           <h2
             id="booking-modal-title"
-            className="text-[20px] md:text-[26px] font-semibold leading-snug tracking-[0.02em] text-[var(--text-main)]"
+            className="text-[20px] font-semibold leading-snug tracking-[0.02em] text-[var(--text-main)] md:text-[26px]"
           >
-            Запланируйте визит
+            Запись в клуб в 5 шагов
           </h2>
+          <p className="text-[11px] text-[var(--text-muted)]">
+            Сначала выбираем дату, мастера и ритуал, затем — удобное время и
+            контакты для подтверждения визита.
+          </p>
 
+          {/* Резюме выбора */}
           <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-soft)] px-3 py-2.5 text-[11px] text-[var(--text-muted-strong)]">
             <div className="flex flex-wrap gap-x-4 gap-y-1">
               <span>
-                Дата:{' '}
+                Дата:{" "}
                 <span
                   className={
                     date
-                      ? 'font-medium text-[var(--accent-strong)]'
-                      : 'text-[var(--text-muted-soft)]'
+                      ? "font-medium text-[var(--accent-strong)]"
+                      : "text-[var(--text-muted-soft)]"
                   }
                 >
-                  {date || 'не выбрана'}
+                  {date || "не выбрана"}
                 </span>
               </span>
               <span>
-                Мастер:{' '}
+                Мастер:{" "}
                 <span
                   className={
                     selectedMasterName
-                      ? 'font-medium text-[var(--accent-strong)]'
-                      : 'text-[var(--text-muted-soft)]'
+                      ? "font-medium text-[var(--accent-strong)]"
+                      : "text-[var(--text-muted-soft)]"
                   }
                 >
-                  {selectedMasterName || 'не выбран'}
+                  {selectedMasterName || "не выбран"}
                 </span>
               </span>
               <span>
-                Ритуал:{' '}
+                Ритуал:{" "}
                 <span
                   className={
                     selectedRitualName
-                      ? 'font-medium text-[var(--accent-strong)]'
-                      : 'text-[var(--text-muted-soft)]'
+                      ? "font-medium text-[var(--accent-strong)]"
+                      : "text-[var(--text-muted-soft)]"
                   }
                 >
-                  {selectedRitualName || 'не выбран'}
+                  {selectedRitualName || "не выбран"}
                 </span>
               </span>
               <span>
-                Время:{' '}
+                Время:{" "}
                 <span
                   className={
                     date && selectedSlot
-                      ? 'font-medium text-[var(--accent-strong)]'
-                      : 'text-[var(--text-muted-soft)]'
+                      ? "font-medium text-[var(--accent-strong)]"
+                      : "text-[var(--text-muted-soft)]"
                   }
                 >
-                  {date && selectedSlot ? `${date}, ${selectedSlot}` : 'не выбрано'}
+                  {date && selectedSlot ? `${date}, ${selectedSlot}` : "не выбрано"}
                 </span>
               </span>
             </div>
           </div>
         </div>
 
+        {/* Прогресс по шагам */}
         <div className="mb-4 flex flex-wrap gap-2">
           <StepPill index={1} label="Дата" active={step === 1} done={step > 1} />
           <StepPill index={2} label="Мастер" active={step === 2} done={step > 2} />
@@ -623,7 +652,10 @@ export default function BookingModal({
             <div className="space-y-4">
               <div>
                 <p className="mb-1 text-[12px] font-medium text-[var(--text-main)]">
-                  Выберите дату визита
+                  Когда удобно зайти в клуб?
+                </p>
+                <p className="mb-2 text-[11px] text-[var(--text-muted)]">
+                  Выберите дату визита, а позже подберём подходящего мастера и ритуал.
                 </p>
                 <input
                   type="date"
@@ -631,7 +663,7 @@ export default function BookingModal({
                   value={date}
                   onChange={(e) => {
                     setDate(e.target.value);
-                    setMasterId('');
+                    setMasterId("");
                     setRitualId(null);
                     setSlots([]);
                     setSelectedSlot(null);
@@ -656,18 +688,19 @@ export default function BookingModal({
           {step === 2 && (
             <div className="space-y-4">
               <p className="text-[12px] font-medium text-[var(--text-main)]">
-                Выберите мастера
+                С кем вы хотите работать?
               </p>
 
               {!date && (
                 <p className="text-[11px] text-[var(--text-muted)]">
-                  Сначала выберите дату.
+                  Сначала выберите дату — так мы покажем только актуальных мастеров.
                 </p>
               )}
 
               {date && masters.length === 0 && (
                 <p className="text-[11px] text-[var(--text-muted)]">
-                  Мастера пока не загружены. Попробуйте обновить страницу.
+                  Мастера пока не загружены. Попробуйте обновить страницу или выбрать
+                  другую дату.
                 </p>
               )}
 
@@ -676,17 +709,17 @@ export default function BookingModal({
                   {masters.map((m) => {
                     const isActive = masterId === m.id;
                     const role =
-                      STAFF_ROLE[m.id] === 'art_director'
-                        ? 'арт‑директор'
-                        : 'топ‑барбер';
+                      STAFF_ROLE[m.id] === "art_director"
+                        ? "арт‑директор клуба"
+                        : "топ‑барбер";
                     return (
                       <button
                         key={m.id}
                         type="button"
                         className={`flex w-full items-start justify-between rounded-2xl border px-4 py-3 text-left text-[13px] transition ${
                           isActive
-                            ? 'border-[var(--accent-strong)] bg-[var(--accent-soft)] text-[var(--accent-strong)] shadow-sm'
-                            : 'border-[var(--border-subtle)] bg-[var(--surface-soft)] text-[var(--text-main)] hover:border-[var(--accent-soft)] hover:bg-[var(--surface-elevated)]'
+                            ? "border-[var(--accent-strong)] bg-[var(--accent-soft)] text-[var(--accent-strong)] shadow-sm"
+                            : "border-[var(--border-subtle)] bg-[var(--surface-soft)] text-[var(--text-main)] hover:border-[var(--accent-soft)] hover:bg-[var(--surface-elevated)]"
                         }`}
                         onClick={() => {
                           setMasterId(m.id);
@@ -703,11 +736,11 @@ export default function BookingModal({
                           </div>
                           <p className="text-[11px] text-[var(--text-muted)]">
                             {m.description ||
-                              'Точность линий, внимание к деталям и комфорт в кресле клуба.'}
+                              "Точность линий, внимание к деталям и спокойный формат без суеты."}
                           </p>
                         </div>
                         {isActive && (
-                          <span className="ml-3 mt-1 text-[11px] text-[var(--accent-strong)]">
+                          <span className="ml  -3 mt-1 text-[11px] text-[var(--accent-strong)]">
                             выбран
                           </span>
                         )}
@@ -737,16 +770,16 @@ export default function BookingModal({
             </div>
           )}
 
-          {/* STEP 3: РИТУАЛ (популярное + группы) */}
+          {/* STEP 3: РИТУАЛ */}
           {step === 3 && (
             <div className="space-y-4">
               <p className="text-[12px] font-medium text-[var(--text-main)]">
-                Выберите ритуал
+                Какой ритуал вам нужен?
               </p>
 
               {!masterId && (
                 <p className="text-[11px] text-[var(--text-muted)]">
-                  Сначала выберите мастера.
+                  Сначала выберите мастера — ритуалы подстроим под его специализацию.
                 </p>
               )}
 
@@ -760,10 +793,10 @@ export default function BookingModal({
                       {rituals
                         .filter((r) =>
                           [
-                            'Мужская стрижка',
+                            "Мужская стрижка",
                             'Комплекс "стрижка + борода"',
-                            'Моделирование бороды',
-                            'Стрижка отец + сын',
+                            "Моделирование бороды",
+                            "Стрижка отец + сын",
                           ].includes(r.name),
                         )
                         .map((r) => {
@@ -774,8 +807,8 @@ export default function BookingModal({
                               type="button"
                               className={`min-h-[40px] rounded-full border px-4 py-2 text-[13px] transition ${
                                 isActive
-                                  ? 'border-[var(--accent-strong)] bg-[var(--accent-soft)] text-[var(--accent-strong)] shadow-sm'
-                                  : 'border-[var(--border-subtle)] bg-[var(--surface-soft)] text-[var(--text-main)] hover:border-[var(--accent-soft)] hover:bg-[var(--surface-elevated)]'
+                                  ? "border-[var(--accent-strong)] bg-[var(--accent-soft)] text-[var(--accent-strong)] shadow-sm"
+                                  : "border-[var(--border-subtle)] bg-[var(--surface-soft)] text-[var(--text-main)] hover:border-[var(--accent-soft)] hover:bg-[var(--surface-elevated)]"
                               }`}
                               onClick={() => {
                                 setRitualId(r.id);
@@ -819,7 +852,7 @@ export default function BookingModal({
                               {group.title}
                             </span>
                             <span className="text-[11px] text-[var(--text-muted)] transition-transform">
-                              {isOpenGroup ? '˄' : '˅'}
+                              {isOpenGroup ? "˄" : "˅"}
                             </span>
                           </button>
 
@@ -833,8 +866,8 @@ export default function BookingModal({
                                     type="button"
                                     className={`min-h-[36px] rounded-full border px-3 py-1.5 text-[12px] transition ${
                                       isActive
-                                        ? 'border-[var(--accent-strong)] bg-[var(--accent-soft)] text-[var(--accent-strong)] shadow-sm'
-                                        : 'border-[var(--border-subtle)] bg-[var(--surface-soft)] text-[var(--text-main)] hover:border-[var(--accent-soft)] hover:bg-[var(--surface-elevated)]'
+                                        ? "border-[var(--accent-strong)] bg-[var(--accent-soft)] text-[var(--accent-strong)] shadow-sm"
+                                        : "border-[var(--border-subtle)] bg-[var(--surface-soft)] text-[var(--text-main)] hover:border-[var(--accent-soft)] hover:bg-[var(--surface-elevated)]"
                                     }`}
                                     onClick={() => {
                                       setRitualId(r.id);
@@ -884,13 +917,19 @@ export default function BookingModal({
           {step === 4 && (
             <div className="space-y-4 md:space-y-5">
               <div>
-                <p className="mb-1 text-[12px] font-medium text-[var(--text-main)]">
-                  Свободное время
-                </p>
+                <div className="mb-1 flex items-center justify-between gap-2">
+                  <p className="text-[12px] font-medium text-[var(--text-main)]">
+                    Во сколько вам удобно?
+                  </p>
+                  <p className="text-[10px] text-[var(--text-muted)]">
+                    В популярные дни вечерние слоты разбирают за 1–2 дня.
+                  </p>
+                </div>
 
                 {(!date || !masterId || !ritualId) && (
                   <p className="text-[11px] text-[var(--text-muted)]">
-                    Сначала выберите дату, мастера и ритуал.
+                    Сначала выберите дату, мастера и ритуал, чтобы мы показали подходящие
+                    окна.
                   </p>
                 )}
 
@@ -916,7 +955,8 @@ export default function BookingModal({
                   !isLoadingSlots &&
                   slots.length === 0 && (
                     <p className="text-[11px] text-[var(--text-muted)]">
-                      Нет свободных окон на выбранный день. Попробуйте другую дату или мастера.
+                      Нет свободных окон на выбранный день. Попробуйте другую дату или
+                      мастера.
                     </p>
                   )}
 
@@ -934,8 +974,8 @@ export default function BookingModal({
                             type="button"
                             className={`min-h-[40px] rounded-full px-3 py-2.5 text-[13px] transition ${
                               isActive
-                                ? 'bg-[var(--accent-strong)] text-[var(--text-on-accent)] shadow-sm'
-                                : 'bg-[var(--surface-soft)] text-[var(--text-main)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-strong)]'
+                                ? "bg-[var(--accent-strong)] text-[var(--text-on-accent)] shadow-sm"
+                                : "bg-[var(--surface-soft)] text-[var(--text-main)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-strong)]"
                             }`}
                             onClick={() => {
                               setSelectedSlot(slot);
@@ -982,14 +1022,14 @@ export default function BookingModal({
               <div className="space-y-3">
                 <div>
                   <p className="mb-1 text-[12px] font-medium text-[var(--text-main)]">
-                    Как к вам обращаться
+                    Как к вам обращаться?
                   </p>
                   <input
                     ref={nameInputRef}
                     type="text"
                     name="name"
                     className={`w-full rounded-full border border-[var(--border-subtle)] bg-[var(--surface-soft)] px-4 py-2 text-[13px] text-[var(--text-main)] outline-none focus:border-[var(--accent-strong)] ${
-                      errors.name ? 'border-red-500' : ''
+                      errors.name ? "border-red-500" : ""
                     }`}
                     placeholder="Имя"
                     value={name}
@@ -1001,7 +1041,7 @@ export default function BookingModal({
                     }}
                     required
                     aria-invalid={!!errors.name}
-                    aria-describedby={errors.name ? 'name-error' : undefined}
+                    aria-describedby={errors.name ? "name-error" : undefined}
                   />
                   {errors.name && (
                     <p
@@ -1015,13 +1055,13 @@ export default function BookingModal({
 
                 <div>
                   <p className="mb-1 text-[12px] font-medium text-[var(--text-main)]">
-                    Телефон
+                    Телефон для подтверждения
                   </p>
                   <input
                     type="tel"
                     name="phone"
                     className={`w-full rounded-full border border-[var(--border-subtle)] bg-[var(--surface-soft)] px-4 py-2 text-[13px] text-[var(--text-main)] outline-none focus:border-[var(--accent-strong)] ${
-                      errors.phone ? 'border-red-500' : ''
+                      errors.phone ? "border-red-500" : ""
                     }`}
                     placeholder="+7 (___) ___-__-__"
                     value={phone}
@@ -1033,7 +1073,7 @@ export default function BookingModal({
                     }}
                     required
                     aria-invalid={!!errors.phone}
-                    aria-describedby={errors.phone ? 'phone-error' : undefined}
+                    aria-describedby={errors.phone ? "phone-error" : undefined}
                   />
                   {errors.phone && (
                     <p
@@ -1049,11 +1089,11 @@ export default function BookingModal({
               <div>
                 <div className="mb-1 flex items-center gap-2">
                   <p className="text-[12px] font-medium text-[var(--text-main)]">
-                    Комментарий (необязательно)
+                    Комментарий (по желанию)
                   </p>
                   <span
                     className="cursor-default text-[12px] text-[var(--text-muted)]"
-                    title="Например: королевское бритьё, нужен слот к 10:00, важно уложиться к началу встречи"
+                    title="Например: формат встречи, пожелания по образу или времени визита."
                   >
                     ℹ️
                   </span>
@@ -1067,7 +1107,7 @@ export default function BookingModal({
                 />
               </div>
 
-              <div className="pt-1">
+              <div className="space-y-2 pt-1">
                 <button
                   type="submit"
                   className="flex w-full items-center justify-center rounded-full bg-[var(--accent-strong)] px-5 py-3 text-[13px] font-medium uppercase tracking-[0.12em] text-[var(--text-on-accent)] disabled:opacity-60"
@@ -1076,17 +1116,23 @@ export default function BookingModal({
                   {isSending ? (
                     <>
                       <span className="spinner-small mr-2" />
-                      отправляем…
+                      отправляем запрос в клуб…
                     </>
                   ) : (
-                    'подтвердить запись'
+                    "подтвердить запись"
                   )}
                 </button>
+                <p className="text-center text-[11px] text-[var(--text-muted)]">
+                  В популярные дни вечерние слоты закрываются заранее — если
+                  что‑то пойдёт не так, администратор предложит ближайшее
+                  доступное время.
+                </p>
               </div>
 
               <p className="text-[11px] leading-relaxed text-[var(--text-muted)]">
                 Нажимая кнопку, вы соглашаетесь на обработку персональных данных.
-                Мы используем данные только для связи по записи в клуб Gentlemen.
+                Мы используем их только для связи по вашей записи в клуб
+                «Джентльмены Культуры».
               </p>
             </div>
           )}
@@ -1097,7 +1143,8 @@ export default function BookingModal({
             <div className="pointer-events-auto flex items-center gap-3 rounded-full bg-[rgba(22,16,13,0.96)] px-4 py-3 shadow-lg">
               <span className="h-2 w-2 rounded-full bg-[#4ade80]" />
               <p className="text-[12px] text-[var(--text-main)]">
-                Запись отправлена. Мы свяжемся с вами для подтверждения.
+                Запрос на запись отправлен. Администратор клуба свяжется с вами
+                для подтверждения времени.
               </p>
             </div>
           </div>

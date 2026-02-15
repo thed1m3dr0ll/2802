@@ -28,5 +28,16 @@ services:
     volumes:
       - ./backend:/app
 
+  frontend:
+    build: ./frontend
+    container_name: gentlemen_barber_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      # ВАЖНО: внутри сети Docker бэк — не localhost, а service-name
+      - NEXT_PUBLIC_API_URL=http://backend:8000
+    depends_on:
+      - backend
+
 volumes:
   postgres_data:

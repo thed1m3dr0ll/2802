@@ -30,7 +30,7 @@ async def create_record_and_get_user_id(
             "name": name,
             "phone": phone,
         },
-        "comment": "Запись с сайта gentlemen-nn.ru",
+        "comment": "Запись с сайта https://gentlemenbarber.ru/",
     }
 
     if email:

@@ -1,30 +1,66 @@
 // pages/cabinet/index.tsx
-import { useState } from 'react';
-import Head from 'next/head';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
-import BookingModal from '../../components/BookingModal';
+import { useState } from "react";
+import Head from "next/head";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
+import BookingModal from "../../components/BookingModal";
 
 export default function CabinetPage() {
-  const guestName = 'Гость клуба';
+  const guestName = "Гость клуба";
   const [isBookingOpen, setIsBookingOpen] = useState(false);
 
   const handleBookClick = () => setIsBookingOpen(true);
   const handleCloseModal = () => setIsBookingOpen(false);
 
+  const pageTitle = "Личный кабинет — Gentlemen Barbershop Club";
+  const pageDescription =
+    "Личный кабинет гостя Gentlemen Barbershop Club: история визитов, выбранные мастера, ритуалы, рекомендации по уходу и ближайшие записи в барбершопе на Белозёрской, 4.";
+  const canonicalUrl = "https://gentlemenbarber.ru/cabinet";
+  const ogImage = "https://gentlemenbarber.ru/og-cabinet.jpg";
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: "Личный кабинет гостя Gentlemen Barbershop Club",
+    url: canonicalUrl,
+    description: pageDescription,
+    about: {
+      "@type": "BarberShop",
+      name: "Барбершоп «Джентльмены Культуры»",
+      url: "https://gentlemenbarber.ru/",
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "ул. Белозёрская, 4",
+        addressLocality: "Нижний Новгород",
+        addressCountry: "RU",
+      },
+    },
+  };
+
   return (
     <>
       <Head>
-        <title>Личный кабинет — Gentlemen Barbershop Club</title>
-        <meta
-          name="description"
-          content="Личный кабинет гостя Gentlemen Barbershop Club: история визитов, выбранные мастера, ритуалы, рекомендации по уходу и ближайшие записи в барбершопе на Белозёрской, 4."
-        />
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
         <meta
           name="keywords"
           content="личный кабинет барбершоп, история визитов gentlemen, мои мастера, рекомендации по уходу, клубный кабинет gentlemen"
         />
-        <link rel="canonical" href="https://gentlemen-nn.ru/cabinet" />
+        <link rel="canonical" href={canonicalUrl} />
+
+        {/* Open Graph / VK */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:image" content={ogImage} />
+
+        {/* structured data */}
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
       </Head>
 
       <Header onBookClick={handleBookClick} />
@@ -32,26 +68,24 @@ export default function CabinetPage() {
       {/* HERO */}
       <section className="section section-dark relative overflow-hidden">
         <div className="absolute inset-0">
-          <div className="w-full h-full bg-[radial-gradient(circle_at_top,#5b1412_0,#050307_60%)] opacity-80" />
+          <div className="h-full w-full bg-[radial-gradient(circle_at_top,#5b1412_0,#050307_60%)] opacity-80" />
         </div>
 
         <div className="container-custom relative z-10 max-w-3xl space-y-6">
           <div className="flex items-center gap-3">
-            <span className="inline-flex items-center px-3 py-1 rounded-full border border-amber-500/40 bg-amber-500/10 text-[10px] uppercase tracking-[0.18em] text-amber-300">
+            <span className="inline-flex items-center rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-amber-300">
               скоро
             </span>
-            <p className="label-small text-club-muted">
-              личный кабинет клуба
-            </p>
+            <p className="label-small text-club-muted">личный кабинет клуба</p>
           </div>
 
-          <h1 className="text-3xl md:text-4xl font-semibold leading-tight">
+          <h1 className="text-3xl font-semibold leading-tight md:text-4xl">
             Место, где ваши визиты
             <br />
             складываются в историю.
           </h1>
 
-          <div className="space-y-3 text-sm md:text-base text-club-soft">
+          <div className="space-y-3 text-sm text-club-soft md:text-base">
             <p>
               Клуб — это не только кресло и зеркало, но и память о том, что уже
               было сделано: стрижки, бороды, удачные решения и мастера, к
@@ -72,10 +106,10 @@ export default function CabinetPage() {
 
       {/* LAYOUT */}
       <section className="section section-paper">
-        <div className="container-custom grid grid-cols-1 lg:grid-cols-[260px,1fr] gap-8 items-start">
+        <div className="container-custom grid items-start grid-cols-1 gap-8 lg:grid-cols-[260px,1fr]">
           {/* SIDEBAR */}
           <aside className="space-y-4">
-            <div className="card-paper-lifted p-5 space-y-2">
+            <div className="card-paper-lifted space-y-2 p-5">
               <p className="label-small text-[var(--text-muted)]">профиль</p>
               <p className="text-sm font-semibold text-[var(--text-dark)]">
                 {guestName}
@@ -90,28 +124,43 @@ export default function CabinetPage() {
               </p>
             </div>
 
-            <nav className="card-paper p-4 space-y-2 text-sm">
-              <p className="label-small text-[var(--text-muted)] mb-1">
+            <nav className="card-paper space-y-2 p-4 text-sm">
+              <p className="mb-1 label-small text-[var(--text-muted)]">
                 разделы кабинета
               </p>
-              <button className="w-full text-left py-2.5 px-3 rounded-md bg-[var(--text-dark)] text-white text-[11px] tracking-[0.16em] uppercase">
+              <button
+                type="button"
+                className="w-full rounded-md bg-[var(--text-dark)] px-3 py-2.5 text-left text-[11px] uppercase tracking-[0.16em] text-white"
+              >
                 ближайшие визиты
               </button>
-              <button className="w-full text-left py-2.5 px-3 rounded-md hover:bg-black/5 text-[13px] text-[var(--text-dark)]">
+              <button
+                type="button"
+                className="w-full rounded-md px-3 py-2.5 text-left text-[13px] text-[var(--text-dark)] hover:bg-black/5"
+              >
                 История посещений
               </button>
-              <button className="w-full text-left py-2.5 px-3 rounded-md hover:bg-black/5 text-[13px] text-[var(--text-dark)]">
+              <button
+                type="button"
+                className="w-full rounded-md px-3 py-2.5 text-left text-[13px] text-[var(--text-dark)] hover:bg-black/5"
+              >
                 Мои мастера
               </button>
-              <button className="w-full text-left py-2.5 px-3 rounded-md hover:bg-black/5 text-[13px] text-[var(--text-dark)]">
+              <button
+                type="button"
+                className="w-full rounded-md px-3 py-2.5 text-left text-[13px] text-[var(--text-dark)] hover:bg-black/5"
+              >
                 Рекомендации по уходу
               </button>
-              <button className="w-full text-left py-2.5 px-3 rounded-md hover:bg-black/5 text-[13px] text-[var(--text-dark)]">
+              <button
+                type="button"
+                className="w-full rounded-md px-3 py-2.5 text-left text-[13px] text-[var(--text-dark)] hover:bg-black/5"
+              >
                 Настройки профиля
               </button>
             </nav>
 
-            <div className="card-paper p-5 text-sm space-y-3">
+            <div className="card-paper space-y-3 p-5 text-sm">
               <p className="label-small text-[var(--text-muted)]">
                 ещё не с нами?
               </p>
@@ -133,7 +182,7 @@ export default function CabinetPage() {
           {/* MAIN */}
           <main className="space-y-6">
             {/* Ближайшие визиты */}
-            <section className="card-paper-lifted p-6 space-y-4">
+            <section className="card-paper-lifted space-y-4 p-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="label-small text-[var(--text-muted)]">
@@ -159,7 +208,7 @@ export default function CabinetPage() {
             </section>
 
             {/* История посещений */}
-            <section className="card-paper-lifted p-6 space-y-4">
+            <section className="card-paper-lifted space-y-4 p-6">
               <div>
                 <p className="label-small text-[var(--text-muted)]">
                   история посещений
@@ -186,7 +235,7 @@ export default function CabinetPage() {
             </section>
 
             {/* Мои мастера */}
-            <section className="card-paper-lifted p-6 space-y-4">
+            <section className="card-paper-lifted space-y-4 p-6">
               <div>
                 <p className="label-small text-[var(--text-muted)]">
                   мои мастера
@@ -196,9 +245,9 @@ export default function CabinetPage() {
                 </h2>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm leading-relaxed text-[var(--text-muted)]">
+              <div className="grid grid-cols-1 gap-4 text-sm leading-relaxed text-[var(--text-muted)] md:grid-cols-2">
                 <div className="rounded-xl border border-dashed border-[var(--text-muted)]/40 p-4">
-                  <p className="text-[11px] uppercase tracking-[0.18em] mb-2">
+                  <p className="mb-2 text-[11px] uppercase tracking-[0.18em]">
                     основной мастер
                   </p>
                   <p className="text-[13px]">
@@ -207,7 +256,7 @@ export default function CabinetPage() {
                   </p>
                 </div>
                 <div className="rounded-xl border border-dashed border-[var(--text-muted)]/40 p-4">
-                  <p className="text-[11px] uppercase tracking-[0.18em] mb-2">
+                  <p className="mb-2 text-[11px] uppercase tracking-[0.18em]">
                     другие мастера клуба
                   </p>
                   <p className="text-[13px]">
@@ -220,7 +269,7 @@ export default function CabinetPage() {
             </section>
 
             {/* Рекомендации по уходу */}
-            <section className="card-paper-lifted p-6 space-y-4">
+            <section className="card-paper-lifted space-y-4 p-6">
               <div>
                 <p className="label-small text-[var(--text-muted)]">
                   рекомендации по уходу
@@ -249,11 +298,11 @@ export default function CabinetPage() {
 
       {/* CTA */}
       <section className="section section-dark border-t border-black/40">
-        <div className="container-custom text-center max-w-3xl">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">
+        <div className="container-custom max-w-3xl text-center">
+          <h2 className="mb-4 text-3xl font-bold leading-tight md:text-4xl">
             Хотите, чтобы у вашей стрижки была память?
           </h2>
-          <p className="text-sm md:text-base text-club-soft mb-6">
+          <p className="mb-6 text-sm text-club-soft md:text-base">
             Начните с первого визита. Дальше клуб возьмёт на себя историю
             образа, а личный кабинет станет местом, где всё это собрано в одном
             месте.
@@ -265,16 +314,16 @@ export default function CabinetPage() {
           >
             записаться в клуб
           </button>
-          <p className="text-club-soft text-sm">
-            или по телефону{' '}
+          <p className="text-sm text-club-soft">
+            или по телефону{" "}
             <a
               href="tel:+79877553000"
-              className="text-[var(--accent-gold-soft)] hover:opacity-80 transition-colors"
+              className="text-[var(--accent-gold-soft)] transition-colors hover:opacity-80"
             >
               +7 987 755 30 00
             </a>
           </p>
-          <p className="text-club-soft text-[11px] mt-3">
+          <p className="mt-3 text-[11px] text-club-soft">
             Личный кабинет в онлайне запускаем поэтапно. После вашего первого
             визита мы привяжем профиль и откроем доступ к истории образа.
           </p>

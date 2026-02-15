@@ -1,65 +1,95 @@
+// pages/services.tsx
+import Head from "next/head";
+
 export default function Services() {
+  const pageTitle =
+    "Ритуалы и услуги барбершопа в Нижнем Новгороде | Джентльмены Культуры";
+  const pageDescription =
+    "Ритуалы барбершопа «Джентльмены Культуры» в Нижнем Новгороде: мужские стрижки, оформление бороды, комплексные услуги, семейные и особые ритуалы.";
+  const canonicalUrl = "https://gentlemenbarber.ru/services";
+  const ogImage = "https://gentlemenbarber.ru/og-main.jpg";
+
   const rituals = [
     {
       title: "Мужская стрижка",
-      description: "Классический ритуал, с которого начинается знакомство с барбершопом. Диагностика волос и формы головы, обсуждение желаемого образа, стрижка, мойка и укладка с рекомендациями по домашнему уходу.",
+      description:
+        "Классический ритуал, с которого начинается знакомство с барбершопом. Диагностика волос и формы головы, обсуждение желаемого образа, стрижка, мойка и укладка с рекомендациями по домашнему уходу.",
       duration: "45–60 минут",
       price: "1,500 ₽",
-      category: "Стрижка"
+      category: "Стрижка",
     },
     {
       title: "Коррекция стрижки",
-      description: "Когда прошло немного времени, форма ещё жива, но хочется освежить контуры. Аккуратно убираем лишнее, не меняя образ полностью.",
+      description:
+        "Когда прошло немного времени, форма ещё жива, но хочется освежить контуры. Аккуратно убираем лишнее, не меняя образ полностью.",
       duration: "30–40 минут",
       price: "900 ₽",
-      category: "Стрижка"
+      category: "Стрижка",
     },
     {
       title: "Моделирование бороды",
-      description: "Выстраиваем чёткие линии, подбираем длину и форму под лицо и образ жизни. Используем горячее полотенце, масла и средства для ухода, чтобы борода выглядела ухоженно на каждый день.",
+      description:
+        "Выстраиваем чёткие линии, подбираем длину и форму под лицо и образ жизни. Используем горячее полотенце, масла и средства для ухода, чтобы борода выглядела ухоженно на каждый день.",
       duration: "40–50 минут",
       price: "1,200 ₽",
-      category: "Борода"
+      category: "Борода",
     },
     {
       title: "Коррекция бороды",
-      description: "Подравниваем длину, аккуратно обновляем контуры и возвращаем бороде форму без кардинальных изменений.",
+      description:
+        "Подравниваем длину, аккуратно обновляем контуры и возвращаем бороде форму без кардинальных изменений.",
       duration: "20–30 минут",
       price: "600 ₽",
-      category: "Борода"
+      category: "Борода",
     },
     {
       title: "Стрижка + борода",
-      description: "Полный мужской ритуал: стрижка, борода, укладка и финальные штрихи. Идеальный выбор, если хотите выйти из кресла полностью собранным.",
+      description:
+        "Полный мужской ритуал: стрижка, борода, укладка и финальные штрихи. Идеальный выбор, если хотите выйти из кресла полностью собранным.",
       duration: "75–90 минут",
       price: "2,400 ₽",
-      category: "Комплекс"
+      category: "Комплекс",
     },
     {
       title: "Отец и сын",
-      description: "Совместный визит для тех, кто хочет сделать уход за собой частью семейной традиции. Спокойная атмосфера, уважение к каждому гостю и немного магии для ребёнка, который впервые попадает в барбершоп.",
+      description:
+        "Совместный визит для тех, кто хочет сделать уход за собой частью семейной традиции. Спокойная атмосфера, уважение к каждому гостю и немного магии для ребёнка, который впервые попадает в барбершоп.",
       duration: "от 60 минут",
       price: "договорная",
-      category: "Комплекс"
+      category: "Комплекс",
     },
     {
       title: "Под важный день",
-      description: "Собеседование, свадьба, выступление или выезд. Продумываем образ под событие: стрижка, борода, укладка и советы по тому, как сохранить результат.",
+      description:
+        "Собеседование, свадьба, выступление или выезд. Продумываем образ под событие: стрижка, борода, укладка и советы по тому, как сохранить результат.",
       duration: "90+ минут",
       price: "договорная",
-      category: "Особые случаи"
+      category: "Особые случаи",
     },
     {
       title: "Подарочный сертификат",
-      description: "Если нужно сделать подарок мужчине и не промахнуться. Сертификат на ритуал в барбершопе с душой — всегда уместная история.",
+      description:
+        "Если нужно сделать подарок мужчине и не промахнуться. Сертификат на ритуал в барбершопе с душой — всегда уместная история.",
       duration: "–",
       price: "от 600 ₽",
-      category: "Подарок"
-    }
-  ]
+      category: "Подарок",
+    },
+  ];
 
   return (
     <>
+      <Head>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:image" content={ogImage} />
+      </Head>
+
       {/* ==================== ИНТРО ==================== */}
       <section className="section bg-gradient-to-b from-club-dark via-club-dark to-club-dark pt-32">
         <div className="container-custom">
@@ -68,7 +98,8 @@ export default function Services() {
               Ритуалы Джентльменов культуры
             </h1>
             <p className="text-lg text-club-light opacity-80 max-w-3xl mx-auto">
-              Мы собрали услуги в понятные ритуалы: стрижка, борода, комплекс и особые случаи. Выбирайте по задаче, а не только по цене.
+              Мы собрали услуги в понятные ритуалы: стрижка, борода, комплекс и
+              особые случаи. Выбирайте по задаче, а не только по цене.
             </p>
           </div>
         </div>
@@ -79,17 +110,30 @@ export default function Services() {
         <div className="container-custom">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {rituals.map((ritual, index) => (
-              <div key={index} className="bg-club-dark border border-club-gold border-opacity-30 rounded-lg p-6 hover-lift">
+              <div
+                key={index}
+                className="bg-club-dark border border-club-gold border-opacity-30 rounded-lg p-6 hover-lift"
+              >
                 <div className="inline-block bg-club-gold bg-opacity-20 text-club-gold text-xs px-3 py-1 rounded-full mb-4">
                   {ritual.category}
                 </div>
-                <h3 className="text-2xl font-bold text-club-light mb-3">{ritual.title}</h3>
-                <p className="text-club-light opacity-80 mb-6">{ritual.description}</p>
+                <h3 className="text-2xl font-bold text-club-light mb-3">
+                  {ritual.title}
+                </h3>
+                <p className="text-club-light opacity-80 mb-6">
+                  {ritual.description}
+                </p>
                 <div className="flex justify-between items-center mb-6 pb-6 border-b border-club-gold border-opacity-20">
-                  <span className="text-club-gold text-sm">⏱ {ritual.duration}</span>
-                  <span className="text-club-gold font-bold text-lg">{ritual.price}</span>
+                  <span className="text-club-gold text-sm">
+                    ⏱ {ritual.duration}
+                  </span>
+                  <span className="text-club-gold font-bold text-lg">
+                    {ritual.price}
+                  </span>
                 </div>
-                <button className="w-full btn btn-secondary">Записаться →</button>
+                <button className="w-full btn btn-secondary">
+                  Записаться →
+                </button>
               </div>
             ))}
           </div>
@@ -97,7 +141,9 @@ export default function Services() {
           {/* ЗАКРЫВАЮЩИЙ ТЕКСТ */}
           <div className="text-center mt-16 p-8 bg-club-brown bg-opacity-10 border border-club-gold border-opacity-30 rounded-lg">
             <p className="text-club-light opacity-80">
-              Если сомневаетесь, какой ритуал выбрать — просто опишите вашу задачу при записи, и администратор подберёт лучший вариант по времени и бюджету.
+              Если сомневаетесь, какой ритуал выбрать — просто опишите вашу
+              задачу при записи, и администратор подберёт лучший вариант по
+              времени и бюджету.
             </p>
           </div>
         </div>
@@ -106,10 +152,14 @@ export default function Services() {
       {/* ==================== CTA ==================== */}
       <section className="section bg-club-dark border-t border-club-gold border-opacity-20">
         <div className="container-custom text-center">
-          <h2 className="text-4xl font-bold mb-8 text-club-light">Готовы начать?</h2>
-          <button className="btn btn-primary text-lg px-8 py-4">Записаться онлайн</button>
+          <h2 className="text-4xl font-bold mb-8 text-club-light">
+            Готовы начать?
+          </h2>
+          <button className="btn btn-primary text-lg px-8 py-4">
+            Записаться онлайн
+          </button>
         </div>
       </section>
     </>
-  )
+  );
 }

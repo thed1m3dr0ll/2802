@@ -1,9 +1,11 @@
 // pages/masters.tsx
-import { useState } from 'react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import Link from 'next/link';
-import BookingModal from '../components/BookingModal';
+import { useState } from "react";
+import Head from "next/head";
+import Link from "next/link";
+import Image from "next/image";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import BookingModal from "../components/BookingModal";
 
 type MasterContext = {
   masterId?: string;
@@ -26,9 +28,79 @@ export default function MastersPage() {
     setSelectedMaster(null);
   };
 
+  const pageTitle =
+    "Мастера барбершопа в Нижнем Новгороде | Джентльмены Культуры";
+  const pageDescription =
+    "Команда барбершоп‑клуба «Джентльмены Культуры» в Нижнем Новгороде: мастера, которым можно доверить образ, бороду и час своей жизни.";
+  const canonicalUrl = "https://gentlemenbarber.ru/masters";
+  const ogImage = "https://gentlemenbarber.ru/og-masters.jpg";
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Мастера барбершоп‑клуба «Джентльмены Культуры»",
+    url: canonicalUrl,
+    itemListElement: [
+      {
+        "@type": "Person",
+        name: "Совет клуба Gentlemen",
+        jobTitle: "Барберы",
+        worksFor: {
+          "@type": "BarberShop",
+          name: "Барбершоп «Джентльмены Культуры»",
+          sameAs: ["https://vk.ru/barbershop_gentlemen"],
+        },
+      },
+    ],
+  };
+
   return (
     <>
+      <Head>
+        {/* базовый SEO */}
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+
+        {/* Open Graph / VK */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:image" content={ogImage} />
+
+        {/* structured data */}
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </Head>
+
       <Header onBookClick={() => handleBookClick()} />
+
+      {/* Хлебные крошки */}
+      <nav
+        aria-label="Хлебные крошки"
+        className="section section-paper pt-4 pb-0"
+      >
+        <div className="container-custom text-[12px] md:text-[13px] text-[var(--text-muted)]">
+          <ol className="flex flex-wrap items-center gap-1">
+            <li>
+              <Link
+                href="/"
+                className="hover:text-[var(--accent-red)] transition-colors"
+              >
+                Главная
+              </Link>
+            </li>
+            <li className="text-[var(--text-muted)]">/</li>
+            <li aria-current="page" className="text-[var(--text-dark-strong)]">
+              Мастера клуба
+            </li>
+          </ol>
+        </div>
+      </nav>
 
       {/* HERO: кто эти люди */}
       <section className="section section-paper section-animate">
@@ -44,8 +116,8 @@ export default function MastersPage() {
           </p>
           <p className="text-sm text-[var(--text-muted)]">
             Мы показываем мастеров вместе, потому что в кресле вы попадаете не
-            только к конкретному барберу, а в общую команду: характеры,
-            чувство вкуса и отношение к делу у всех совпадают.
+            только к конкретному барберу, а в общую команду: характеры, чувство
+            вкуса и отношение к делу у всех совпадают.
           </p>
         </div>
       </section>
@@ -71,12 +143,15 @@ export default function MastersPage() {
             {/* Карточка 1 — Совет клуба */}
             <article className="card-paper-lifted hover-lift flex gap-5 bg-[var(--paper-bg)] min-h-[220px]">
               <div className="w-[240px] md:w-[280px] flex-shrink-0 overflow-hidden rounded-2xl">
-                <img
-                  src="/images/masters/master-1.jpg"
-                  alt="Команда барбершоп‑клуба Gentlemen"
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                />
+                <div className="relative h-full w-full min-h-[220px]">
+                  <Image
+                    src="/images/masters/master-1.jpg"
+                    alt="Команда барбершоп‑клуба Gentlemen"
+                    fill
+                    sizes="(min-width: 1024px) 280px, 240px"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
               </div>
 
               <div className="flex flex-col justify-between flex-1 py-2">
@@ -103,8 +178,8 @@ export default function MastersPage() {
                   type="button"
                   onClick={() =>
                     handleBookClick({
-                      masterId: 'staff_council',
-                      masterName: 'Совет клуба',
+                      masterId: "staff_council",
+                      masterName: "Совет клуба",
                     })
                   }
                   className="mt-3 text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80 underline underline-offset-4"
@@ -117,12 +192,15 @@ export default function MastersPage() {
             {/* Карточка 2 — команда в работе */}
             <article className="card-paper-lifted hover-lift flex gap-5 bg-[var(--paper-bg)] min-h-[220px]">
               <div className="w-[240px] md:w-[280px] flex-shrink-0 overflow-hidden rounded-2xl">
-                <img
-                  src="/images/masters/master-2.jpg"
-                  alt="Команда барбершоп‑клуба Gentlemen за работой"
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                />
+                <div className="relative h-full w-full min-h-[220px]">
+                  <Image
+                    src="/images/masters/master-2.jpg"
+                    alt="Команда барбершоп‑клуба Gentlemen за работой"
+                    fill
+                    sizes="(min-width: 1024px) 280px, 240px"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
               </div>
 
               <div className="flex flex-col justify-between flex-1 py-2">
@@ -149,8 +227,8 @@ export default function MastersPage() {
                   type="button"
                   onClick={() =>
                     handleBookClick({
-                      masterId: 'staff_pick_master',
-                      masterName: 'Подбор мастера',
+                      masterId: "staff_pick_master",
+                      masterName: "Подбор мастера",
                     })
                   }
                   className="mt-3 text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80 underline underline-offset-4"
@@ -166,12 +244,15 @@ export default function MastersPage() {
               className="card-paper-lifted hover-lift flex gap-5 bg-[var(--paper-bg)] min-h-[220px] cursor-pointer"
             >
               <div className="w-[240px] md:w-[280px] flex-shrink-0 overflow-hidden rounded-2xl">
-                <img
-                  src="/images/masters/master-your.jpg"
-                  alt="Ваш мастер в клубе Gentlemen"
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                />
+                <div className="relative h-full w-full min-h-[220px]">
+                  <Image
+                    src="/images/masters/master-your.jpg"
+                    alt="Ваш мастер в клубе Gentlemen"
+                    fill
+                    sizes="(min-width: 1024px) 280px, 240px"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
               </div>
 
               <div className="flex flex-col justify-between flex-1 py-2">
@@ -263,7 +344,7 @@ export default function MastersPage() {
       {/* CTA — перед футером */}
       <section className="section section-dark section-animate">
         <div className="container-custom text-center">
-          <h2 className="text-3л md:text-4xl font-semibold mb-4">
+          <h2 className="text-3xl md:text-4xl font-semibold mb-4">
             Выберите мастера — а потом он будет выбирать решения для вас.
           </h2>
           <p className="text-club-soft text-sm md:text-base max-w-2xl mx-auto mb-6">
@@ -279,7 +360,7 @@ export default function MastersPage() {
             записаться к мастеру
           </button>
           <p className="text-club-soft text-sm">
-            или по телефону{' '}
+            или по телефону{" "}
             <a
               href="tel:+79877553000"
               className="text-[var(--accent-gold-soft)] hover:opacity-80 transition-colors"

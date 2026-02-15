@@ -1,5 +1,5 @@
 // pages/_document.tsx
-import { Html, Head, Main, NextScript } from 'next/document';
+import { Html, Head, Main, NextScript } from "next/document";
 
 export default function Document() {
   return (
@@ -8,48 +8,46 @@ export default function Document() {
         <meta charSet="utf-8" />
         <meta
           name="description"
-          content="Gentlemen — закрытый барбершоп‑клуб в Нижнем Новгороде. Ритуалы стрижки и бороды, ночные форматы и клубная атмосфера без суеты."
+          content="Барбершоп‑клуб «Джентльмены Культуры» в Нижнем Новгороде: мужские стрижки, борода, авторские ритуалы и клубная атмосфера на Белозёрской, 4."
         />
         <meta
           name="keywords"
-          content="барбершоп, мужской клуб, Gentlemen, стрижка, борода, Нижний Новгород"
+          content="барбершоп, мужской клуб, Джентльмены Культуры, Gentlemen, стрижка, борода, Нижний Новгород"
         />
         <meta name="theme-color" content="#050307" />
 
-        {/* Open Graph */}
+        {/* базовый Open Graph по умолчанию */}
         <meta property="og:type" content="website" />
         <meta
           property="og:title"
-          content="Gentlemen Barbershop Club — закрытый барбершоп‑клуб в Нижнем Новгороде"
+          content="Gentlemen Barbershop Club — барбершоп‑клуб в Нижнем Новгороде"
         />
         <meta
           property="og:description"
           content="Ритуалы для головы и бороды, ночные форматы и спокойная атмосфера клуба на Белозёрской, 4."
         />
-        <meta property="og:url" content="https://gentlemen-barber.ru/" />
+        <meta
+          property="og:url"
+          content="https://gentlemenbarber.ru/"
+        />
         <meta
           property="og:image"
-          content="https://gentlemen-barber.ru/og-image.jpg"
+          content="https://gentlemenbarber.ru/og-image.jpg"
         />
         <meta
           property="og:site_name"
           content="Gentlemen Barbershop Club"
         />
 
-        {/* Twitter Card */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta
-          name="twitter:title"
-          content="Gentlemen Barbershop Club — закрытый барбершоп‑клуб"
+        {/* preconnect к шрифтам и внешним сервисам */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin=""
         />
-        <meta
-          name="twitter:description"
-          content="Ритуалы стрижки и бороды, ночные форматы и атмосфера клуба."
-        />
-        <meta
-          name="twitter:image"
-          content="https://gentlemen-barber.ru/og-image.jpg"
-        />
+        <link rel="preconnect" href="https://mc.yandex.ru" />
+        <link rel="preconnect" href="https://vk.ru" />
 
         {/* Google Fonts */}
         <link
@@ -70,8 +68,44 @@ export default function Document() {
             frame-src https://yandex.ru https://b1258165.yclients.com https://w1258165.yclients.com http://localhost:3000;
           "
         />
+
+        {/* Yandex.Metrika (заглушка ID 12345678) */}
+        <script
+          type="text/javascript"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){
+              (m[i].a=m[i].a||[]).push(arguments)};
+              m[i].l=1*new Date();
+              for (var j = 0; j < document.scripts.length; j++) {
+                if (document.scripts[j].src === r) { return; }
+              }
+              k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+              (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+              window.ym = window.ym || function(){ (window.ym.a = window.ym.a || []).push(arguments); };
+
+              ym(12345678, "init", {
+                clickmap:true,
+                trackLinks:true,
+                accurateTrackBounce:true,
+                webvisor:true
+              });
+            `,
+          }}
+        />
       </Head>
       <body>
+        <noscript>
+          <div>
+            <img
+              src="https://mc.yandex.ru/watch/12345678"
+              style={{ position: "absolute", left: "-9999px" }}
+              alt=""
+            />
+          </div>
+        </noscript>
         <Main />
         <NextScript />
       </body>
