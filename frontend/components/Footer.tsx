@@ -63,6 +63,14 @@ export default function Footer() {
               </li>
               <li>
                 <Link
+                  href="/#about"
+                  className="text-white/80 hover:text-white"
+                >
+                  О клубе
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/rituals"
                   className="text-white/80 hover:text-white"
                 >
@@ -83,6 +91,14 @@ export default function Footer() {
                   className="text-white/80 hover:text-white"
                 >
                   Мастера клуба
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/contacts"
+                  className="text-white/80 hover:text-white"
+                >
+                  Контакты
                 </Link>
               </li>
               <li>

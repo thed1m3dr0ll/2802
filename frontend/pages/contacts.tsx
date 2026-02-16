@@ -1,13 +1,12 @@
 // pages/contacts.tsx
 import Head from "next/head";
-import Image from "next/image";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import BookingModal from "../components/BookingModal";
 import { useState } from "react";
 import { trackPhoneClick } from "../lib/analytics";
 
-// Локальные иконки
+// Иконки
 function IconPhone(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
@@ -49,7 +48,7 @@ function IconTelegram(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-function IconWhatsapp(props: React.SVGProps<SVGSVGElement>) {
+function IconVk(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -60,21 +59,15 @@ function IconWhatsapp(props: React.SVGProps<SVGSVGElement>) {
       className={`lux-icon ${props.className ?? ""}`}
     >
       <path
-        d="M12 3a8 8 0 00-6.928 11.928L4 21l6.2-1.053A8 8 0 1012 3z"
+        d="M4 5c-.7 0-1 .5-1 1.2C3 13.4 7.1 19 13 19h2.2c.6 0 .9-.4.9-1v-1.6c0-.7.3-.8.7-.8.4 0 1.6.8 1.9 1.2.3.4.6.5 1 .5h1.5c.7 0 1-.4.9-1.1-.2-1-.9-1.9-1.9-2.7-.5-.5-1.3-.9-1.5-1.1-.3-.2-.2-.3 0-.6 0 0 2.6-3.6 2.8-4.8.1-.4 0-.7-.6-.7h-2.1c-.5 0-.7.2-.8.5-.5 1.4-1.8 3.3-2.3 3.7-.3.3-.5.2-.5-.2V6.3c0-.6-.2-1.1-.9-1.1H9.9c-.5 0-.8.3-.8.6 0 .6.9.7 1 2.3v2.6c0 .6-.3.7-.6.4C8.7 10 7.3 7.9 6.7 6.3 6.5 5.8 6.3 5.5 5.7 5.5Z"
         stroke="currentColor"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M9.5 9.5c.2-.5.4-.5.7-.5.2 0 .4 0 .6.3.2.3.7.9.8 1 .1.1.1.2 0 .3-.2.3-.4.5-.6.7-.1.1-.1.2 0 .3.1.1.5.9 1.2 1.3.6.4 1.1.5 1.3.6.2 0 .3 0 .4-.1l.6-.7c.1-.1.2-.1.3-.1h.2c.2 0 .5.2.5.4.1.2.1.4.1.7 0 .3-.2.6-.4.8-.2.2-.9.5-1.6.5-.4 0-1.1-.1-1.8-.4-.9-.4-1.6-1-2.2-1.7-.5-.6-1-1.4-1.2-2-.2-.6-.2-1.1-.1-1.5z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
+        strokeWidth="1.3"
       />
     </svg>
   );
 }
 
-function IconMapPin(props: React.SVGProps<SVGSVGElement>) {
+function IconAddress(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -85,12 +78,7 @@ function IconMapPin(props: React.SVGProps<SVGSVGElement>) {
       className={`lux-icon ${props.className ?? ""}`}
     >
       <path
-        d="M2.5 12C2.5 7.52166 2.5 5.28249 3.89124 3.89124C5.28249 2.5 7.52166 2.5 12 2.5C16.4783 2.5 18.7175 2.5 20.1088 3.89124C21.5 5.28249 21.5 7.52166 21.5 12C21.5 16.4783 21.5 18.7175 20.1088 20.1088C18.7175 21.5 16.4783 21.5 12 21.5C7.52166 21.5 5.28249 21.5 3.89124 20.1088C2.5 18.7175 2.5 16.4783 2.5 12Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M13.4368 9.55807L10.6 12L7 15M10.6 12L13.4949 14.3865M10.6 12L7 9M16 8.5C16 9.32843 15.3284 10 14.5 10C13.6716 10 13 9.32843 13 8.5C13 7.67157 13.6716 7 14.5 7C15.3284 7 16 7.67157 16 8.5ZM16 15.5C16 16.3284 15.3284 17 14.5 17C13.6716 17 13 16.3284 13 15.5C13 14.6716 13.6716 14 14.5 14C15.3284 14 16 14.6716 16 15.5Z"
+        d="M4 10.5L12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-5.5H10V21H5a1 1 0 0 1-1-1v-9.5Z"
         stroke="currentColor"
         strokeWidth="1.5"
         strokeLinecap="round"
@@ -182,13 +170,12 @@ export default function ContactsPage() {
             </div>
           </div>
 
-          {/* Фото входа */}
+          {/* Фото/обложка контактов */}
           <div className="relative h-[260px] overflow-hidden rounded-3xl border border-[rgba(246,237,226,0.2)] bg-black/40 shadow-[0_24px_60px_rgba(0,0,0,0.85)] md:h-[320px]">
-            <Image
+            <img
               src="/images/contacts-front-door.jpg"
               alt="Вход в барбершоп‑клуб «Джентльмены Культуры» на Белозёрской, 4"
-              fill
-              className="object-cover"
+              className="h-full w-full object-cover"
             />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-black/10 to-transparent" />
           </div>
@@ -216,7 +203,7 @@ export default function ContactsPage() {
                   адрес клуба
                 </p>
                 <div className="flex items-start gap-3 text-sm text-[var(--text-dark)]">
-                  <IconMapPin className="mt-0.5 h-6 w-6 text-[var(--accent-gold-soft)]" />
+                  <IconAddress className="mt-0.5 h-6 w-6 text-[var(--accent-gold-soft)]" />
                   <div>
                     <p>Нижний Новгород</p>
                     <p>ул. Белозёрская, 4</p>
@@ -270,13 +257,13 @@ export default function ContactsPage() {
                   <span>Telegram</span>
                 </a>
                 <a
-                  href="https://wa.me/79877553000"
+                  href="https://vk.ru/barbershop_gentlemen"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-full border border-[rgba(18,18,18,0.18)] bg-[rgba(0,0,0,0.02)] px-3 py-1.5 text-[13px] text-[var(--text-dark)] hover:border-[var(--accent-gold-soft)] hover:bg-[rgba(245,239,230,0.4)] transition-colors"
                 >
-                  <IconWhatsapp className="h-4 w-4 text-[var(--accent-gold-soft)]" />
-                  <span>WhatsApp</span>
+                  <IconVk className="h-4 w-4 text-[var(--accent-gold-soft)]" />
+                  <span>VK</span>
                 </a>
               </div>
             </div>
@@ -301,25 +288,25 @@ export default function ContactsPage() {
             </div>
           </div>
 
-          {/* Правый столбец: карта */}
+          {/* Правый столбец: интерактивная карта */}
           <div className="space-y-4">
             <p className="label-small text-[var(--text-muted)]">
               карта клуба
             </p>
             <div className="card-paper overflow-hidden">
               <div className="relative h-[260px] bg-[#0b060a] md:h-[320px]">
-                <Image
-                  src="/images/contacts-map-static.jpg"
-                  alt="Карта с отметкой барбершоп‑клуба «Джентльмены Культуры» в Нижнем Новгороде"
-                  fill
-                  className="object-cover"
+                <iframe
+                  src="https://yandex.ru/map-widget/v1/?um=constructor%3AYOUR_ID_HERE&source=constructor"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
                 />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/20 via-black/5 to-transparent" />
               </div>
               <div className="border-t border-[rgba(18,18,18,0.08)] px-4 py-3 text-[11px] text-[var(--text-muted)]">
-                В ближайшее время здесь появится интерактивная карта с
-                маршрутом. Пока можно открыть локацию в предпочитаемом
-                навигаторе.
+                Можно открыть локацию в Яндекс.Картах и построить маршрут до
+                клуба в один клик.
               </div>
             </div>
           </div>
