@@ -1,5 +1,6 @@
 // pages/contacts.tsx
 import Head from "next/head";
+import Image from "next/image";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import BookingModal from "../components/BookingModal";
@@ -172,10 +173,12 @@ export default function ContactsPage() {
 
           {/* Фото/обложка контактов */}
           <div className="relative h-[260px] overflow-hidden rounded-3xl border border-[rgba(246,237,226,0.2)] bg-black/40 shadow-[0_24px_60px_rgba(0,0,0,0.85)] md:h-[320px]">
-            <img
+            <Image
               src="/images/contacts-front-door.jpg"
               alt="Вход в барбершоп‑клуб «Джентльмены Культуры» на Белозёрской, 4"
+              fill
               className="h-full w-full object-cover"
+              priority
             />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-black/10 to-transparent" />
           </div>

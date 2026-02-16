@@ -26,10 +26,7 @@ export default function Document() {
           property="og:description"
           content="Ритуалы для головы и бороды, ночные форматы и спокойная атмосфера клуба на Белозёрской, 4."
         />
-        <meta
-          property="og:url"
-          content="https://gentlemenbarber.ru/"
-        />
+        <meta property="og:url" content="https://gentlemenbarber.ru/" />
         <meta
           property="og:image"
           content="https://gentlemenbarber.ru/og-image.jpg"
@@ -99,6 +96,7 @@ export default function Document() {
       <body>
         <noscript>
           <div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="https://mc.yandex.ru/watch/12345678"
               style={{ position: "absolute", left: "-9999px" }}
