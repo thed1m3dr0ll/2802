@@ -1,6 +1,7 @@
-// pages/about.tsx
+// pages/club.tsx
 import Head from "next/head";
 import Image from "next/image";
+import Link from "next/link";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import BookingModal from "../components/BookingModal";
@@ -233,12 +234,12 @@ export default function AboutPage() {
             </p>
             <p className="text-sm text-club-soft">
               Познакомиться ближе с командой можно на странице{" "}
-              <a
+              <Link
                 href="/masters"
                 className="text-[var(--accent-gold-soft)] underline-offset-2 hover:underline"
               >
                 «Мастера»
-              </a>
+              </Link>
               .
             </p>
           </div>
@@ -278,12 +279,12 @@ export default function AboutPage() {
             >
               записаться в клуб
             </button>
-            <a
+            <Link
               href="/rituals"
               className="text-sm text-club-soft underline-offset-2 hover:underline"
             >
               посмотреть ритуалы клуба
-            </a>
+            </Link>
           </div>
         </div>
       </section>
