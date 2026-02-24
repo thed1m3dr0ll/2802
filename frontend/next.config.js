@@ -1,4 +1,7 @@
 /** @type {import('next').NextConfig} */
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
 const nextConfig = {
   images: {
     unoptimized: true,
@@ -14,18 +17,18 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value:
               "default-src 'self'; " +
-              // Разрешаем скрипты с Yandex.Metrika и YCLIENTS
+              // Скрипты: свои + Яндекс.Метрика + YCLIENTS
               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://mc.yandex.ru https://w1258165.yclients.com; " +
-              // Стили: свои, inline, + стили виджета и Google Fonts
+              // Стили: свои, inline, стили виджета и Google Fonts
               "style-src 'self' 'unsafe-inline' https://w1258165.yclients.com https://fonts.googleapis.com; " +
               // Картинки
               "img-src 'self' https: data: blob:; " +
-              // Сеть: фронт ходит к бэку на localhost:8000 + Метрика (HTTP + WebSocket)
-              "connect-src 'self' http://localhost:8000 https://mc.yandex.ru wss://mc.yandex.ru; " +
+              // Сеть: фронт ходит к бэку (API_URL) + Метрика (HTTP + WebSocket)
+              `connect-src 'self' ${API_URL} https://mc.yandex.ru wss://mc.yandex.ru; ` +
               // Шрифты
               "font-src 'self' https://fonts.gstatic.com data:; " +
-              // Кто может фреймить нас и кого фреймим мы (Yandex, YCLIENTS, локальный дев)
-              "frame-src https://yandex.ru https://b1258165.yclients.com https://w1258165.yclients.com http://localhost:3000; " +
+              // Кого фреймим (Yandex, YCLIENTS, сам сайт)
+              `frame-src https://yandex.ru https://b1258165.yclients.com https://w1258165.yclients.com ${SITE_URL}; ` +
               // Остальное
               "frame-ancestors 'self'; " +
               "object-src 'none';",
@@ -36,6 +39,7 @@ const nextConfig = {
         source: '/api/:path*',
         headers: [
           { key: 'Access-Control-Allow-Credentials', value: 'true' },
+          // В проде эти заголовки лучше отдавать с бэка/Nginx, но для dev оставим
           { key: 'Access-Control-Allow-Origin', value: '*' },
           {
             key: 'Access-Control-Allow-Methods',
@@ -52,7 +56,7 @@ const nextConfig = {
   },
 
   env: {
-    // это старое, можешь потом выкинуть, сейчас фронт использует NEXT_PUBLIC_API_URL
+    // старое поле, можно выпилить после рефакторинга
     API_BASE_URL: process.env.API_BASE_URL || 'http://localhost:8000',
   },
 };

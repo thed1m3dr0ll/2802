@@ -1,4 +1,4 @@
-# app/routes/reviews.py
+# app/reviews.py
 
 from datetime import date
 from typing import Literal, List

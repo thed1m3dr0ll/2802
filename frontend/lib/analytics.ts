@@ -6,7 +6,7 @@ declare global {
   }
 }
 
-const METRIKA_ID = 12345678; // заглушка, потом подставишь реальный ID
+const METRIKA_ID = Number(process.env.NEXT_PUBLIC_METRIKA_ID);
 
 function ym(...args: any[]) {
   if (typeof window === "undefined" || typeof window.ym !== "function") return;

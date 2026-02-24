@@ -1,12 +1,13 @@
 # app/db.py
-import asyncpg
+
 import os
 from typing import AsyncGenerator
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://admin:dev_password@postgres:5432/gentlemen_barber",
-)
+import asyncpg
+
+
+# Требуем, чтобы DATABASE_URL всегда был задан через окружение
+DATABASE_URL = os.environ["DATABASE_URL"]
 
 _pool: asyncpg.Pool | None = None
 

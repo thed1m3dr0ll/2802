@@ -1,10 +1,24 @@
-from fastapi import FastAPI
+import os
+
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
+from slowapi.middleware import SlowAPIMiddleware
 
 from app.routes.reviews import router as reviews_router
 from app.yclients_api import router as yclients_router
 
+
+ALLOWED_ORIGINS = os.getenv(
+    "ALLOWED_ORIGINS",
+    "http://localhost:3000",
+).split(",")
+
+limiter = Limiter(key_func=get_remote_address)
 
 app = FastAPI(
     title="Gentlemen Barber API",
@@ -12,9 +26,13 @@ app = FastAPI(
     version="1.0.0",
 )
 
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_middleware(SlowAPIMiddleware)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -36,33 +54,44 @@ class BookingIntent(BaseModel):
 app.include_router(reviews_router)
 app.include_router(yclients_router)
 
+# Длительность услуги по умолчанию (в СЕКУНДАХ, кратно 300: 3600 = 60 мин)
+DEFAULT_SEANCE_LENGTH = 3600
+
 
 @app.post("/booking-intents/")
-async def create_booking_intent(intent: BookingIntent):
+@limiter.limit("5/minute")
+async def create_booking_intent(request: Request, intent: BookingIntent):
     """
     1) Принимаем данные с фронта.
     2) Делаем запрос в Yclients на создание записи.
     3) Возвращаем client.id и record.id.
     """
-    from app.yclients_client import create_yclients_record  # см. ниже файл
+    from app.yclients_client import create_yclients_record  # импорт клиента YCLIENTS
 
     # подстрахуемся по типам
     if not intent.masterId or not intent.ritualId or not intent.date or not intent.time:
-        return {"status": "error", "message": "Не хватает masterId / ritualId / date / time"}
+        return {
+            "status": "error",
+            "message": "Не хватает masterId / ritualId / date / time",
+        }
 
+    # Payload в формате, который ждёт YCLIENTS /api/v1/records/{company_id}
     payload = {
-        "phone": intent.phone,
-        "name": intent.name,
-        "email": "",
-        "comment": intent.comment or "",
-        "appointments": [
+        "seance_length": DEFAULT_SEANCE_LENGTH,
+        "staff_id": int(intent.masterId),
+        "datetime": f"{intent.date}T{intent.time}:00",
+        "services": [
             {
-                "id": 1,
+                "id": int(intent.ritualId),
                 "staff_id": int(intent.masterId),
-                "services": [int(intent.ritualId)],
-                "datetime": f"{intent.date}T{intent.time}:00",
+                "seance_length": DEFAULT_SEANCE_LENGTH,
             }
         ],
+        "client": {
+            "name": intent.name,
+            "phone": intent.phone,
+            "comment": intent.comment or "",
+        },
     }
 
     data = await create_yclients_record(payload)
@@ -96,4 +125,9 @@ async def health_check():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run(
+        "app.main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=False,
+    )

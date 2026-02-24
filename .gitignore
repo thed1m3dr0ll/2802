@@ -141,3 +141,5 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
+
+backend/test_yclients_slots.py

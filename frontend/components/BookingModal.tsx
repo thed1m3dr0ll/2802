@@ -1,6 +1,10 @@
 // components/BookingModal.tsx
 import { useState, useEffect, useRef } from "react";
 import { trackBookingSuccess } from "../lib/analytics";
+import {
+  YCLIENTS_ROLES,
+  YCLIENTS_SERVICES_BY_ROLE,
+} from "../lib/openYclients.ts";
 
 type BookingInitialContext = {
   masterId?: string;
@@ -35,83 +39,6 @@ type FieldErrors = {
 };
 
 type FormStatus = "idle" | "submitting" | "success" | "error";
-
-const STAFF_ROLE: Record<string, "art_director" | "top_master"> = {
-  "3533027": "art_director",
-  "3498549": "top_master",
-  "3498548": "top_master",
-  "4910723": "top_master",
-};
-
-const SERVICE_BY_ROLE: Record<
-  string,
-  { art_director: string; top_master: string }
-> = {
-  "Мужская стрижка": {
-    art_director: "21341952",
-    top_master: "17209453",
-  },
-  'Комплекс "стрижка + борода"': {
-    art_director: "21342282",
-    top_master: "17404423",
-  },
-  "Моделирование бороды": {
-    art_director: "21342075",
-    top_master: "17404445",
-  },
-  "Детская стрижка": {
-    art_director: "21357813",
-    top_master: "17404447",
-  },
-  "Стрижка машинкой": {
-    art_director: "21357876",
-    top_master: "17404449",
-  },
-  "Удаление воском": {
-    art_director: "24828141",
-    top_master: "17404455",
-  },
-  "Опасное бритье": {
-    art_director: "21358053",
-    top_master: "17404464",
-  },
-  Укладка: {
-    art_director: "24828258",
-    top_master: "17404468",
-  },
-  "Черная маска": {
-    art_director: "24827991",
-    top_master: "17404469",
-  },
-  "Стрижка отец + сын": {
-    art_director: "21357765",
-    top_master: "17404475",
-  },
-  "Стрижка ножницами": {
-    art_director: "21357735",
-    top_master: "17404481",
-  },
-  "Камуфляж головы": {
-    art_director: "21358224",
-    top_master: "17404491",
-  },
-  "Камуфляж бороды": {
-    art_director: "21358284",
-    top_master: "17404495",
-  },
-  Патчи: {
-    art_director: "24828357",
-    top_master: "17965734",
-  },
-  "Премиум уход за кожей головы и волосами": {
-    art_director: "21357675",
-    top_master: "19282256",
-  },
-  "Детокс уход бороды и кожи лица": {
-    art_director: "21357723",
-    top_master: "19281924",
-  },
-};
 
 const ritualGroups = [
   {
@@ -305,8 +232,8 @@ export default function BookingModal({
           let serviceIdToUse = ritualId;
 
           if (ritualName) {
-            const role = STAFF_ROLE[masterId] ?? "top_master";
-            const byRole = SERVICE_BY_ROLE[ritualName];
+            const role = YCLIENTS_ROLES[masterId] ?? "top_master";
+            const byRole = YCLIENTS_SERVICES_BY_ROLE[ritualName];
             if (byRole) {
               serviceIdToUse = byRole[role];
             }
@@ -380,6 +307,7 @@ export default function BookingModal({
     }
 
     setStatus("submitting");
+    let hadError = false;
 
     try {
       const ritual = rituals.find((r) => r.id === ritualId);
@@ -388,8 +316,8 @@ export default function BookingModal({
 
       let serviceIdToUse = ritualId;
       if (ritualNameActual) {
-        const role = STAFF_ROLE[masterId] ?? "top_master";
-        const byRole = SERVICE_BY_ROLE[ritualNameActual];
+        const role = YCLIENTS_ROLES[masterId] ?? "top_master";
+        const byRole = YCLIENTS_SERVICES_BY_ROLE[ritualNameActual];
         if (byRole) {
           serviceIdToUse = byRole[role];
         }
@@ -444,6 +372,7 @@ export default function BookingModal({
             data?.detail ||
             data?.message ||
             "Не удалось создать запись. Попробуйте другое время или мастера.";
+          hadError = true;
           setStatus("error");
           setGlobalError(message);
           return;
@@ -454,12 +383,14 @@ export default function BookingModal({
           const message =
             data.message ||
             "Не удалось создать запись. Попробуйте другое время или мастера.";
+          hadError = true;
           setStatus("error");
           setGlobalError(message);
           return;
         }
       } catch (err) {
         console.error("Failed to create YCLIENTS booking", err);
+        hadError = true;
         setStatus("error");
         setGlobalError(
           "Сервис записи временно недоступен. Мы свяжемся с вами для подтверждения.",
@@ -479,7 +410,7 @@ export default function BookingModal({
       // Жёсткий редирект (под Директ/Метрику надёжнее, чем SPA-переход)
       window.location.href = "/thank-you";
     } finally {
-      if (status !== "error") {
+      if (!hadError) {
         setStatus("idle");
       }
     }
@@ -708,8 +639,8 @@ export default function BookingModal({
                 <div className="space-y-2">
                   {masters.map((m) => {
                     const isActive = masterId === m.id;
-                    const role =
-                      STAFF_ROLE[m.id] === "art_director"
+                    const roleLabel =
+                      YCLIENTS_ROLES[m.id] === "art_director"
                         ? "арт‑директор клуба"
                         : "топ‑барбер";
                     return (
@@ -731,7 +662,7 @@ export default function BookingModal({
                           <div className="flex items-center gap-2">
                             <span className="font-medium">{m.name}</span>
                             <span className="rounded-full bg-[var(--surface-elevated)] px-2 py-[2px] text-[10px] uppercase tracking-[0.14em] text-[var(--text-muted)]">
-                              {role}
+                              {roleLabel}
                             </span>
                           </div>
                           <p className="text-[11px] text-[var(--text-muted)]">
@@ -740,7 +671,7 @@ export default function BookingModal({
                           </p>
                         </div>
                         {isActive && (
-                          <span className="ml  -3 mt-1 text-[11px] text-[var(--accent-strong)]">
+                          <span className="ml-3 mt-1 text-[11px] text-[var(--accent-strong)]">
                             выбран
                           </span>
                         )}
@@ -917,7 +848,7 @@ export default function BookingModal({
           {step === 4 && (
             <div className="space-y-4 md:space-y-5">
               <div>
-                <div className="mb-1 flex items-center justify-between gap-2">
+                <div className="mb-1 flex items-center justify_between gap-2">
                   <p className="text-[12px] font-medium text-[var(--text-main)]">
                     Во сколько вам удобно?
                   </p>
