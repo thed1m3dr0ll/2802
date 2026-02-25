@@ -22,8 +22,6 @@ import { FaqSection } from "../components/home/FaqSection";
 import { GiftSection } from "../components/home/GiftSection";
 import { FinalCtaSection } from "../components/home/FinalCtaSection";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
 export default function Home() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
@@ -60,7 +58,8 @@ export default function Home() {
     async function loadReviews() {
       try {
         setReviewsError(null);
-        const res = await fetch(`${API_URL}/reviews/`);
+        // КЛЮЧЕВОЕ: ходим к бекенду через /api
+        const res = await fetch("/api/reviews/");
         if (!res.ok) {
           throw new Error("Failed to load reviews");
         }
@@ -105,25 +104,21 @@ export default function Home() {
   return (
     <>
       <Head>
-        {/* SEO */}
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
         <link rel="canonical" href={canonicalUrl} />
 
-        {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
         <meta property="og:image" content={ogImage} />
 
-        {/* Twitter Cards */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={pageDescription} />
         <meta name="twitter:image" content={ogImage} />
 
-        {/* structured data */}
         <script
           type="application/ld+json"
           // eslint-disable-next-line react/no-danger
@@ -140,7 +135,6 @@ export default function Home() {
       />
       <BenefitsSection />
 
-      {/* поднятый блок отзывов — social proof выше по странице */}
       <ReviewsSection
         reviews={reviews}
         loading={reviewsLoading}
@@ -159,7 +153,6 @@ export default function Home() {
       <FaqSection />
       <GiftSection onBookClick={handleBookClick} />
 
-      {/* Блок гарантий/доверия перед финальным CTA */}
       <section className="section">
         <div className="container-custom rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-5 py-6 grid gap-6 items-start md:px-8 md:py-7 md:grid-cols-3">
           <div>

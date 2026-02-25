@@ -60,9 +60,11 @@ export default function Document() {
             img-src 'self' https: data:;
             script-src 'self' 'unsafe-inline' 'unsafe-eval' https://mc.yandex.ru https://w1258165.yclients.com;
             style-src 'self' 'unsafe-inline' https://w1258165.yclients.com https://fonts.googleapis.com;
-            font-src 'self' https://fonts.gstatic.com;
-            connect-src 'self' http://localhost:8000 https://mc.yandex.ru wss://mc.yandex.ru;
-            frame-src https://yandex.ru https://b1258165.yclients.com https://w1258165.yclients.com http://localhost:3000;
+            font-src 'self' https://fonts.gstatic.com data:;
+            connect-src 'self' https://www.gentlemenbarber.ru https://mc.yandex.ru wss://mc.yandex.ru;
+            frame-src https://yandex.ru https://b1258165.yclients.com https://w1258165.yclients.com https://www.gentlemenbarber.ru;
+            frame-ancestors 'self';
+            object-src 'none';
           "
         />
 
