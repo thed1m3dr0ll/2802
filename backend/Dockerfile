@@ -3,16 +3,20 @@ FROM python:3.11-slim
 # Рабочая директория внутри контейнера
 WORKDIR /app
 
-# Устанавливаем зависимости
+# Обновляем pip и ставим зависимости
 COPY requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r /app/requirements.txt
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r /app/requirements.txt
 
-# Копируем всё приложение
+# Копируем всё приложение (включая alembic.ini и migrations)
 COPY . /app
 
 # Переменные окружения (Python в прод‑режиме)
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
-# Команда запуска (тот же, что в docker-compose)
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Стартовый скрипт, который сначала применяет миграции, потом запускает uvicorn
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]

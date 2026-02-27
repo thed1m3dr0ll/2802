@@ -7,54 +7,62 @@ type Props = {
 };
 
 export function HeroSection({ onBookClick, firstButtonRef }: Props) {
+  const handleScrollToRituals = () => {
+    // мягкий скролл к секции ритуалов, если она на главной
+    const target = document.querySelector("#rituals");
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      window.location.href = "/rituals";
+    }
+  };
+
   return (
     <section
       id="hero"
       className="section section-dark section-y-lg relative overflow-hidden section-animate"
     >
-      <div className="absolute inset-0 hero-glow-layer pointer-events-none">
-        <div className="w-full h-full bg-gradient-to-br from-[#180405] via-[#050307] to-[#050307]" />
+      <div className="pointer-events-none hero-glow-layer absolute inset-0">
+        <div className="h-full w-full bg-gradient-to-br from-[#180405] via-[#050307] to-[#050307]" />
       </div>
 
-      <div className="container-custom relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+      <div className="container-custom relative z-10 grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
         {/* Левая колонка */}
-        <div className="space-y-6 max-w-xl">
+        <div className="max-w-xl space-y-6">
           <p className="label-small text-club-muted">
             мужской барбершоп‑клуб · нижний новгород
           </p>
 
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight">
+          <h1 className="text-3xl font-semibold leading-tight md:text-4xl lg:text-5xl">
             Закрытый мужской клуб стрижек и ритуалов для тех, кто ценит себя
           </h1>
 
-          <p className="text-club-soft text-[15px] md:text-base">
+          <p className="text-[15px] text-club-soft md:text-base">
             Атмосферный барбершоп‑клуб на Белозёрской, 4: тёмный зал, тёплый
             свет, мягкие кресла и мастера, которым можно доверить голову и
             бороду без оговорок.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             <button
               ref={firstButtonRef}
               type="button"
-              className="btn-primary-dark"
+              className="btn-primary-dark w-full sm:w-auto"
               onClick={onBookClick}
             >
-              записаться в клуб
+              ЗАПИСАТЬСЯ В КЛУБ
             </button>
 
             <button
               type="button"
-              className="btn-secondary-dark"
-              onClick={() => {
-                window.location.href = "/rituals";
-              }}
+              className="btn-secondary-dark w-full border border-[rgba(245,239,230,0.35)] text-[11px] uppercase tracking-[0.2em] text-[var(--text-main)] opacity-90 transition-colors hover:border-[rgba(245,239,230,0.6)] hover:bg-[rgba(245,239,230,0.06)] sm:w-auto"
+              onClick={handleScrollToRituals}
             >
               смотреть ритуалы
             </button>
           </div>
 
-          <p className="text-[13px] text-club-muted max-w-md">
+          <p className="max-w-md text-[13px] text-club-muted">
             Ул. Белозёрская, 4 · пространство 18+ с уважением к личному времени
             и ритуалам гостей.
           </p>
@@ -94,7 +102,7 @@ export function HeroSection({ onBookClick, firstButtonRef }: Props) {
               </div>
             </div>
 
-            <div className="space-y-2 text-[14px] card-dark-text max-w-md">
+            <div className="card-dark-text max-w-md space-y-2 text-[14px]">
               <p>
                 — Камерное пространство с мягким светом, где можно спрятаться от
                 города хотя бы на час.

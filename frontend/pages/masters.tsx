@@ -84,12 +84,12 @@ export default function MastersPage() {
         aria-label="Хлебные крошки"
         className="section section-paper pt-4 pb-0"
       >
-        <div className="container-custom text-[12px] md:text-[13px] text-[var(--text-muted)]">
+        <div className="container-custom text-[12px] text-[var(--text-muted)] md:text-[13px]">
           <ol className="flex flex-wrap items-center gap-1">
             <li>
               <Link
                 href="/"
-                className="hover:text-[var(--accent-red)] transition-colors"
+                className="transition-colors hover:text-[var(--accent-red)]"
               >
                 Главная
               </Link>
@@ -106,7 +106,7 @@ export default function MastersPage() {
       <section className="section section-paper section-animate">
         <div className="container-custom max-w-3xl space-y-6">
           <p className="label-small text-[var(--text-muted)]">совет клуба</p>
-          <h1 className="text-3xl md:text-4xl font-semibold text-[var(--text-dark)]">
+          <h1 className="text-3xl font-semibold text-[var(--text-dark)] md:text-4xl">
             Команда, с которой держится клуб.
           </h1>
           <p className="text-sm text-[var(--text-muted)]">
@@ -122,17 +122,17 @@ export default function MastersPage() {
         </div>
       </section>
 
-      {/* КАРТОЧКИ МАСТЕРОВ — СТОЛБИКОМ */}
+      {/* КАРТОЧКИ МАСТЕРОВ — адаптивно */}
       <section className="section section-paper section-animate">
         <div className="container-custom">
           <div className="mb-10 max-w-3xl">
-            <p className="label-small text-[var(--text-muted)] mb-2">
+            <p className="label-small mb-2 text-[var(--text-muted)]">
               не персонажи на фото
             </p>
-            <h2 className="text-3xl md:text-4xl font-semibold mb-3 text-[var(--text-dark)]">
+            <h2 className="mb-3 text-3xl font-semibold text-[var(--text-dark)] md:text-4xl">
               Вы выбираете не кресло, а человека.
             </h2>
-            <p className="text-sm md:text-base text-[var(--text-muted)]">
+            <p className="text-sm text-[var(--text-muted)] md:text-base">
               Здесь нет формальных «био» с перечнем конкурсов. Важнее, как
               мастер смотрит на мужской образ, как разговаривает и как вы
               чувствуете себя в кресле рядом с ним.
@@ -141,8 +141,8 @@ export default function MastersPage() {
 
           <div className="flex flex-col gap-5">
             {/* Карточка 1 — Совет клуба */}
-            <article className="card-paper-lifted hover-lift flex gap-5 bg-[var(--paper-bg)] min-h-[220px]">
-              <div className="w-[240px] md:w-[280px] flex-shrink-0 overflow-hidden rounded-2xl">
+            <article className="card-paper-lifted hover-lift flex min-h-[220px] flex-col gap-4 bg-[var(--paper-bg)] md:flex-row md:gap-5">
+              <div className="w-full flex-shrink-0 overflow-hidden rounded-2xl md:w-[280px]">
                 <div className="relative h-full w-full min-h-[220px]">
                   <Image
                     src="/images/masters/master-1.jpg"
@@ -154,20 +154,20 @@ export default function MastersPage() {
                 </div>
               </div>
 
-              <div className="flex flex-col justify-between flex-1 py-2">
+              <div className="flex flex-1 flex-col justify-between py-3 md:py-2">
                 <div>
-                  <p className="label-small text-[var(--accent-gold-soft)] mb-1">
+                  <p className="label-small mb-1 text-[var(--accent-gold-soft)]">
                     команда gentlemen
                   </p>
-                  <h3 className="text-base md:text-lg font-semibold text-[var(--text-dark-strong)] mb-2">
+                  <h3 className="mb-2 text-base font-semibold text-[var(--text-dark-strong)] md:text-lg">
                     Совет клуба Gentlemen
                   </h3>
-                  <p className="text-sm text-[var(--text-dark)] mb-2 leading-relaxed">
+                  <p className="mb-2 text-sm leading-relaxed text-[var(--text-dark)]">
                     На этом снимке — ядро команды: люди, которые собрали клуб с
                     первых гостей. Характеры разные, но у всех одно отношение к
                     времени гостя и тому, что происходит в кресле.
                   </p>
-                  <p className="text-xs md:text-sm text-[var(--text-muted)] leading-relaxed">
+                  <p className="text-xs leading-relaxed text-[var(--text-muted)] md:text-sm">
                     Если вы приходите впервые, выберите удобное время — вас
                     встретит кто‑то из совета, и с этого начнётся личная история
                     в клубе.
@@ -182,16 +182,16 @@ export default function MastersPage() {
                       masterName: "Совет клуба",
                     })
                   }
-                  className="mt-3 text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80 underline underline-offset-4"
+                  className="mt-3 whitespace-nowrap text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] underline underline-offset-4 hover:opacity-80"
                 >
-                  записаться к мастеру из совета
+                  ЗАПИСАТЬСЯ К МАСТЕРУ ИЗ СОВЕТА
                 </button>
               </div>
             </article>
 
             {/* Карточка 2 — команда в работе */}
-            <article className="card-paper-lifted hover-lift flex gap-5 bg-[var(--paper-bg)] min-h-[220px]">
-              <div className="w-[240px] md:w-[280px] flex-shrink-0 overflow-hidden rounded-2xl">
+            <article className="card-paper-lifted hover-lift flex min-h-[220px] flex-col gap-4 bg-[var(--paper-bg)] md:flex-row md:gap-5">
+              <div className="w-full flex-shrink-0 overflow-hidden rounded-2xl md:w-[280px]">
                 <div className="relative h-full w-full min-h-[220px]">
                   <Image
                     src="/images/masters/master-2.jpg"
@@ -203,20 +203,20 @@ export default function MastersPage() {
                 </div>
               </div>
 
-              <div className="flex flex-col justify-between flex-1 py-2">
+              <div className="flex flex-1 flex-col justify-between py-3 md:py-2">
                 <div>
-                  <p className="label-small text-[var(--accent-gold-soft)] mb-1">
+                  <p className="label-small mb-1 text-[var(--accent-gold-soft)]">
                     образ и атмосфера
                   </p>
-                  <h3 className="text-base md:text-lg font-semibold text-[var(--text-dark-strong)] mb-2">
+                  <h3 className="mb-2 text-base font-semibold text-[var(--text-dark-strong)] md:text-lg">
                     Команда в работе, а не в позе
                   </h3>
-                  <p className="text-sm text-[var(--text-dark)] mb-2 leading-relaxed">
+                  <p className="mb-2 text-sm leading-relaxed text-[var(--text-dark)]">
                     Общие кадры с креслами — обычный вечер в клубе. Кто‑то
                     стрижёт, кто‑то обсуждает дела, кто‑то просто молчит и
                     отдыхает. Без шоу и поз ради контента.
                   </p>
-                  <p className="text-xs md:text-sm text-[var(--text-muted)] leading-relaxed">
+                  <p className="text-xs leading-relaxed text-[var(--text-muted)] md:text-sm">
                     Один любит идеальную геометрию, другой — живой, чуть
                     небрежный образ. Внутри команды найдётся человек под ваш
                     характер, работу и привычки.
@@ -231,9 +231,9 @@ export default function MastersPage() {
                       masterName: "Подбор мастера",
                     })
                   }
-                  className="mt-3 text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] hover:opacity-80 underline underline-offset-4"
+                  className="mt-3 whitespace-nowrap text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] underline underline-offset-4 hover:opacity-80"
                 >
-                  подобрать мастера под себя
+                  ПОДОБРАТЬ МАСТЕРА ПОД СЕБЯ
                 </button>
               </div>
             </article>
@@ -241,9 +241,9 @@ export default function MastersPage() {
             {/* Карточка 3 — Ваш мастер / ссылка в кабинет */}
             <Link
               href="/cabinet"
-              className="card-paper-lifted hover-lift flex gap-5 bg-[var(--paper-bg)] min-h-[220px] cursor-pointer"
+              className="card-paper-lifted hover-lift flex min-h-[220px] cursor-pointer flex-col gap-4 bg-[var(--paper-bg)] md:flex-row md:gap-5"
             >
-              <div className="w-[240px] md:w-[280px] flex-shrink-0 overflow-hidden rounded-2xl">
+              <div className="w-full flex-shrink-0 overflow-hidden rounded-2xl md:w-[280px]">
                 <div className="relative h-full w-full min-h-[220px]">
                   <Image
                     src="/images/masters/master-your.jpg"
@@ -255,27 +255,27 @@ export default function MastersPage() {
                 </div>
               </div>
 
-              <div className="flex flex-col justify-between flex-1 py-2">
+              <div className="flex flex-1 flex-col justify-between py-3 md:py-2">
                 <div>
-                  <p className="label-small text-[var(--accent-gold-soft)] mb-1">
+                  <p className="label-small mb-1 text-[var(--accent-gold-soft)]">
                     свой человек в клубе
                   </p>
-                  <h3 className="text-base md:text-lg font-semibold text-[var(--text-dark-strong)] mb-2">
+                  <h3 className="mb-2 text-base font-semibold text-[var(--text-dark-strong)] md:text-lg">
                     Ваш мастер на общем фото
                   </h3>
-                  <p className="text-sm text-[var(--text-dark)] mb-2 leading-relaxed">
+                  <p className="mb-2 text-sm leading-relaxed text-[var(--text-dark)]">
                     На этих групповых снимках будущий «ваш» мастер уже есть —
                     просто вы пока не знаете, кто именно. Иногда совпадает с
                     первого визита, иногда — через пару попыток.
                   </p>
-                  <p className="text-xs md:text-sm text-[var(--text-muted)] leading-relaxed">
+                  <p className="text-xs leading-relaxed text-[var(--text-muted)] md:text-sm">
                     Достаточно описать задачу и то, как вы живёте день —
                     администратор подскажет, с кого начать знакомство.
                   </p>
                 </div>
 
-                <p className="mt-3 text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] underline underline-offset-4">
-                  перейти в кабинет и закрепить своего мастера
+                <p className="mt-3 whitespace-nowrap text-[11px] uppercase tracking-[0.18em] text-[var(--accent-red)] underline underline-offset-4">
+                  ПЕРЕЙТИ В КАБИНЕТ И ЗАКРЕПИТЬ СВОЕГО МАСТЕРА
                 </p>
               </div>
             </Link>
@@ -285,18 +285,18 @@ export default function MastersPage() {
 
       {/* БЛОК: как проходит визит */}
       <section className="section section-paper section-animate">
-        <div className="container-custom grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="container-custom grid grid-cols-1 gap-8 md:grid-cols-3">
           <div className="space-y-3">
             <p className="label-small text-[var(--text-muted)]">
               как проходит час
             </p>
-            <h2 className="text-2xl md:text-3xl font-semibold text-[var(--text-dark)]">
+            <h2 className="text-2xl font-semibold text-[var(--text-dark)] md:text-3xl">
               Никакой магии — просто нормальный человеческий сервис.
             </h2>
           </div>
           <div className="space-y-4 text-sm text-[var(--text-muted)]">
             <div>
-              <h3 className="text-xs uppercase tracking-[0.18em] text-[var(--text-muted)] mb-1">
+              <h3 className="mb-1 text-xs uppercase tracking-[0.18em] text-[var(--text-muted)]">
                 знакомство
               </h3>
               <p>
@@ -306,7 +306,7 @@ export default function MastersPage() {
               </p>
             </div>
             <div>
-              <h3 className="text-xs uppercase tracking-[0.18em] text-[var(--text-muted)] mb-1">
+              <h3 className="mb-1 text-xs uppercase tracking-[0.18em] text-[var(--text-muted)]">
                 работа
               </h3>
               <p>
@@ -318,7 +318,7 @@ export default function MastersPage() {
           </div>
           <div className="space-y-4 text-sm text-[var(--text-muted)]">
             <div>
-              <h3 className="text-xs uppercase tracking-[0.18em] text-[var(--text-muted)] mb-1">
+              <h3 className="mb-1 text-xs uppercase tracking-[0.18em] text-[var(--text-muted)]">
                 результат
               </h3>
               <p>
@@ -328,7 +328,7 @@ export default function MastersPage() {
               </p>
             </div>
             <div>
-              <h3 className="text-xs uppercase tracking-[0.18em] text-[var(--text-muted)] mb-1">
+              <h3 className="mb-1 text-xs uppercase tracking-[0.18em] text-[var(--text-muted)]">
                 история
               </h3>
               <p>
@@ -344,10 +344,10 @@ export default function MastersPage() {
       {/* CTA — перед футером */}
       <section className="section section-dark section-animate">
         <div className="container-custom text-center">
-          <h2 className="text-3xl md:text-4xl font-semibold mb-4">
+          <h2 className="mb-4 text-3xl font-semibold md:text-4xl">
             Выберите мастера — а потом он будет выбирать решения для вас.
           </h2>
-          <p className="text-club-soft text-sm md:text-base max-w-2xl mx-auto mb-6">
+          <p className="mx-auto mb-6 max-w-2xl text-sm text-club-soft md:text-base">
             Можно записаться к конкретному мастеру, а можно первым делом
             написать администратору пару строк о себе — мы подскажем, с кем
             начать.
@@ -357,13 +357,13 @@ export default function MastersPage() {
             className="btn-primary mb-3"
             onClick={() => handleBookClick()}
           >
-            записаться к мастеру
+            ЗАПИСАТЬСЯ К МАСТЕРУ
           </button>
-          <p className="text-club-soft text-sm">
+          <p className="text-sm text-club-soft">
             или по телефону{" "}
             <a
               href="tel:+79877553000"
-              className="text-[var(--accent-gold-soft)] hover:opacity-80 transition-colors"
+              className="text-[var(--accent-gold-soft)] transition-colors hover:opacity-80"
             >
               +7 987 755 30 00
             </a>

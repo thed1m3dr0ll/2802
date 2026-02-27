@@ -11,6 +11,8 @@ from slowapi.middleware import SlowAPIMiddleware
 
 from app.routes.reviews import router as reviews_router
 from app.yclients_api import router as yclients_router
+from app.routes.auth import router as auth_router
+from app.routes.cabinet import router as cabinet_router
 
 
 ALLOWED_ORIGINS = os.getenv(
@@ -40,42 +42,37 @@ app.add_middleware(
 
 
 class BookingIntent(BaseModel):
-    ritualId: str | None = None   # service_id в Yclients
+    ritualId: str | None = None
     ritualName: str | None = None
-    masterId: str | None = None   # staff_id в Yclients
+    masterId: str | None = None
     masterName: str | None = None
-    date: str | None = None       # "2026-02-14"
-    time: str | None = None       # "19:30"
+    date: str | None = None
+    time: str | None = None
     name: str
     phone: str
     comment: str | None = None
 
 
-app.include_router(reviews_router)
-app.include_router(yclients_router)
+# ВСЕ роуты повешены под /api
+app.include_router(reviews_router, prefix="/api")
+app.include_router(yclients_router, prefix="/api")
+app.include_router(auth_router, prefix="/api")
+app.include_router(cabinet_router, prefix="/api")
 
-# Длительность услуги по умолчанию (в СЕКУНДАХ, кратно 300: 3600 = 60 мин)
 DEFAULT_SEANCE_LENGTH = 3600
 
 
-@app.post("/booking-intents/")
+@app.post("/api/booking-intents/")
 @limiter.limit("5/minute")
 async def create_booking_intent(request: Request, intent: BookingIntent):
-    """
-    1) Принимаем данные с фронта.
-    2) Делаем запрос в Yclients на создание записи.
-    3) Возвращаем client.id и record.id.
-    """
-    from app.yclients_client import create_yclients_record  # импорт клиента YCLIENTS
+    from app.yclients_client import create_yclients_record
 
-    # подстрахуемся по типам
     if not intent.masterId or not intent.ritualId or not intent.date or not intent.time:
         return {
             "status": "error",
             "message": "Не хватает masterId / ritualId / date / time",
         }
 
-    # Payload в формате, который ждёт YCLIENTS /api/v1/records/{company_id}
     payload = {
         "seance_length": DEFAULT_SEANCE_LENGTH,
         "staff_id": int(intent.masterId),

@@ -49,6 +49,21 @@ export default function Header({ onBookClick }: HeaderProps) {
     setMobileOpen(false);
   }, [pathname]);
 
+  // блокировка скролла body, когда меню открыто
+  useEffect(() => {
+    if (!mobileOpen) {
+      // когда меню закрыто — ничего не делаем
+      return;
+    }
+
+    const original = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = original || "auto";
+    };
+  }, [mobileOpen]);
+
   return (
     <header className="site-header fixed inset-x-0 top-0 z-40">
       <div
@@ -59,34 +74,25 @@ export default function Header({ onBookClick }: HeaderProps) {
         }`}
       >
         <div className="relative flex w-full items-center justify-between px-3 py-1.5 md:px-6 md:py-3">
-          <div className="pointer-events-none absolute inset-y-[-24px] left-[-120px] right-[55%] -z-10 bg-[radial-gradient(circle_at_5%_50%,rgba(247,78,40,0.55),transparent_70%)]" />
-
-          {/* Логотип */}
-          <Link
-            href="/"
-            className="logo-link flex items-center gap-2 md:gap-3"
-            onClick={() => setMobileOpen(false)}
-          >
-            <div className="relative flex h-[46px] w-[46px] items-center justify-center overflow-hidden rounded-full border border-[rgba(245,239,230,0.42)] bg-[#C13A32] md:h-[70px] md:w-[70px]">
-              <div className="pointer-events-none absolute inset-[-45%] bg-[radial-gradient(circle_at_30%_0%,rgba(255,150,100,0.98),transparent_65%),radial-gradient(circle_at_80%_120%,rgba(255,80,60,0.85),transparent_60%)] opacity-95" />
-              <Image
-                src="/images/Logotip-bez-fona.svg"
-                alt="Барбершоп‑клуб «Джентльмены Культуры»"
-                width={64}
-                height={64}
-                className="relative h-[40px] w-[40px] object-contain drop-shadow-[0_0_18px_rgba(0,0,0,0.95)] md:h-[60px] md:w-[60px]"
-                priority
-              />
-            </div>
-            <div className="hidden flex-col leading-tight sm:flex">
-              <span className="text-[10px] uppercase tracking-[0.22em] text-club-soft">
-                gentlemen
-              </span>
-              <span className="text-[8px] uppercase tracking-[0.18em] text-club-muted">
-                barbershop club
-              </span>
-            </div>
-          </Link>
+          <div className="relative flex h-[46px] w-[46px] items-center justify-center overflow-hidden rounded-full border border-[rgba(245,239,230,0.42)] bg-[#C13A32] md:h-[70px] md:w-[70px]">
+            <div className="pointer-events-none absolute inset-[-45%] bg-[radial-gradient(circle_at_30%_0%,rgba(255,150,100,0.98),transparent_65%),radial-gradient(circle_at_80%_120%,rgba(255,80,60,0.85),transparent_60%)] opacity-95" />
+            <Image
+              src="/images/Logotip-bez-fona.svg"
+              alt="Барбершоп‑клуб «Джентльмены Культуры»"
+              width={64}
+              height={64}
+              className="relative h-[40px] w-[40px] object-contain drop-shadow-[0_0_18px_rgba(0,0,0,0.95)] md:h-[60px] md:w-[60px]"
+              priority
+            />
+          </div>
+          <div className="hidden flex-col leading-tight sm:flex">
+            <span className="text-[10px] uppercase tracking-[0.22em] text-club-soft">
+              gentlemen
+            </span>
+            <span className="text-[8px] uppercase tracking-[0.18em] text-club-muted">
+              barbershop club
+            </span>
+          </div>
 
           {/* Навигация — md+ */}
           <nav className="hidden items-center gap-6 md:flex lg:gap-8">
@@ -108,27 +114,8 @@ export default function Header({ onBookClick }: HeaderProps) {
             })}
           </nav>
 
-          {/* Справа: язык, телефон и запись */}
+          {/* Справа: телефон и запись */}
           <div className="flex items-center gap-2 md:gap-4">
-            {/* переключатель языка — пока декоративный */}
-            <div className="hidden items-center rounded-full border border-[rgba(245,239,230,0.12)] bg-[rgba(12,8,6,0.9)] px-2 py-1 lg:flex">
-              <button
-                type="button"
-                className="px-2 text-[10px] uppercase tracking-[0.16em] text-[var(--text-main)]"
-                data-lang="ru"
-              >
-                RU
-              </button>
-              <span className="mx-1 h-3 w-px bg-[rgba(245,239,230,0.14)]" />
-              <button
-                type="button"
-                className="px-2 text-[10px] uppercase tracking-[0.16em] text-[var(--text-muted)]"
-                data-lang="en"
-              >
-                EN
-              </button>
-            </div>
-
             <a
               href="tel:+79877553000"
               onClick={handlePhoneClick}
@@ -165,48 +152,57 @@ export default function Header({ onBookClick }: HeaderProps) {
         </div>
       </div>
 
-      {/* Мобильное меню */}
+      {/* Backdrop + мобильное меню */}
       {mobileOpen && (
-        <div className="fixed inset-x-0 top-[56px] z-30 border-t border-[rgba(245,239,230,0.1)] bg-[rgba(5,3,7,0.98)] backdrop-blur-md md:hidden">
-          <div className="container-custom py-4">
-            <nav className="space-y-2">
-              {navItems.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setMobileOpen(false)}
-                    className={`block rounded-full px-4 py-2 text-[11px] uppercase tracking-[0.2em] ${
-                      isActive
-                        ? "bg-[rgba(255,255,255,0.06)] text-[var(--text-main)]"
-                        : "text-[var(--text-muted)] hover:bg-[rgba(255,255,255,0.04)] hover:text-[var(--text-main)]"
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </nav>
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 z-30 bg-black/60 md:hidden"
+            onClick={() => setMobileOpen(false)}
+          />
 
-            <div className="mt-4 space-y-3 border-t border-[rgba(245,239,230,0.1)] pt-4">
-              <a
-                href="tel:+79877553000"
-                onClick={handlePhoneClick}
-                className="block text-[11px] uppercase tracking-[0.2em] text-[var(--accent-gold-soft)]"
-              >
-                +7 987 755 30 00
-              </a>
-              <button
-                type="button"
-                onClick={handleClick}
-                className="w-full rounded-full border border-[rgba(245,239,230,0.32)] bg-[rgba(255,96,72,0.12)] px-4 py-2 text-[11px] uppercase tracking-[0.2em] text-[var(--text-main)]"
-              >
-                записаться в клуб
-              </button>
+          {/* Меню поверх backdrop, прижато к верху под хедером */}
+          <div className="fixed inset-x-0 top-[56px] z-40 border-t border-[rgba(245,239,230,0.1)] bg-[rgba(5,3,7,0.98)] backdrop-blur-md md:hidden">
+            <div className="container-custom py-4">
+              <nav className="space-y-2">
+                {navItems.map((item) => {
+                  const isActive = pathname === item.href;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMobileOpen(false)}
+                      className={`block rounded-full px-4 py-2 text-[11px] uppercase tracking-[0.2em] ${
+                        isActive
+                          ? "bg-[rgba(255,255,255,0.06)] text-[var(--text-main)]"
+                          : "text-[var(--text-muted)] hover:bg-[rgba(255,255,255,0.04)] hover:text-[var(--text-main)]"
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </nav>
+
+              <div className="mt-4 space-y-3 border-t border-[rgba(245,239,230,0.1)] pt-4">
+                <a
+                  href="tel:+79877553000"
+                  onClick={handlePhoneClick}
+                  className="block text-[11px] uppercase tracking-[0.2em] text-[var(--accent-gold-soft)]"
+                >
+                  +7 987 755 30 00
+                </a>
+                <button
+                  type="button"
+                  onClick={handleClick}
+                  className="w-full rounded-full border border-[rgba(245,239,230,0.32)] bg-[rgba(255,96,72,0.12)] px-4 py-2 text-[11px] uppercase tracking-[0.2em] text-[var(--text-main)]"
+                >
+                  записаться в клуб
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* отступ под фиксированный хедер */}

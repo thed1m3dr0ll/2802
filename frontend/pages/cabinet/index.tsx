@@ -1,12 +1,24 @@
-// pages/cabinet/index.tsx
+// @ts-nocheck
 import { useState } from "react";
 import Head from "next/head";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import BookingModal from "../../components/BookingModal";
 
-export default function CabinetPage() {
-  const guestName = "Гость клуба";
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "https://gentlemenbarber.ru";
+
+type Profile = {
+  id: string;
+  name: string;
+};
+
+type CabinetPageProps = {
+  profile: Profile | null;
+};
+
+export default function CabinetPage({ profile }: CabinetPageProps) {
+  const guestName = profile?.name || "Гость клуба";
   const [isBookingOpen, setIsBookingOpen] = useState(false);
 
   const handleBookClick = () => setIsBookingOpen(true);
@@ -48,14 +60,12 @@ export default function CabinetPage() {
         />
         <link rel="canonical" href={canonicalUrl} />
 
-        {/* Open Graph / VK */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
         <meta property="og:image" content={ogImage} />
 
-        {/* structured data */}
         <script
           type="application/ld+json"
           // eslint-disable-next-line react/no-danger
@@ -335,4 +345,41 @@ export default function CabinetPage() {
       <BookingModal isOpen={isBookingOpen} onClose={handleCloseModal} />
     </>
   );
+}
+
+export async function getServerSideProps(context: any) {
+  const { req } = context;
+
+  try {
+    const res = await fetch(API_BASE + "/auth/profile", {
+      method: "GET",
+      headers: {
+        cookie: req.headers.cookie || "",
+      },
+    });
+
+    if (!res.ok) {
+      return {
+        redirect: {
+          destination: "/cabinet/login",
+          permanent: false,
+        },
+      };
+    }
+
+    const profile = await res.json();
+
+    return {
+      props: {
+        profile,
+      },
+    };
+  } catch (e) {
+    return {
+      redirect: {
+        destination: "/cabinet/login",
+        permanent: false,
+      },
+    };
+  }
 }

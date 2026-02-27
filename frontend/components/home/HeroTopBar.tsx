@@ -27,13 +27,13 @@ export function HeroTopBar({ onBookClick }: Props) {
             Барбершоп‑клуб «Джентльмены Культуры» в Нижнем Новгороде
           </h1>
 
-          <div className="mt-3 inline-flex items-center gap-3">
-            <span className="inline-flex items-center rounded-full border border-[var(--accent-red)] bg-[var(--accent-red)] px-3 py-1 text-[12px] md:text-[13px] uppercase tracking-[0.16em] text-white">
-              от 1 800 ₽
-            </span>
-            <span className="text-[13px] md:text-[14px] text-[var(--text-muted)]">
-              мужские стрижки и борода в премиум‑формате
-            </span>
+          <div className="mt-3 flex flex-col gap-1">
+            <p className="text-[13px] md:text-[14px] text-[var(--text-dark-strong)]">
+              Стрижки от <span className="font-semibold">1 500 ₽</span>
+            </p>
+            <p className="text-[13px] md:text-[14px] text-[var(--text-dark)]">
+              Мужские стрижки и борода в премиум‑формате
+            </p>
           </div>
         </div>
 
@@ -48,15 +48,17 @@ export function HeroTopBar({ onBookClick }: Props) {
               записаться онлайн
             </button>
 
-            <p className="text-[13px] md:text-[14px] text-[var(--text-muted)] md:text-right">
-              Только по предварительной записи ·{" "}
-              <a
-                href="tel:+79877553000"
-                className="text-[var(--accent-red)] hover:opacity-80 transition"
-              >
-                +7 987 755 30 00
-              </a>
-            </p>
+            <div className="text-[13px] md:text-[14px] text-[var(--text-muted)] md:text-right leading-snug">
+              <p>Только по предварительной записи</p>
+              <p>
+                <a
+                  href="tel:+79877553000"
+                  className="text-[var(--accent-red)] hover:opacity-80 hover:underline underline-offset-4 transition whitespace-nowrap"
+                >
+                  +7 987 755 30 00
+                </a>
+              </p>
+            </div>
           </div>
         </div>
       </div>

@@ -136,8 +136,8 @@ export default function ContactsPage() {
             </h1>
             <p className="text-sm text-club-soft md:text-base">
               Клуб «Джентльмены Культуры» находится в Нижнем Новгороде на
-              Белозёрской, 4. Мы работаем по записи, чтобы у каждого гостя
-              было своё время без очередей и суеты.
+              Белозёрской, 4. Мы работаем по записи, чтобы у каждого гостя было
+              своё время без очередей и суеты.
             </p>
             <div className="space-y-2 text-sm text-club-soft">
               <p>
@@ -159,7 +159,7 @@ export default function ContactsPage() {
                 className="btn-primary-dark"
                 onClick={handleBookClick}
               >
-                записаться в клуб
+                ЗАПИСАТЬСЯ В КЛУБ
               </button>
               <a
                 href="tel:+79877553000"
@@ -187,7 +187,7 @@ export default function ContactsPage() {
 
       {/* Контакты + карта */}
       <section className="section section-paper">
-        <div className="container-custom max-w-6xl grid gap-10 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] md:items-start">
+        <div className="container-custom grid max-w-6xl gap-10 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] md:items-start">
           {/* Левый столбец: контакты */}
           <div className="space-y-6">
             <div>
@@ -202,7 +202,7 @@ export default function ContactsPage() {
             <div className="grid gap-5 sm:grid-cols-2">
               {/* Адрес */}
               <div className="card-paper p-4">
-                <p className="label-small text-[var(--accent-gold-soft)] mb-2">
+                <p className="label-small mb-2 text-[var(--accent-gold-soft)]">
                   адрес клуба
                 </p>
                 <div className="flex items-start gap-3 text-sm text-[var(--text-dark)]">
@@ -217,7 +217,7 @@ export default function ContactsPage() {
 
               {/* Время работы */}
               <div className="card-paper p-4">
-                <p className="label-small text-[var(--accent-gold-soft)] mb-2">
+                <p className="label-small mb-2 text-[var(--accent-gold-soft)]">
                   время работы
                 </p>
                 <p className="text-sm text-[var(--text-dark)]">
@@ -231,7 +231,7 @@ export default function ContactsPage() {
             </div>
 
             {/* Телефон и мессенджеры */}
-            <div className="card-paper p-5 space-y-4">
+            <div className="card-paper space-y-4 p-5">
               <p className="label-small text-[var(--accent-gold-soft)]">
                 телефон и мессенджеры
               </p>
@@ -239,7 +239,7 @@ export default function ContactsPage() {
               <a
                 href="tel:+79877553000"
                 onClick={handleFooterPhoneClick}
-                className="inline-flex items-center gap-2 text-[15px] text-[var(--text-dark-strong)] hover:text-[var(--accent-red)] transition-colors"
+                className="inline-flex items-center gap-2 text-[15px] text-[var(--text-dark-strong)] transition-colors hover:text-[var(--accent-red)]"
               >
                 <IconPhone className="h-5 w-5 text-[var(--accent-gold-soft)]" />
                 <span>+7 987 755 30 00</span>
@@ -254,7 +254,7 @@ export default function ContactsPage() {
                   href="https://t.me/barberRomanChernov"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-[rgba(18,18,18,0.18)] bg-[rgba(0,0,0,0.02)] px-3 py-1.5 text-[13px] text-[var(--text-dark)] hover:border-[var(--accent-gold-soft)] hover:bg-[rgba(245,239,230,0.4)] transition-colors"
+                  className="inline-flex items-center gap-2 rounded-full border border-[rgba(18,18,18,0.18)] bg-[rgba(0,0,0,0.02)] px-3 py-1.5 text-[13px] text-[var(--text-dark)] transition-colors hover:border-[var(--accent-gold-soft)] hover:bg-[rgba(245,239,230,0.4)]"
                 >
                   <IconTelegram className="h-4 w-4 text-[var(--accent-gold-soft)]" />
                   <span>Telegram</span>
@@ -263,7 +263,7 @@ export default function ContactsPage() {
                   href="https://vk.ru/barbershop_gentlemen"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-[rgba(18,18,18,0.18)] bg-[rgba(0,0,0,0.02)] px-3 py-1.5 text-[13px] text-[var(--text-dark)] hover:border-[var(--accent-gold-soft)] hover:bg-[rgba(245,239,230,0.4)] transition-colors"
+                  className="inline-flex items-center gap-2 rounded-full border border-[rgba(18,18,18,0.18)] bg-[rgba(0,0,0,0.02)] px-3 py-1.5 text-[13px] text-[var(--text-dark)] transition-colors hover:border-[var(--accent-gold-soft)] hover:bg-[rgba(245,239,230,0.4)]"
                 >
                   <IconVk className="h-4 w-4 text-[var(--accent-gold-soft)]" />
                   <span>VK</span>
@@ -278,7 +278,7 @@ export default function ContactsPage() {
                 className="btn-primary-dark"
                 onClick={handleBookClick}
               >
-                записаться онлайн
+                ЗАПИСАТЬСЯ ОНЛАЙН
               </button>
               <a
                 href="https://yandex.ru/maps/?text=Нижний%20Новгород%2C%20Белозёрская%2C%204"

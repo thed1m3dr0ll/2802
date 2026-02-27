@@ -5,7 +5,7 @@ import { trackPhoneClick } from "../lib/analytics";
 const socialLinks = {
   instagram: "https://instagram.com/",
   vk: "https://vk.ru/barbershop_gentlemen",
-  telegram: "https://t.me/roman_chernof",
+  telegram: "https://t.me/barberRomanChernov",
 };
 
 export default function Footer() {
@@ -25,10 +25,7 @@ export default function Footer() {
           preserveAspectRatio="none"
           viewBox="0 0 100 20"
         >
-          <path
-            d="M0 20 Q 25 5 50 10 T 100 5 L 100 20 Z"
-            fill="#05060a"
-          />
+          <path d="M0 20 Q 25 5 50 10 T 100 5 L 100 20 Z" fill="#05060a" />
         </svg>
       </div>
 
@@ -37,34 +34,37 @@ export default function Footer() {
         <div className="container-custom flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
           {/* О клубе */}
           <div className="space-y-3 max-w-sm">
-            <p className="text-[11px] uppercase tracking-[0.26em] text-white/40">
+            <p className="text-[11px] uppercase tracking-[0.26em] text-white/60">
               закрытый барбершоп‑клуб
             </p>
-            <p className="text-sm text-white/80">
+            <p className="text-sm text-white/85">
               Место, куда приходят не подстричься по‑быстрому, а забрать свой
               час в спокойной атмосфере: свет, музыка, бар и люди, которым
               можно доверить голову.
             </p>
-            <p className="text-[11px] text-white/40">
+            <p className="text-[11px] text-white/60">
               © {year} Клуб на Белозёрской, 4.
             </p>
           </div>
 
           {/* Навигация */}
           <nav className="space-y-3 text-sm">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-white/40">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-white/60">
               навигация
             </p>
             <ul className="space-y-1">
               <li>
-                <Link href="/" className="text-white/80 hover:text-white">
+                <Link
+                  href="/"
+                  className="text-white/85 hover:text-white underline-offset-4 hover:underline"
+                >
                   Главная
                 </Link>
               </li>
               <li>
                 <Link
                   href="/#about"
-                  className="text-white/80 hover:text-white"
+                  className="text-white/85 hover:text-white underline-offset-4 hover:underline"
                 >
                   О клубе
                 </Link>
@@ -72,7 +72,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/rituals"
-                  className="text-white/80 hover:text-white"
+                  className="text-white/85 hover:text-white underline-offset-4 hover:underline"
                 >
                   Ритуалы клуба
                 </Link>
@@ -80,7 +80,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/stories"
-                  className="text-white/80 hover:text-white"
+                  className="text-white/85 hover:text-white underline-offset-4 hover:underline"
                 >
                   Истории гостей
                 </Link>
@@ -88,7 +88,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/masters"
-                  className="text-white/80 hover:text-white"
+                  className="text-white/85 hover:text-white underline-offset-4 hover:underline"
                 >
                   Мастера клуба
                 </Link>
@@ -96,7 +96,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/contacts"
-                  className="text-white/80 hover:text-white"
+                  className="text-white/85 hover:text-white underline-offset-4 hover:underline"
                 >
                   Контакты
                 </Link>
@@ -104,7 +104,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/cabinet"
-                  className="text-white/80 hover:text-white"
+                  className="text-white/85 hover:text-white underline-offset-4 hover:underline"
                 >
                   Личный кабинет
                 </Link>
@@ -114,11 +114,11 @@ export default function Footer() {
 
           {/* Контакты и соцсети */}
           <div className="space-y-3 text-sm max-w-xs">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-white/40">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-white/60">
               контакты клуба
             </p>
             <div className="space-y-1">
-              <p className="text-white/80">
+              <p className="text-white/85">
                 Нижний Новгород,
                 <br />
                 ул. Белозёрская, 4
@@ -127,19 +127,19 @@ export default function Footer() {
                 <a
                   href="tel:+79877553000"
                   onClick={handlePhoneClick}
-                  className="text-[var(--accent-gold-soft)] hover:text-[#ffd27a] transition-colors"
+                  className="text-[var(--accent-gold-soft)] hover:text-[#ffd27a] underline-offset-4 hover:underline transition-colors"
                 >
                   +7 987 755 30 00
                 </a>
               </p>
-              <p className="text-white/60 text-xs">
+              <p className="text-white/70 text-xs">
                 Запись по телефону, в мессенджерах и через личный кабинет.
               </p>
             </div>
 
             {/* Соцсети */}
             <div className="space-y-1">
-              <p className="text-[11px] uppercase tracking-[0.22em] text-white/40">
+              <p className="text-[11px] uppercase tracking-[0.22em] text-white/60">
                 мы на связи
               </p>
               <div className="flex items-center gap-3">
@@ -149,7 +149,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Instagram"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 hover:border-white hover:bg-white/5 transition"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/30 hover:border-white hover:bg-white/5 transition"
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -166,7 +166,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="VKontakte"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 hover:border-white hover:bg-white/5 transition"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/30 hover:border-white hover:bg-white/5 transition"
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -183,7 +183,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Telegram"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 hover:border-white hover:bg-white/5 transition"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/30 hover:border-white hover:bg-white/5 transition"
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -200,16 +200,22 @@ export default function Footer() {
 
         {/* Низ футера: политика / оферта */}
         <div className="container-custom mt-6 pt-4 border-t border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
-          <p className="text-[10px] text-white/40 max-w-md">
+          <p className="text-[10px] text-white/60 max-w-md">
             Сайт носит информационный характер и не является публичной офертой.
             Нажимая кнопки записи, вы соглашаетесь на обработку персональных
             данных.
           </p>
-          <div className="flex gap-4 text-[10px] text-white/50">
-            <Link href="/privacy" className="hover:text-white">
+          <div className="flex gap-4 text-[10px] text-white/70">
+            <Link
+              href="/privacy"
+              className="hover:text-white underline-offset-4 hover:underline"
+            >
               Политика конфиденциальности
             </Link>
-            <Link href="/terms" className="hover:text-white">
+            <Link
+              href="/terms"
+              className="hover:text-white underline-offset-4 hover:underline"
+            >
               Пользовательское соглашение
             </Link>
           </div>

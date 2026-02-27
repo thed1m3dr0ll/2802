@@ -52,40 +52,26 @@ export default function Document() {
           href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
         />
 
-        {/* CSP: Метрика, YCLIENTS, Google Fonts, API */}
-        <meta
-          httpEquiv="Content-Security-Policy"
-          content="
-            default-src 'self';
-            img-src 'self' https: data:;
-            script-src 'self' 'unsafe-inline' 'unsafe-eval' https://mc.yandex.ru https://w1258165.yclients.com;
-            style-src 'self' 'unsafe-inline' https://w1258165.yclients.com https://fonts.googleapis.com;
-            font-src 'self' https://fonts.gstatic.com data:;
-            connect-src 'self' https://www.gentlemenbarber.ru https://mc.yandex.ru wss://mc.yandex.ru;
-            frame-src https://yandex.ru https://b1258165.yclients.com https://w1258165.yclients.com https://www.gentlemenbarber.ru;
-            frame-ancestors 'self';
-            object-src 'none';
-          "
-        />
-
-        {/* Yandex.Metrika (заглушка ID 12345678) */}
+        {/* Yandex.Metrika */}
         <script
           type="text/javascript"
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{
             __html: `
-              (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){
-              (m[i].a=m[i].a||[]).push(arguments)};
-              m[i].l=1*new Date();
-              for (var j = 0; j < document.scripts.length; j++) {
-                if (document.scripts[j].src === r) { return; }
-              }
-              k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-              (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+              (function(m,e,t,r,i,k,a){
+                m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+                m[i].l=1*new Date();
+                for (var j = 0; j < document.scripts.length; j++) {
+                  if (document.scripts[j].src === r) { return; }
+                }
+                k=e.createElement(t);
+                a=e.getElementsByTagName(t)[0];
+                k.async=1;
+                k.src=r;
+                a.parentNode.insertBefore(k,a);
+              })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
-              window.ym = window.ym || function(){ (window.ym.a = window.ym.a || []).push(arguments); };
-
-              ym(12345678, "init", {
+              ym(107009193, "init", {
                 clickmap:true,
                 trackLinks:true,
                 accurateTrackBounce:true,
@@ -100,7 +86,7 @@ export default function Document() {
           <div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="https://mc.yandex.ru/watch/12345678"
+              src="https://mc.yandex.ru/watch/107009193"
               style={{ position: "absolute", left: "-9999px" }}
               alt=""
             />

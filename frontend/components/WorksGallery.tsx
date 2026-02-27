@@ -52,37 +52,40 @@ export default function WorksGallery() {
   return (
     <section id="works" className="section section-dark section-animate">
       <div className="container-custom">
-        <div className="text-center mb-8 max-w-3xl mx-auto">
-          <p className="label-small text-club-muted mb-2">галерея работ</p>
-          <h2 className="text-3xl md:text-4xl font-semibold mb-3">
+        <div className="mx-auto mb-8 max-w-3xl text-center">
+          <p className="label-small mb-2 text-club-muted">галерея работ</p>
+          <h2 className="mb-3 text-3xl font-semibold md:text-4xl">
             Как выглядят гости клуба после ритуалов
           </h2>
-          <p className="text-club-soft text-sm md:text-base">
+          <p className="text-sm text-club-soft md:text-base">
             Несколько живых примеров стрижек и бород без фильтров и чужих
             референсов — только реальные гости и их образы.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-          {WORKS.map((work) => (
-            <figure
-              key={work.id}
-              className="card-dark hover-lift overflow-hidden"
-            >
-              <div className="relative w-full h-56">
-                <Image
-                  src={work.src}
-                  alt={work.alt}
-                  fill
-                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                  className="object-cover"
-                />
-              </div>
-              <figcaption className="px-4 py-3 text-xs text-club-soft">
-                {work.label}
-              </figcaption>
-            </figure>
-          ))}
+        {/* На мобиле — горизонтальная лента с прокруткой, на tablet+ — сетка */}
+        <div className="md:grid md:grid-cols-3 md:gap-5">
+          <div className="flex gap-4 overflow-x-auto pb-2 md:block md:overflow-visible md:pb-0">
+            {WORKS.map((work) => (
+              <figure
+                key={work.id}
+                className="card-dark hover-lift w-[240px] shrink-0 overflow-hidden md:w-auto"
+              >
+                <div className="relative h-56 w-full">
+                  <Image
+                    src={work.src}
+                    alt={work.alt}
+                    fill
+                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                    className="object-cover"
+                  />
+                </div>
+                <figcaption className="px-4 py-3 text-xs text-club-soft">
+                  {work.label}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
         </div>
       </div>
     </section>

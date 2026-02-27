@@ -8,7 +8,6 @@ services:
       POSTGRES_DB: gentlemen_barber
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: dev_password
-    # Порты наружу больше не пробрасываем
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -16,7 +15,6 @@ services:
     build: ./backend
     container_name: gentlemen_barber_api
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000
-    # Порт 8000 наружу не пробрасываем, только внутри сети Docker
     env_file:
       - ./backend/.env
     environment:
@@ -29,9 +27,9 @@ services:
   frontend:
     build: ./frontend
     container_name: gentlemen_barber_frontend
-    # Порт 3000 наружу не пробрасываем
     environment:
       - NEXT_PUBLIC_API_URL=http://backend:8000
+      - NEXT_PUBLIC_METRIKA_ID=107009193
     depends_on:
       - backend
 

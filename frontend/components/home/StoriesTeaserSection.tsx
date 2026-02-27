@@ -98,11 +98,11 @@ function StoryCard({ src, alt, title, subtitle, onClick }: StoryCardProps) {
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
         />
       </div>
-      <div className="gallery-overlay absolute inset-0 flex flex-col items-center justify-end px-3 pb-4 md:pb-5 bg-gradient-to-t from-black/70 via-black/20 to-transparent text-[#f3ebe0] text-center transition-opacity duration-300 group-hover:opacity-100">
-        <h3 className="text-[13px] font-semibold mb-1 leading-snug tracking-[0.12em] uppercase">
+      <div className="gallery-overlay absolute inset-0 flex flex-col items-center justify-end px-3 pb-4 md:pb-5 bg-gradient-to-t from-black/80 via-black/35 to-transparent text-white text-center transition-opacity duration-300 group-hover:opacity-100">
+        <h3 className="text-[13px] font-semibold mb-1 leading-snug tracking-[0.12em] uppercase text-white">
           {title}
         </h3>
-        <p className="text-[12px] text-[#f3ebe0]/85 leading-snug">
+        <p className="text-[12px] text-white/90 leading-snug">
           {subtitle}
         </p>
       </div>

@@ -2,20 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
-/* =========================================================
-   ЛОКАЛЬНЫЙ ШРИФТ
-   ========================================================== */
-
-@font-face {
-  font-family: "CAT Linz";
-  src: url("/fonts/CATLinz_1.8.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-
 /* =========================================================
    ПАЛИТРА — ТЁМНЫЙ КЛУБНЫЙ СТИЛЬ
    ========================================================== */
@@ -34,12 +20,12 @@
   --card-light: #ffffff;
   --card-border: rgba(18, 18, 18, 0.16);
 
-  /* текст — осветлил muted, чтобы лучше читался на тёмном */
+  /* текст — делаем muted темнее для контраста */
   --text-main: #f6f1ea;
   --text-soft: #e2d8cc;
-  --text-muted: #c7b8aa;
-  --text-dark: #352721;
-  --text-dark-strong: #241611;
+  --text-muted: #9a8571;
+  --text-dark: #241611;
+  --text-dark-strong: #140a06;
 
   --accent-red: #c71124;
   --accent-red-soft: #e35145;
@@ -60,9 +46,11 @@
 
   --text-main-strong: #fdf7f0;
   --text-main-soft: #f6f1ea;
-  --text-muted-strong: #e2d8cc;
-}
+  --text-muted-strong: #d4c4b3;
 
+  /* шрифт */
+  --font-merriweather: "Merriweather", serif;
+}
 
 /* =========================================================
    БАЗОВАЯ ВЁРСТКА / ТИПОГРАФИКА
@@ -75,18 +63,27 @@ html {
 body {
   background: var(--bg-main);
   color: var(--text-main-soft);
-  font-family: "CAT Linz", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
+  font-family: var(--font-merriweather), system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
   line-height: 1.6;
   font-size: 16px;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* iOS safe-area, чтобы верх не уезжал под системный бар */
+@supports (padding-top: env(safe-area-inset-top)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+  }
 }
 
 h1,
 h2,
 h3 {
   line-height: 1.2;
-  font-family: "CAT Linz", "Times New Roman", serif;
-  letter-spacing: 0.06em;
+  font-family: var(--font-merriweather), "Times New Roman", serif;
+  letter-spacing: 0.02em;
   color: var(--text-main-strong);
 }
 
@@ -99,7 +96,6 @@ p {
 .section-dark p {
   color: var(--text-muted-strong);
 }
-
 
 /* =========================================================
    КОНТЕЙНЕРЫ И СЕКЦИИ
@@ -134,6 +130,14 @@ p {
   box-shadow: none;
 }
 
+/* явно задаём цвета текста в светлой секции */
+.section-paper p,
+.section-paper h1,
+.section-paper h2,
+.section-paper h3 {
+  color: var(--text-dark);
+}
+
 /* бумага с мягкой волной сверху как единичный акцент, без доп. тени */
 .section-wave-top {
   position: relative;
@@ -141,6 +145,14 @@ p {
   color: var(--text-dark);
   overflow: hidden;
   box-shadow: none;
+}
+
+/* и тут явный цвет текста */
+.section-wave-top p,
+.section-wave-top h1,
+.section-wave-top h2,
+.section-wave-top h3 {
+  color: var(--text-dark);
 }
 
 .section-wave-top::before {
@@ -169,7 +181,6 @@ p {
   content: none;
 }
 
-
 /* =========================================================
    ХЕДЕР, НАВИГАЦИЯ, ПРОГРЕСС-ЛИНИЯ
    ========================================================== */
@@ -185,6 +196,7 @@ p {
     background 0.3s ease,
     box-shadow 0.3s ease,
     transform 0.2s ease;
+  padding-top: env(safe-area-inset-top);
 }
 
 .site-header--scrolled {
@@ -243,44 +255,44 @@ p {
   transition: width 0.12s ease-out;
 }
 
-  /* =========================================================
-    КНОПКИ
-    ========================================================== */
+/* =========================================================
+   КНОПКИ
+   ========================================================== */
 
-  .btn {
-    @apply rounded-md font-semibold;
-    transition: all 0.2s ease-out;
-    cursor: pointer;
-  }
+.btn {
+  @apply rounded-md font-semibold;
+  transition: all 0.2s ease-out;
+  cursor: pointer;
+}
 
-  /* ГЛАВНЫЙ CTA (запись онлайн, записаться в клуб) */
-  .btn-primary,
-  .btn-primary-dark {
-    border-radius: 9999px;
-    padding: 1rem 2.6rem;
-    min-height: 44px; /* гарантированный тач-таргет */
-    background: var(--accent-red);
-    color: #ffffff;
-    box-shadow: var(--shadow-strong);
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    font-size: 15px;
-    font-weight: 600;
-    transform: translateY(0) scale(1);
-    transition:
-      transform 0.2s ease-out,
-      box-shadow 0.2s ease-out,
-      background 0.2s ease-out,
-      filter 0.2s ease-out;
-  }
+/* ГЛАВНЫЙ CTA (запись онлайн, записаться в клуб) */
+.btn-primary,
+.btn-primary-dark {
+  border-radius: 9999px;
+  padding: 1rem 2.6rem;
+  min-height: 44px; /* гарантированный тач-таргет */
+  background: var(--accent-red);
+  color: #ffffff;
+  box-shadow: var(--shadow-strong);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: 600;
+  transform: translateY(0) scale(1);
+  transition:
+    transform 0.2s ease-out,
+    box-shadow 0.2s ease-out,
+    background 0.2s ease-out,
+    filter 0.2s ease-out;
+}
 
-  /* ВТОРОСТЕПЕННЫЕ CTA */
-  .btn-secondary,
-  .btn-secondary-dark {
-    border-radius: 9999px;
-    padding: 0.85rem 2.4rem;
-    min-height: 40px; /* близко к рекомендованным 44px */
-  }
+/* ВТОРОСТЕПЕННЫЕ CTA */
+.btn-secondary,
+.btn-secondary-dark {
+  border-radius: 9999px;
+  padding: 0.85rem 2.4rem;
+  min-height: 40px;
+}
 
 /* =========================================================
    КАРТОЧКИ / ХОВЕР
@@ -400,6 +412,28 @@ p {
   filter: drop-shadow(0 0 6px rgba(205, 127, 50, 0.45));
 }
 
+/* =========================================================
+   ДАТА-ПОЛЕ В МОДАЛКЕ ЗАПИСИ
+   ========================================================== */
+
+/* Базовый вид native date на тёмном фоне */
+input[type="date"] {
+  background-color: transparent;
+  color: var(--accent-red);
+  font-family: inherit;
+}
+
+/* Растягиваем область пикера на весь инпут в WebKit (Chrome, Safari) */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  background: transparent;
+  color: transparent;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
 
 /* =========================================================
    ДОСТУПНОСТЬ: ОБЩИЕ FOCUS-СОСТОЯНИЯ
@@ -423,5 +457,28 @@ button:focus-visible {
   100% {
     transform: translateX(60%) scaleX(0.4);
     opacity: 0.4;
+  }
+}
+
+/* немного подтянем читаемость и отступы на мобиле */
+@media (max-width: 640px) {
+  html {
+    font-size: 15px;
+  }
+
+  body {
+    line-height: 1.6;
+  }
+
+  .section {
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+
+  .section-paper p,
+  .section-wave-top p {
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 100%;
   }
 }

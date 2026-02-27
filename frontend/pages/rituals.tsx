@@ -330,10 +330,10 @@ export default function RitualsPage() {
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <button
                     type="button"
-                    className="btn-primary-dark"
                     onClick={() => handleBookClick(ritual)}
+                    className="btn-primary-dark w-full whitespace-nowrap text-center sm:w-auto"
                   >
-                    записаться на ритуал
+                    ЗАПИСАТЬСЯ НА РИТУАЛ
                   </button>
                   <p className="max-w-xs text-[11px] leading-relaxed text-[var(--text-muted)]">
                     В комментарии к записи можно указать привычки по уходу,
