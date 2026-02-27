@@ -5,9 +5,6 @@ import Router from "next/router";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "https://gentlemenbarber.ru";
-
 type Mode = "login" | "register";
 
 export default function CabinetAuthPage() {
@@ -29,9 +26,10 @@ export default function CabinetAuthPage() {
     setIsSubmitting(true);
 
     try {
-      const endpoint = mode === "login" ? "/auth/login" : "/auth/register";
+      const endpoint =
+        mode === "login" ? "/api/auth/login" : "/api/auth/register";
 
-      const res = await fetch(`${API_BASE}${endpoint}`, {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -26,6 +26,9 @@ app = FastAPI(
     title="Gentlemen Barber API",
     description="API для сайта и мини-аппа барбер-клуба",
     version="1.0.0",
+    docs_url="/api/docs",
+    openapi_url="/api/openapi.json",
+    redoc_url=None,
 )
 
 app.state.limiter = limiter
@@ -53,13 +56,14 @@ class BookingIntent(BaseModel):
     comment: str | None = None
 
 
+DEFAULT_SEANCE_LENGTH = 3600
+
+
 # ВСЕ роуты повешены под /api
 app.include_router(reviews_router, prefix="/api")
 app.include_router(yclients_router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
 app.include_router(cabinet_router, prefix="/api")
-
-DEFAULT_SEANCE_LENGTH = 3600
 
 
 @app.post("/api/booking-intents/")
