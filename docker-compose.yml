@@ -1,0 +1,71 @@
+﻿services:
+  postgres:
+    image: postgres:16
+    container_name: gentlemen_barber_db
+    environment:
+      POSTGRES_DB: gentlemen_barber
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: dev_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d gentlemen_barber"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: ./backend
+    container_name: gentlemen_barber_api
+    command: >
+      sh -c "until pg_isready -h postgres -p 5432 -U admin;
+      do echo waiting for postgres; sleep 1; done &&
+      alembic upgrade head &&
+      uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    env_file:
+      - ./backend/.env
+    environment:
+      TELEGRAM_TOKEN: your_token_here
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+
+  telegram-bot:
+    build: ./bot
+    container_name: gentlemen_barber_telegram_bot
+    env_file:
+      - ./bot/.env
+    environment:
+      - BACKEND_URL=http://gentlemen_barber_api:8000
+    depends_on:
+      - backend
+
+  frontend:
+    build: ./frontend
+    container_name: gentlemen_barber_frontend
+    environment:
+      - INTERNAL_API_URL=http://backend:8000
+      - NEXT_PUBLIC_METRIKA_ID=107009193
+      - NEXT_PUBLIC_SITE_URL=https://www.gentlemenbarber.ru
+    depends_on:
+      - backend
+
+  nginx:
+    image: nginx:latest
+    container_name: gentlemen_barber_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certbot/www:/var/www/certbot:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+    depends_on:
+      - frontend
+
+volumes:
+  postgres_data:

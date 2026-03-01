@@ -1,0 +1,484 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================================
+   ПАЛИТРА — ТЁМНЫЙ КЛУБНЫЙ СТИЛЬ
+   ========================================================== */
+
+:root {
+  --page-bg: #050307;
+  --page-bg-soft: #0b060a;
+
+  --club-burgundy-deep: #2a0204;
+  --club-burgundy: #5b1412;
+  --club-burgundy-soft: #7f2a23;
+  --club-brown: #3b2718;
+  --club-brown-soft: #5a3a23;
+
+  --paper-bg: #f7f3ee;
+  --card-light: #ffffff;
+  --card-border: rgba(18, 18, 18, 0.16);
+
+  /* текст — делаем muted темнее для контраста */
+  --text-main: #f6f1ea;
+  --text-soft: #e2d8cc;
+  --text-muted: #9a8571;
+  --text-dark: #241611;
+  --text-dark-strong: #140a06;
+
+  --accent-red: #c71124;
+  --accent-red-soft: #e35145;
+  --accent-red-dark: #910d1a;
+  --accent-gold: #d5b46f;
+  --accent-gold-soft: #f1d08d;
+
+  /* бронза для иконок */
+  --accent-bronze: #cd7f32;
+
+  --shadow-strong: 0 26px 70px rgba(0, 0, 0, 0.75);
+  --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.5);
+
+  /* базовые системные токены под фон и текст */
+  --bg-main: var(--page-bg);
+  --bg-soft: var(--page-bg-soft);
+  --bg-light: var(--paper-bg);
+
+  --text-main-strong: #fdf7f0;
+  --text-main-soft: #f6f1ea;
+  --text-muted-strong: #d4c4b3;
+
+  /* шрифт */
+  --font-merriweather: "Merriweather", serif;
+}
+
+/* =========================================================
+   БАЗОВАЯ ВЁРСТКА / ТИПОГРАФИКА
+   ========================================================== */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg-main);
+  color: var(--text-main-soft);
+  font-family: var(--font-merriweather), system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.6;
+  font-size: 16px;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* iOS safe-area, чтобы верх не уезжал под системный бар */
+@supports (padding-top: env(safe-area-inset-top)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+  font-family: var(--font-merriweather), "Times New Roman", serif;
+  letter-spacing: 0.02em;
+  color: var(--text-main-strong);
+}
+
+p {
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
+/* в тёмных секциях текст чуть мягче, но читаемый */
+.section-dark p {
+  color: var(--text-muted-strong);
+}
+
+/* =========================================================
+   КОНТЕЙНЕРЫ И СЕКЦИИ
+   ========================================================== */
+
+.container-custom {
+  @apply max-w-6xl mx-auto px-4 md:px-8;
+}
+
+/* базовые отступы секций */
+.section {
+  @apply py-16 md:py-24;
+}
+
+/* компактный верхний отступ для первой светлой полосы */
+.section-hero-top {
+  @apply py-6 md:py-8;
+}
+
+/* тёмные секции: ровный фон, без тяжёлых внутренних теней */
+.section-dark {
+  background: var(--bg-main);
+  color: var(--text-main-soft);
+  box-shadow: none;
+}
+
+/* светлая «бумажная» секция — без грязных ореолов по краям */
+.section-paper {
+  position: relative;
+  background: var(--paper-bg);
+  color: var(--text-dark);
+  box-shadow: none;
+}
+
+/* явно задаём цвета текста в светлой секции */
+.section-paper p,
+.section-paper h1,
+.section-paper h2,
+.section-paper h3 {
+  color: var(--text-dark);
+}
+
+/* бумага с мягкой волной сверху как единичный акцент, без доп. тени */
+.section-wave-top {
+  position: relative;
+  background: var(--paper-bg);
+  color: var(--text-dark);
+  overflow: hidden;
+  box-shadow: none;
+}
+
+/* и тут явный цвет текста */
+.section-wave-top p,
+.section-wave-top h1,
+.section-wave-top h2,
+.section-wave-top h3 {
+  color: var(--text-dark);
+}
+
+.section-wave-top::before {
+  content: "";
+  position: absolute;
+  top: -40px;
+  left: 0;
+  width: 200%;
+  height: 80px;
+  background:
+    radial-gradient(120px 60px at 0% 100%, #f7f3ee 0, #f7f3ee 55%, transparent 70%),
+    radial-gradient(160px 80px at 25% 100%, #f7f3ee 0, #f7f3ee 55%, transparent 70%),
+    radial-gradient(140px 70px at 50% 100%, #f7f3ee 0, #f7f3ee 55%, transparent 70%),
+    radial-gradient(160px 80px at 75% 100%, #f7f3ee 0, #f7f3ee 55%, transparent 70%),
+    radial-gradient(120px 60px at 100% 100%, #f7f3ee 0, #f7f3ee 55%, transparent 70%);
+  transform: translateX(-25%);
+}
+
+/* секция ритуалов без ковра */
+.section-rug-photo {
+  position: relative;
+  overflow: hidden;
+}
+
+.section-rug-photo::before {
+  content: none;
+}
+
+/* =========================================================
+   ХЕДЕР, НАВИГАЦИЯ, ПРОГРЕСС-ЛИНИЯ
+   ========================================================== */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(5, 3, 7, 0.96);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
+  transition:
+    background 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.2s ease;
+  padding-top: env(safe-area-inset-top);
+}
+
+.site-header--scrolled {
+  background: rgba(5, 3, 7, 0.98);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.85);
+  transform: translateY(0);
+}
+
+.nav-link {
+  position: relative;
+  font-size: 15px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(246, 241, 234, 0.7);
+  transition: color 0.25s ease;
+}
+
+.nav-link:hover {
+  color: #ffffff;
+}
+
+.nav-link:focus-visible {
+  outline: 2px solid var(--accent-red-soft);
+  outline-offset: 3px;
+}
+
+.nav-link--active {
+  color: var(--accent-gold-soft);
+}
+
+.nav-link--active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 100%;
+  height: 2px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    90deg,
+    var(--accent-gold-soft),
+    #ffffff,
+    var(--accent-gold)
+  );
+}
+
+/* прогресс-бар прокрутки */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0;
+  background: linear-gradient(90deg, #c9675a, #d4776a);
+  z-index: 50;
+  transition: width 0.12s ease-out;
+}
+
+/* =========================================================
+   КНОПКИ
+   ========================================================== */
+
+.btn {
+  @apply rounded-md font-semibold;
+  transition: all 0.2s ease-out;
+  cursor: pointer;
+}
+
+/* ГЛАВНЫЙ CTA (запись онлайн, записаться в клуб) */
+.btn-primary,
+.btn-primary-dark {
+  border-radius: 9999px;
+  padding: 1rem 2.6rem;
+  min-height: 44px; /* гарантированный тач-таргет */
+  background: var(--accent-red);
+  color: #ffffff;
+  box-shadow: var(--shadow-strong);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: 600;
+  transform: translateY(0) scale(1);
+  transition:
+    transform 0.2s ease-out,
+    box-shadow 0.2s ease-out,
+    background 0.2s ease-out,
+    filter 0.2s ease-out;
+}
+
+/* ВТОРОСТЕПЕННЫЕ CTA */
+.btn-secondary,
+.btn-secondary-dark {
+  border-radius: 9999px;
+  padding: 0.85rem 2.4rem;
+  min-height: 40px;
+}
+
+/* =========================================================
+   КАРТОЧКИ / ХОВЕР
+   ========================================================== */
+
+.hover-lift {
+  transition:
+    transform 0.35s cubic-bezier(0.19, 1, 0.22, 1),
+    box-shadow 0.35s cubic-bezier(0.19, 1, 0.22, 1),
+    background-color 0.3s ease-out,
+    border-color 0.3s ease-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 26px 65px rgba(0, 0, 0, 0.9);
+}
+
+.card-dark {
+  background: #080406;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+}
+
+.card-dark-title {
+  color: var(--text-main-strong);
+}
+
+.card-dark-text {
+  color: var(--text-muted-strong);
+  font-size: 15px;
+}
+
+.card-glass {
+  border-radius: 24px;
+  background: rgba(7, 6, 10, 0.92);
+  border: 1px solid rgba(246, 237, 226, 0.22);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow-soft);
+}
+
+.card-paper {
+  border-radius: 18px;
+  background: var(--card-light);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.18);
+}
+
+.card-paper-lifted {
+  position: relative;
+  border-radius: 18px;
+  background: var(--card-light);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.25);
+}
+
+.card-paper-lifted::after {
+  content: "";
+  position: absolute;
+  right: 10px;
+  top: -6px;
+  width: 32px;
+  height: 16px;
+  border-radius: 0 0 24px 24px;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.18),
+    rgba(0, 0, 0, 0.04)
+  );
+  opacity: 0.7;
+}
+
+/* Витрины с фото — компактные карточки */
+
+.card-showcase {
+  position: relative;
+  border-radius: 20px;
+  background: var(--card-light);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+/* фото фиксированной высоты */
+.card-showcase-media {
+  height: 150px;
+  background: #1a0b0b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.card-showcase-media img {
+  width: 110%;
+  height: 110%;
+  object-fit: cover;
+}
+
+/* тело карточки — компактные отступы */
+.card-showcase-body {
+  padding: 14px 16px 16px;
+}
+
+/* текст фиксированной высоты, чтобы кнопки были на одной линии */
+.card-showcase-text {
+  font-size: 15px;
+  color: var(--text-muted-strong);
+  margin-bottom: 10px;
+  min-height: 56px;
+}
+
+/* бронзовые иконки */
+.lux-icon {
+  color: var(--accent-bronze);
+  filter: drop-shadow(0 0 6px rgba(205, 127, 50, 0.45));
+}
+
+/* =========================================================
+   ДАТА-ПОЛЕ В МОДАЛКЕ ЗАПИСИ
+   ========================================================== */
+
+/* Базовый вид native date на тёмном фоне */
+input[type="date"] {
+  background-color: transparent;
+  color: var(--accent-red);
+  font-family: inherit;
+}
+
+/* Растягиваем область пикера на весь инпут в WebKit (Chrome, Safari) */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  background: transparent;
+  color: transparent;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+/* =========================================================
+   ДОСТУПНОСТЬ: ОБЩИЕ FOCUS-СОСТОЯНИЯ
+   ========================================================== */
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--accent-red-soft);
+  outline-offset: 3px;
+}
+
+@keyframes loading-bar {
+  0% {
+    transform: translateX(-40%) scaleX(0.4);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateX(0%) scaleX(0.9);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(60%) scaleX(0.4);
+    opacity: 0.4;
+  }
+}
+
+/* немного подтянем читаемость и отступы на мобиле */
+@media (max-width: 640px) {
+  html {
+    font-size: 15px;
+  }
+
+  body {
+    line-height: 1.6;
+  }
+
+  .section {
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+
+  .section-paper p,
+  .section-wave-top p {
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 100%;
+  }
+}
