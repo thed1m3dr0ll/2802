@@ -22,6 +22,8 @@ import { FaqSection } from "../components/home/FaqSection";
 import { GiftSection } from "../components/home/GiftSection";
 import { FinalCtaSection } from "../components/home/FinalCtaSection";
 
+const BASE_URL = "https://www.gentlemenbarber.ru";
+
 export default function Home() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
@@ -58,7 +60,6 @@ export default function Home() {
     async function loadReviews() {
       try {
         setReviewsError(null);
-        // КЛЮЧЕВОЕ: ходим к бекенду через /api
         const res = await fetch("/api/reviews/");
         if (!res.ok) {
           throw new Error("Failed to load reviews");
@@ -79,8 +80,8 @@ export default function Home() {
   const pageTitle = "Барбершоп в Нижнем Новгороде | Джентльмены Культуры";
   const pageDescription =
     "Барбершоп‑клуб «Джентльмены Культуры» в Нижнем Новгороде: мужские стрижки, борода, авторские ритуалы и клубная атмосфера на Белозёрской, 4.";
-  const canonicalUrl = "https://gentlemenbarber.ru/";
-  const ogImage = "https://gentlemenbarber.ru/og-image.jpg";
+  const canonicalUrl = `${BASE_URL}/`;
+  const ogImage = `${BASE_URL}/og-image.jpg`;
 
   const jsonLd = {
     "@context": "https://schema.org",

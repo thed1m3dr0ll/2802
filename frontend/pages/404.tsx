@@ -1,18 +1,32 @@
 // pages/404.tsx
-import Head from 'next/head';
-import Link from 'next/link';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import Head from "next/head";
+import Link from "next/link";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+
+const BASE_URL = "https://www.gentlemenbarber.ru";
 
 export default function NotFoundPage() {
+  const pageTitle = "Страница не найдена | Джентльмены Культуры";
+  const pageDescription =
+    "Похоже, вы свернули не в тот переулок. Но клуб «Джентльмены Культуры» по‑прежнему на связи.";
+  const canonicalUrl = `${BASE_URL}/404`;
+  const ogImage = `${BASE_URL}/og-main.jpg`;
+
   return (
     <>
       <Head>
-        <title>Страница не найдена | Джентльмены Культуры</title>
-        <meta
-          name="description"
-          content="Похоже, вы свернули не в тот переулок. Но клуб «Джентльмены Культуры» по‑прежнему на связи."
-        />
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        {/* чтобы 404 не индексировалась как отдельная страница */}
+        <meta name="robots" content="noindex,follow" />
+        <link rel="canonical" href={canonicalUrl} />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:image" content={ogImage} />
       </Head>
 
       <Header onBookClick={() => {}} />
@@ -24,9 +38,9 @@ export default function NotFoundPage() {
             Похоже, этот уголок города ещё не открыт
           </h1>
           <p className="text-club-soft text-[14px] md:text-[15px]">
-            Страница, на которую вы попали, не живёт в структуре сайта. Зато живёт
-            клуб на Белозёрской, 4 — с ритуалами, мастерами и атмосферой, ради
-            которой сюда заходят.
+            Страница, на которую вы попали, не живёт в структуре сайта. Зато
+            живёт клуб на Белозёрской, 4 — с ритуалами, мастерами и
+            атмосферой, ради которой сюда заходят.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center mt-4">
@@ -47,7 +61,7 @@ export default function NotFoundPage() {
           <div className="mt-5 space-y-1 text-[13px] text-club-soft">
             <p>Если что-то пошло не так — администратор всегда на связи:</p>
             <p>
-              Телефон{' '}
+              Телефон{" "}
               <a
                 href="tel:+79877553000"
                 className="text-[var(--accent-gold-soft)] hover:opacity-80 transition-colors"
@@ -56,9 +70,9 @@ export default function NotFoundPage() {
               </a>
             </p>
             <p>
-              Telegram{' '}
+              Telegram{" "}
               <a
-                href="https://t.me/barberRomanChernov" 
+                href="https://t.me/barberRomanChernov"
                 target="_blank"
                 rel="noreferrer"
                 className="text-[var(--accent-gold-soft)] hover:opacity-80 transition-colors"

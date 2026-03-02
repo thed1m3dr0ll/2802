@@ -5,8 +5,8 @@ FROM node:20-alpine AS deps
 # Рабочая директория внутри контейнера
 WORKDIR /app
 
-# Добавляю совместимость с glibc, чтобы не ловить странные баги на проде
-RUN apk add --no-cache libc6-compat
+# Раньше здесь ставился libc6-compat, сейчас отключено, чтобы не висла сборка
+# RUN apk add --no-cache libc6-compat
 
 # Сначала копирую только package.json / package-lock.json,
 # чтобы кэшировать слой с node_modules
@@ -14,6 +14,7 @@ COPY package.json package-lock.json* ./
 
 # Ставлю зависимости в строгом соответствии с lock-файлом
 RUN npm ci
+
 
 
 # === Stage 2: сборка Next.js (builder) ===
@@ -39,6 +40,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 # Собираю продовый билд
 RUN npm run build
+
 
 
 # === Stage 3: минимальный production-образ (runner) ===

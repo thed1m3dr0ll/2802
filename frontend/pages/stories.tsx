@@ -6,6 +6,8 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import BookingModal from "../components/BookingModal";
 
+const BASE_URL = "https://www.gentlemenbarber.ru";
+
 export default function StoriesPage() {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
 
@@ -21,8 +23,8 @@ export default function StoriesPage() {
     "Истории гостей барбершопа в Нижнем Новгороде | Джентльмены Культуры";
   const pageDescription =
     "Истории гостей барбершопа «Джентльмены Культуры» в Нижнем Новгороде: зачем мужчины приходят в клуб, какие ритуалы выбирают и с каким ощущением выходят из кресла на Белозёрской, 4.";
-  const canonicalUrl = "https://gentlemenbarber.ru/stories";
-  const ogImage = "https://gentlemenbarber.ru/og-main.jpg";
+  const canonicalUrl = `${BASE_URL}/stories`;
+  const ogImage = `${BASE_URL}/og-main.jpg`;
 
   const jsonLd = {
     "@context": "https://schema.org",

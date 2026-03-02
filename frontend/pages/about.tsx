@@ -7,6 +7,8 @@ import Footer from "../components/Footer";
 import BookingModal from "../components/BookingModal";
 import { useState } from "react";
 
+const BASE_URL = "https://www.gentlemenbarber.ru";
+
 export default function AboutPage() {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
 
@@ -17,8 +19,8 @@ export default function AboutPage() {
     "О барбершоп‑клубе в Нижнем Новгороде | Джентльмены Культуры";
   const pageDescription =
     "Закрытый барбершоп‑клуб «Джентльмены Культуры» в Нижнем Новгороде: спокойный формат без потока, ритуалы вместо «услуг по прайсу» и мастера, которые говорят с гостями на одном языке.";
-  const canonicalUrl = "https://gentlemenbarber.ru/about";
-  const ogImage = "https://gentlemenbarber.ru/og-main.jpg";
+  const canonicalUrl = `${BASE_URL}/about`;
+  const ogImage = `${BASE_URL}/og-main.jpg`;
 
   return (
     <>

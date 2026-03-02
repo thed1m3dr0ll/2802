@@ -1,0 +1,141 @@
+﻿version: "3.9"
+
+services:
+  # === PostgreSQL (prod) ===
+  postgres:
+    image: postgres:16
+    container_name: gentlemen_barber_db
+    env_file:
+      - ./postgres.env          # POSTGRES_DB / USER / PASSWORD только здесь
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d gentlemen_barber"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - db_net
+    restart: unless-stopped
+
+  # === FastAPI backend (prod) ===
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: gentlemen_barber_api
+    command: >
+      sh -c "until pg_isready -h postgres -p 5432 -U admin;
+      do echo waiting for postgres; sleep 1; done &&
+      alembic upgrade head &&
+      uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    env_file:
+      - ./backend/.env.prod
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - db_net
+      - internal
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # === FastAPI backend admin (prod, только для Swagger на отдельном домене) ===
+  backend_admin:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: gentlemen_barber_api_admin
+    env_file:
+      - ./backend/.env.admin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose:
+      - "8000"
+    networks:
+      - db_net
+      - internal
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # === Telegram-бот (prod) ===
+  telegram-bot:
+    build:
+      context: ./bot
+      dockerfile: Dockerfile
+    container_name: gentlemen_barber_telegram_bot
+    env_file:
+      - ./bot/.env.prod
+    environment:
+      - BACKEND_URL=http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - internal
+    restart: unless-stopped
+
+  # === Next.js frontend (prod) ===
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: gentlemen_barber_frontend
+    env_file:
+      - ./frontend/.env.prod
+    environment:
+      - INTERNAL_API_URL=http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - internal
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  # === Nginx (prod, с HTTPS и доменом) ===
+  nginx:
+    image: nginx:1.27-alpine     # зафиксированная версия
+    container_name: gentlemen_barber_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.prod.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certbot/www:/var/www/certbot:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+    depends_on:
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+      backend_admin:
+        condition: service_healthy
+    networks:
+      - internal
+      - public
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  public:
+  internal:
+  db_net:

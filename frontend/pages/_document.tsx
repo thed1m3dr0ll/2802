@@ -1,6 +1,8 @@
 // pages/_document.tsx
 import { Html, Head, Main, NextScript } from "next/document";
 
+const BASE_URL = "https://www.gentlemenbarber.ru";
+
 export default function Document() {
   return (
     <Html lang="ru">
@@ -16,6 +18,9 @@ export default function Document() {
         />
         <meta name="theme-color" content="#050307" />
 
+        {/* Канонический URL по умолчанию для главной */}
+        <link rel="canonical" href={BASE_URL} />
+
         {/* базовый Open Graph по умолчанию */}
         <meta property="og:type" content="website" />
         <meta
@@ -26,10 +31,10 @@ export default function Document() {
           property="og:description"
           content="Ритуалы для головы и бороды, ночные форматы и спокойная атмосфера клуба на Белозёрской, 4."
         />
-        <meta property="og:url" content="https://gentlemenbarber.ru/" />
+        <meta property="og:url" content={BASE_URL} />
         <meta
           property="og:image"
-          content="https://gentlemenbarber.ru/og-image.jpg"
+          content={`${BASE_URL}/og-image.jpg`}
         />
         <meta
           property="og:site_name"

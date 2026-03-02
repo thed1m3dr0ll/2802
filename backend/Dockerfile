@@ -1,22 +1,24 @@
-FROM python:3.11-slim
+FROM python:3.12-slim-bookworm AS backend
 
-# Рабочая директория внутри контейнера
 WORKDIR /app
 
-# Обновляем pip и ставим зависимости
-COPY requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir -r /app/requirements.txt
+# копируем requirements и локальные wheels
+COPY requirements.txt .
+COPY wheelhouse ./wheelhouse
 
-# Копируем всё приложение (включая alembic.ini и migrations)
-COPY . /app
+# ставим зависимости только из локальных .whl
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-index --find-links=wheelhouse -r requirements.txt
 
-# Переменные окружения (Python в прод‑режиме)
+# копируем код
+COPY . .
+COPY entrypoint.sh /entrypoint.sh
+
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
-# Стартовый скрипт, который сначала применяет миграции, потом запускает uvicorn
-COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+
+EXPOSE 8000
 
 ENTRYPOINT ["/entrypoint.sh"]

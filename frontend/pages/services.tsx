@@ -1,13 +1,15 @@
 // pages/services.tsx
 import Head from "next/head";
 
+const BASE_URL = "https://www.gentlemenbarber.ru";
+
 export default function Services() {
   const pageTitle =
     "Ритуалы и услуги барбершопа в Нижнем Новгороде | Джентльмены Культуры";
   const pageDescription =
     "Ритуалы барбершопа «Джентльмены Культуры» в Нижнем Новгороде: мужские стрижки, оформление бороды, комплексные услуги, семейные и особые ритуалы.";
-  const canonicalUrl = "https://gentlemenbarber.ru/services";
-  const ogImage = "https://gentlemenbarber.ru/og-main.jpg";
+  const canonicalUrl = `${BASE_URL}/services`;
+  const ogImage = `${BASE_URL}/og-main.jpg`;
 
   const rituals = [
     {

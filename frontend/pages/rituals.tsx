@@ -96,6 +96,8 @@ const FALLBACK_RITUALS: Ritual[] = [
   },
 ];
 
+const BASE_URL = "https://www.gentlemenbarber.ru";
+
 export default function RitualsPage() {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [selectedRitual, setSelectedRitual] = useState<RitualContext | null>(
@@ -166,8 +168,8 @@ export default function RitualsPage() {
     "Ритуалы барбершопа в Нижнем Новгороде | Джентльмены Культуры";
   const pageDescription =
     "Ритуалы барбершоп‑клуба «Джентльмены Культуры» в Нижнем Новгороде: мужская стрижка, стрижка + борода, уход за бородой и королевское бритьё без спешки и суеты.";
-  const canonicalUrl = "https://gentlemenbarber.ru/rituals";
-  const ogImage = "https://gentlemenbarber.ru/og-rituals.jpg";
+  const canonicalUrl = `${BASE_URL}/rituals`;
+  const ogImage = `${BASE_URL}/og-rituals.jpg`;
 
   // базовый блок Service
   const jsonLdService = {
@@ -235,7 +237,7 @@ export default function RitualsPage() {
           : {}),
       };
     });
-  }, [rituals]);
+  }, [rituals, canonicalUrl]);
 
   return (
     <>

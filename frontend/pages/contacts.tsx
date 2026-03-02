@@ -89,6 +89,8 @@ function IconAddress(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+const BASE_URL = "https://www.gentlemenbarber.ru";
+
 export default function ContactsPage() {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
 
@@ -96,8 +98,8 @@ export default function ContactsPage() {
     "Контакты барбершоп‑клуба в Нижнем Новгороде | Джентльмены Культуры";
   const pageDescription =
     "Барбершоп‑клуб «Джентльмены Культуры» в Нижнем Новгороде: адрес Белозёрская, 4, телефон для записи, часы работы и способы добраться до клуба.";
-  const canonicalUrl = "https://gentlemenbarber.ru/contacts";
-  const ogImage = "https://gentlemenbarber.ru/og-main.jpg";
+  const canonicalUrl = `${BASE_URL}/contacts`;
+  const ogImage = `${BASE_URL}/og-main.jpg`;
 
   const handleBookClick = () => setIsBookingOpen(true);
   const handleCloseModal = () => setIsBookingOpen(false);

@@ -12,6 +12,8 @@ type MasterContext = {
   masterName?: string;
 };
 
+const BASE_URL = "https://www.gentlemenbarber.ru";
+
 export default function MastersPage() {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [selectedMaster, setSelectedMaster] = useState<MasterContext | null>(
@@ -32,8 +34,8 @@ export default function MastersPage() {
     "Мастера барбершопа в Нижнем Новгороде | Джентльмены Культуры";
   const pageDescription =
     "Команда барбершоп‑клуба «Джентльмены Культуры» в Нижнем Новгороде: мастера, которым можно доверить образ, бороду и час своей жизни.";
-  const canonicalUrl = "https://gentlemenbarber.ru/masters";
-  const ogImage = "https://gentlemenbarber.ru/og-masters.jpg";
+  const canonicalUrl = `${BASE_URL}/masters`;
+  const ogImage = `${BASE_URL}/og-masters.jpg`;
 
   const jsonLd = {
     "@context": "https://schema.org",
