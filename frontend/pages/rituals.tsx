@@ -53,6 +53,49 @@ function formatPrice(priceFrom: number | undefined) {
   return `от ${priceFrom} ₽`;
 }
 
+// Fallback-прайс на случай, если backend /api/rituals не отвечает
+const FALLBACK_RITUALS: Ritual[] = [
+  {
+    id: 1,
+    title: "Мужская стрижка",
+    label: "стрижка",
+    duration: "45 минут",
+    price: "от 1500 ₽",
+    description:
+      "Базовый ритуал для тех, кто хочет поддерживать форму без спешки и суеты.",
+    details:
+      "Включает консультацию, мытьё головы, стрижку и укладку с разбором, как повторить результат дома.",
+    serviceId: "mens_haircut",
+    isPopular: true,
+  },
+  {
+    id: 2,
+    title: 'Комплекс "стрижка + борода"',
+    label: "стрижка и борода",
+    duration: "75 минут",
+    price: "от 2400 ₽",
+    description:
+      "Формат, когда важен и аккуратный контур бороды, и чистая стрижка.",
+    details:
+      "Консультация по образу, стрижка, работа с бородой и укладка с рекомендациями по уходу.",
+    serviceId: "hair_and_beard",
+    isPopular: true,
+  },
+  {
+    id: 3,
+    title: "Моделирование бороды",
+    label: "борода",
+    duration: "30 минут",
+    price: "от 1100 ₽",
+    description:
+      "Для тех, кто носит бороду постоянно и хочет чёткий, аккуратный контур.",
+    details:
+      "Коррекция длины и формы, работа с линией шеи и щёк, рекомендации по домашнему уходу.",
+    serviceId: "beard_modeling",
+    isPopular: false,
+  },
+];
+
 export default function RitualsPage() {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [selectedRitual, setSelectedRitual] = useState<RitualContext | null>(
@@ -85,9 +128,11 @@ export default function RitualsPage() {
         const baseUrl =
           process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
         const res = await fetch(`${baseUrl}/api/rituals`);
+
         if (!res.ok) {
           throw new Error("Failed to load rituals");
         }
+
         const data: ApiRitual[] = await res.json();
 
         const mapped: Ritual[] = data.map((r) => ({
@@ -106,8 +151,9 @@ export default function RitualsPage() {
 
         setRituals(mapped);
       } catch (e) {
-        console.error(e);
-        setRituals([]);
+        console.error("Failed to load rituals, using fallback list", e);
+        // вместо пустого списка — безопасный fallback‑прайс
+        setRituals(FALLBACK_RITUALS);
       } finally {
         setLoading(false);
       }

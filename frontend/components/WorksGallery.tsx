@@ -63,29 +63,27 @@ export default function WorksGallery() {
           </p>
         </div>
 
-        {/* На мобиле — горизонтальная лента с прокруткой, на tablet+ — сетка */}
-        <div className="md:grid md:grid-cols-3 md:gap-5">
-          <div className="flex gap-4 overflow-x-auto pb-2 md:block md:overflow-visible md:pb-0">
-            {WORKS.map((work) => (
-              <figure
-                key={work.id}
-                className="card-dark hover-lift w-[240px] shrink-0 overflow-hidden md:w-auto"
-              >
-                <div className="relative h-56 w-full">
-                  <Image
-                    src={work.src}
-                    alt={work.alt}
-                    fill
-                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                    className="object-cover"
-                  />
-                </div>
-                <figcaption className="px-4 py-3 text-xs text-club-soft">
-                  {work.label}
-                </figcaption>
-              </figure>
-            ))}
-          </div>
+        {/* Одна адаптивная сетка без горизонтального скролла */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-5">
+          {WORKS.map((work) => (
+            <figure
+              key={work.id}
+              className="card-dark hover-lift overflow-hidden"
+            >
+              <div className="relative h-56 w-full">
+                <Image
+                  src={work.src}
+                  alt={work.alt}
+                  fill
+                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                  className="object-cover"
+                />
+              </div>
+              <figcaption className="px-4 py-3 text-xs text-club-soft">
+                {work.label}
+              </figcaption>
+            </figure>
+          ))}
         </div>
       </div>
     </section>

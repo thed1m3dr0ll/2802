@@ -1,4 +1,6 @@
 // components/home/FaqSection.tsx
+import { useState } from "react";
+
 export function FaqSection() {
   return (
     <section className="section section-paper section-y section-animate">
@@ -42,12 +44,23 @@ type FaqItemProps = {
 };
 
 function FaqItem({ question, children }: FaqItemProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <details className="group rounded-xl border border-[var(--card-border)] bg-white/90 px-4 py-3">
+    <details
+      className="group rounded-xl border border-[var(--card-border)] bg-white/90 px-4 py-3"
+      open={isOpen}
+      onClick={(e) => {
+        // чтобы клик по внутреннему тексту тоже переключал, как у обычного <details>
+        if ((e.target as HTMLElement).tagName.toLowerCase() === "summary") {
+          setIsOpen((prev) => !prev);
+        }
+      }}
+    >
       <summary className="flex items-center justify-between cursor-pointer font-semibold text-[var(--text-dark-strong)] list-none min-h-[44px]">
         <span className="pr-3 leading-snug">{question}</span>
-        <span className="ml-3 flex items-center justify-center w-7 h-7 rounded-full border border-[var(--card-border)] text-[11px] text-[var(--text-muted)] transition-transform duration-200 group-open:rotate-180">
-          ▾
+        <span className="ml-3 flex items-center justify-center w-7 h-7 rounded-full border border-[var(--card-border)] text-[13px] text-[var(--text-muted)]">
+          {isOpen ? "−" : "+"}
         </span>
       </summary>
       <p className="mt-2">{children}</p>

@@ -204,7 +204,7 @@ export default function StoriesPage() {
               {/* История 3 */}
               <article className="card-paper-lifted hover-lift border border-dashed border-[rgba(18,18,18,0.18)] p-6">
                 <p className="label-small mb-2 text-[var(--text-muted)]">
-                  поздний слот · ритуал «Королевское бритьё»
+                  поздний слот · ритуал «Опасное бритье»
                 </p>
                 <h3 className="mb-3 text-lg font-semibold text-[var(--text-dark)] md:text-xl">
                   «Час, когда выключили голову»
@@ -232,7 +232,7 @@ export default function StoriesPage() {
                     href="/rituals#ritual-3"
                     className="text-[var(--accent-red)] underline-offset-2 hover:underline"
                   >
-                    Королевское бритьё
+                    Опасное бритье
                   </Link>
                   .
                 </p>

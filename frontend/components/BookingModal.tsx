@@ -345,8 +345,7 @@ export default function BookingModal({
 
       let serviceIdToUse = ritualId;
       if (ritualNameActual) {
-        const role = YCLIENTS_ROLES[masterId] ??
-          "top_master";
+        const role = YCLIENTS_ROLES[masterId] ?? "top_master";
         const byRole = YCLIENTS_SERVICES_BY_ROLE[ritualNameActual];
         if (byRole) {
           serviceIdToUse = byRole[role];
@@ -493,7 +492,10 @@ export default function BookingModal({
       >
         {index}
       </span>
-      <span className="max-w-[80px] text-left md:max-w-none">{label}</span>
+      <span className="max-w-[80px] text-left md:max-w-none">
+        {/* для будущих шагов делаем подпись более бледной, без намёка на заполненность */}
+        {label}
+      </span>
     </div>
   );
 
@@ -607,6 +609,7 @@ export default function BookingModal({
             </div>
           </div>
 
+          {/* прогресс-бар: текущий шаг и пройденные, без подсветки будущих */}
           <div className="mb-4 flex flex-wrap gap-2 border-b border-[var(--border-subtle)] pb-3">
             <StepPill index={1} label="Мастер" active={step === 1} done={step > 1} />
             <StepPill index={2} label="Дата" active={step === 2} done={step > 2} />
@@ -1033,7 +1036,7 @@ export default function BookingModal({
                             <button
                               key={slot}
                               type="button"
-                              className={`min-h-[40px] rounded_full px-3 py-2.5 text-[13px] transition ${
+                              className={`min-h-[40px] rounded-full px-3 py-2.5 text-[13px] transition ${
                                 isActive
                                   ? "bg-[var(--accent-strong)] text-[var(--text-on-accent)] shadow-sm"
                                   : "bg-[var(--surface-soft)] text-[var(--text-main)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-strong)]"
@@ -1190,8 +1193,8 @@ export default function BookingModal({
 
                 <p className="text-[11px] leading-relaxed text-[var(--text-muted)]">
                   Нажимая кнопку, вы соглашаетесь на обработку персональных
-                  данных. Мы используем их только для связи по вашей записи в клуб
-                  «Джентльмены Культуры».
+                  данных. Мы используем их только для связи по вашей записи в
+                  клуб «Джентльмены Культуры».
                 </p>
 
                 <div className="mt-4 flex justify-between border-t border-[var(--border-subtle)] pt-3">

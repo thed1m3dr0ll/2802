@@ -3,9 +3,8 @@ import Link from "next/link";
 import { trackPhoneClick } from "../lib/analytics";
 
 const socialLinks = {
-  instagram: "https://instagram.com/",
   vk: "https://vk.ru/barbershop_gentlemen",
-  telegram: "https://t.me/barberRomanChernov",
+  telegram: "https://t.me/gentlemen_barber_bot",
 };
 
 export default function Footer() {
@@ -18,9 +17,9 @@ export default function Footer() {
   return (
     <footer className="mt-16 relative">
       {/* Волнистый верх футера */}
-      <div className="pointer-events-none absolute top-[-32px] left-0 w-full overflow-hidden leading-[0]">
+      <div className="pointer-events-none absolute -top-6 left-0 w-full overflow-hidden leading-[0]">
         <svg
-          className="block w-full h-[40px]"
+          className="block w-full h-[28px]"
           xmlns="http://www.w3.org/2000/svg"
           preserveAspectRatio="none"
           viewBox="0 0 100 20"
@@ -133,33 +132,16 @@ export default function Footer() {
                 </a>
               </p>
               <p className="text-white/70 text-xs">
-                Запись по телефону, в мессенджерах и через личный кабинет.
+                Запись по телефону, в VK и через личный кабинет.
               </p>
             </div>
 
             {/* Соцсети */}
-            <div className="space-y-1">
+            <div className="space-y-2">
               <p className="text-[11px] uppercase tracking-[0.22em] text-white/60">
                 мы на связи
               </p>
               <div className="flex items-center gap-3">
-                {/* Instagram */}
-                <a
-                  href={socialLinks.instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Instagram"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/30 hover:border-white hover:bg-white/5 transition"
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                    className="h-4 w-4 fill-current text-white"
-                  >
-                    <path d="M7 2C4.2 2 2 4.2 2 7v10c0 2.8 2.2 5 5 5h10c2.8 0 5-2.2 5-5V7c0-2.8-2.2-5-5-5H7zm0 2h10c1.7 0 3 1.3 3 3v10c0 1.7-1.3 3-3 3H7c-1.7 0-3-1.3-3-3V7c0-1.7 1.3-3 3-3zm5 2.5A4.5 4.5 0 1 0 16.5 11 4.51 4.51 0 0 0 12 6.5zm0 2A2.5 2.5 0 1 1 9.5 11 2.5 2.5 0 0 1 12 8.5zM17.75 6a1.25 1.25 0 1 0 1.25 1.25A1.25 1.25 0 0 0 17.75 6z" />
-                  </svg>
-                </a>
-
                 {/* VK */}
                 <a
                   href={socialLinks.vk}
@@ -177,12 +159,12 @@ export default function Footer() {
                   </svg>
                 </a>
 
-                {/* Telegram */}
+                {/* Telegram bot */}
                 <a
                   href={socialLinks.telegram}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Telegram"
+                  aria-label="Telegram bot"
                   className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/30 hover:border-white hover:bg-white/5 transition"
                 >
                   <svg
@@ -194,6 +176,18 @@ export default function Footer() {
                   </svg>
                 </a>
               </div>
+              <p className="text-[11px] text-white/60">
+                Можно написать администратору прямо в Telegram‑бот{" "}
+                <a
+                  href={socialLinks.telegram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-4 hover:text-white"
+                >
+                  @gentlemen_barber_bot
+                </a>
+                .
+              </p>
             </div>
           </div>
         </div>

@@ -1,7 +1,10 @@
 // components/home/ManifestSection.tsx
 export function ManifestSection() {
   return (
-    <section className="section section-wave-top section-y section-animate">
+    <section
+      id="manifest"
+      className="section section-wave-top section-y section-animate"
+    >
       <div className="container-custom max-w-4xl space-y-7">
         <p className="label-small text-[var(--accent-red)]">манифест клуба</p>
 

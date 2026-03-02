@@ -41,8 +41,8 @@ export function ReviewsSection({ reviews, loading, error }: Props) {
             5.0 по отзывам гостей клуба в Нижнем Новгороде
           </h2>
           <p className="mt-3 text-[13px] text-club-soft md:text-[14px]">
-            Ниже — несколько живых отзывов гостей «Джентльменов Культуры». Полные
-            списки можно посмотреть на Яндекс Картах и в 2ГИС.
+            Ниже — несколько живых отзывов гостей «Джентльменов Культуры».
+            Полные списки можно посмотреть на Яндекс Картах и в 2ГИС.
           </p>
         </div>
 
@@ -106,7 +106,7 @@ export function ReviewsSection({ reviews, loading, error }: Props) {
                         {formattedDate ? ` • ${formattedDate}` : ""}
                       </p>
                     </div>
-                    <p className="text-[14px] text-[var(--accent-red)]">
+                    <p className="text-[14px] text-[var(--accent-red)] whitespace-nowrap">
                       {"★".repeat(review.rating)}
                     </p>
                   </div>
