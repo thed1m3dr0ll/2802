@@ -1,0 +1,11 @@
+CREATE TABLE ai_dialog_messages (
+    id BIGSERIAL PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    chat_id TEXT NOT NULL,
+    role TEXT NOT NULL CHECK (role IN ('user', 'assistant')),
+    content TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_ai_dialog_messages_user_chat_created
+    ON ai_dialog_messages (user_id, chat_id, created_at);

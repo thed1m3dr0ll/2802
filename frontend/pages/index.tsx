@@ -22,7 +22,21 @@ import { FaqSection } from "../components/home/FaqSection";
 import { GiftSection } from "../components/home/GiftSection";
 import { FinalCtaSection } from "../components/home/FinalCtaSection";
 
+import {
+  resolveServiceIdForRitual,
+  type LogicalRitualKey,
+  type MasterRole,
+} from "../lib/ritualsConfig";
+
 const BASE_URL = "https://www.gentlemenbarber.ru";
+
+type BookingContext = {
+  masterName?: string;
+  ritualName?: string;
+  ritualKey?: LogicalRitualKey;
+  masterRole?: MasterRole;
+  serviceId?: number | null;
+} | null;
 
 export default function Home() {
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -30,10 +44,7 @@ export default function Home() {
   const [reviewsError, setReviewsError] = useState<string | null>(null);
 
   const [isBookingOpen, setIsBookingOpen] = useState(false);
-  const [bookingContext, setBookingContext] = useState<{
-    masterName?: string;
-    ritualName?: string;
-  } | null>(null);
+  const [bookingContext, setBookingContext] = useState<BookingContext>(null);
 
   const firstFieldRef = useRef<HTMLButtonElement | null>(null);
 
@@ -44,11 +55,6 @@ export default function Home() {
 
   const handleBookWithMaster = (masterName: string) => {
     setBookingContext({ masterName });
-    setIsBookingOpen(true);
-  };
-
-  const handleBookWithRitual = (ritualName: string) => {
-    setBookingContext({ ritualName });
     setIsBookingOpen(true);
   };
 
@@ -144,7 +150,19 @@ export default function Home() {
 
       <ManifestSection />
       <RitualsSummarySection
-        onBookWithRitual={handleBookWithRitual}
+        onBookRitual={({ ritualKey, ritualName, role }) => {
+          const serviceId = resolveServiceIdForRitual(ritualKey, {
+            masterRole: role,
+          });
+
+          setBookingContext({
+            ritualName,
+            ritualKey,
+            masterRole: role,
+            serviceId,
+          });
+          setIsBookingOpen(true);
+        }}
         onBookClick={handleBookClick}
       />
       <WorksGallery />
@@ -155,7 +173,7 @@ export default function Home() {
       <GiftSection onBookClick={handleBookClick} />
 
       <section className="section">
-        <div className="container-custom rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-5 py-6 grid gap-6 items-start md:px-8 md:py-7 md:grid-cols-3">
+        <div className="container-custom grid items-start gap-6 rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] px-5 py-6 md:grid-cols-3 md:px-8 md:py-7">
           <div>
             <p className="label-small mb-1 text-[var(--text-muted)]">
               честный формат

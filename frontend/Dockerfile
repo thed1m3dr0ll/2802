@@ -1,35 +1,24 @@
-# === Stage 1: установка зависимостей (deps) ===
-# Здесь я ставлю все node-зависимости по package-lock, без лишних dev-тулов.
+# === Stage 1: deps ===
+# Устанавливаем все node-зависимости по package-lock
 FROM node:20-alpine AS deps
 
-# Рабочая директория внутри контейнера
 WORKDIR /app
 
-# Раньше здесь ставился libc6-compat, сейчас отключено, чтобы не висла сборка
-# RUN apk add --no-cache libc6-compat
-
-# Сначала копирую только package.json / package-lock.json,
-# чтобы кэшировать слой с node_modules
 COPY package.json package-lock.json* ./
-
-# Ставлю зависимости в строгом соответствии с lock-файлом
 RUN npm ci
 
 
 
-# === Stage 2: сборка Next.js (builder) ===
-# На этом этапе собираю продовый билд Next.js в standalone-режиме.
+# === Stage 2: build ===
+# Собираем продовый билд Next.js
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Подтягиваю готовые node_modules из deps-стейджа
 COPY --from=deps /app/node_modules ./node_modules
-
-# Копирую весь исходный код фронта
 COPY . .
 
-# Пробрасываю публичные переменные окружения для сборки (если нужно)
+# Публичные переменные окружения (если нужно)
 ARG NEXT_PUBLIC_METRIKA_ID
 ARG NEXT_PUBLIC_SITE_URL
 
@@ -38,13 +27,12 @@ ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Собираю продовый билд
 RUN npm run build
 
 
 
-# === Stage 3: минимальный production-образ (runner) ===
-# Финальный образ — только то, что нужно для запуска продового Next.js.
+# === Stage 3: prod runner (next start) ===
+# Финальный образ для запуска продового Next.js
 FROM node:20-alpine AS runner
 
 WORKDIR /app
@@ -52,25 +40,26 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Создаю непривилегированного пользователя для запуска приложения
+# Копируем всё нужное для запуска:
+# - .next (билд)
+# - public (статические файлы)
+# - node_modules
+# - package.json (для npm run start)
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+
+# Создаём непривилегированного пользователя
 RUN addgroup --system --gid 1001 nodejs \
     && adduser --system --uid 1001 nextjs
 
-# Копирую только то, что реально нужно для работы:
-# - public/ (статичные ресурсы)
-# - standalone-сервер и static ассеты из .next
-COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-# Переключаюсь на непривилегированного пользователя
 USER nextjs
 
-# Порт, на котором будет слушать Next.js внутри контейнера
+# Next.js будет слушать 3000 порт внутри контейнера
 EXPOSE 3000
-
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Стартую standalone-сервер Next.js
-CMD ["node", "server.js"]
+# Стартуем приложение в прод-режиме
+CMD ["npm", "run", "start"]

@@ -7,65 +7,59 @@ import {
   DrinkIcon,
 } from "@hugeicons/core-free-icons";
 
+type BenefitItemProps = {
+  icon: any;
+  title: string;
+  text: string;
+};
+
 export function BenefitsSection() {
   return (
     <section className="section section-paper section-y section-animate">
       <div className="container-custom">
-        <div className="max-w-3xl mx-auto">
+        <div className="mx-auto max-w-3xl">
           <header className="mb-10 text-center">
-            <p className="label-small tracking-[0.22em] uppercase text-[var(--accent-gold-soft)] mb-2">
-              почему выбирают клуб
+            <p className="label-small mb-2 uppercase tracking-[0.22em] text-[var(--accent-gold-soft)]">
+              
             </p>
-            <h2 className="text-2xl md:text-3xl font-semibold text-[var(--text-dark-strong)]">
+            <h2 className="text-2xl font-semibold text-[var(--text-dark-strong)] md:text-3xl">
               Почему выбирают клуб «Джентльмены Культуры»
             </h2>
           </header>
 
           <div className="relative pl-10 md:pl-16">
-            <div className="hidden md:block pointer-events-none absolute left-6 top-2 bottom-4">
-              <div className="w-px h-full bg-gradient-to-b from-[rgba(255,255,255,0.5)] via-[rgba(170,140,105,0.7)] to-[rgba(0,0,0,0.35)]" />
+            <div className="pointer-events-none absolute left-6 top-2 bottom-4 hidden md:block">
+              <div className="h-full w-px bg-gradient-to-b from-[rgba(255,255,255,0.5)] via-[rgba(170,140,105,0.7)] to-[rgba(0,0,0,0.35)]" />
             </div>
 
             <div className="space-y-8 md:space-y-9">
               <BenefitItem
                 icon={Target01Icon}
-                title="Персональный подход в клубном формате"
-                text="Запоминаем ваши предпочтения, удачные решения и историю образа, чтобы каждый визит в клуб «Джентльмены Культуры» начинался не с нуля."
+                title="Персональный подход, а не поток"
+                text="Запоминаем твои предпочтения и удачные решения, чтобы каждый визит в клуб не начинался с нуля."
               />
               <BenefitItem
                 icon={Scissor01Icon}
                 title="Мастера с опытом и единым почерком"
-                text="Опыт от 5 лет, внутренняя школа и стандарты клуба — не потоковая смена, а команда, которая разделяет почерк «Джентльменов Культуры»."
+                text="Опыт от 5 лет, внутренняя школа и общий взгляд на стиль — команда, которая держит планку клуба."
               />
               <BenefitItem
                 icon={TimeScheduleIcon}
-                title="Строго по записи и по времени"
-                text="Планируем ритуалы так, чтобы вы приходили на своё время и не сидели в живой очереди у стойки администратора."
+                title="Запись по времени, без очередей"
+                text="Ты приходишь к своему времени — без ожидания у стойки и живой очереди перед креслом."
               />
               <BenefitItem
                 icon={DrinkIcon}
-                title="Атмосфера закрытого мужского клуба"
-                text="Бар, мягкий свет и гости, которым близок спокойный формат без суеты и лишнего шума."
+                title="Атмосфера мужского клуба 18+"
+                text="Бар, свет и музыка для тех, кто ценит спокойный формат без лишнего шума."
               />
             </div>
-          </div>
-
-          <div className="mt-8 text-center">
-            <button className="text-[12px] md:text-[13px] tracking-[0.18em] uppercase text-[var(--accent-red)] hover:opacity-80">
-              манифест клуба
-            </button>
           </div>
         </div>
       </div>
     </section>
   );
 }
-
-type BenefitItemProps = {
-  icon: any;
-  title: string;
-  text: string;
-};
 
 function BenefitItem({ icon, title, text }: BenefitItemProps) {
   return (
@@ -76,10 +70,10 @@ function BenefitItem({ icon, title, text }: BenefitItemProps) {
         </div>
       </div>
       <div>
-        <h3 className="text-[16px] md:text-[17px] font-semibold mb-1.5 text-[var(--text-dark-strong)]">
+        <h3 className="mb-1.5 text-[16px] font-semibold text-[var(--text-dark-strong)] md:text-[17px]">
           {title}
         </h3>
-        <p className="text-[14px] md:text-[15px] text-[var(--text-muted)] leading-relaxed">
+        <p className="text-[14px] leading-relaxed text-[var(--text-muted)] md:text-[15px]">
           {text}
         </p>
       </div>

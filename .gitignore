@@ -142,4 +142,41 @@ __pycache__/
 *.pyo
 *.pyd
 
+# Virtualenvs
+.venv/
+venv/
+env/
+
+# Python build
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+
+# Pytest / coverage
+.pytest_cache/
+.tox/
+.coverage
+.coverage.*
+.cache
+
+# IDE
+.vscode/
+.idea/
+
+# Local configs / secrets
+*.sqlite3
+*.db
+
+# Tests (если не хочешь тащить этот конкретный файл)
 backend/test_yclients_slots.py

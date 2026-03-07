@@ -39,7 +39,7 @@ services:
       - internal
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8000/healthz || exit 1"]
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz', timeout=2)"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -63,7 +63,7 @@ services:
       - internal
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8000/healthz || exit 1"]
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz', timeout=2)"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -124,8 +124,6 @@ services:
       frontend:
         condition: service_healthy
       backend:
-        condition: service_healthy
-      backend_admin:
         condition: service_healthy
     networks:
       - internal

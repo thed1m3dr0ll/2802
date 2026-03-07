@@ -6,9 +6,7 @@ from fastapi.responses import JSONResponse
 
 from pydantic import BaseModel
 
-from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from slowapi.util import get_remote_address
 from slowapi.middleware import SlowAPIMiddleware
 
 from app.routes.reviews import router as reviews_router
@@ -18,15 +16,16 @@ from app.routes.cabinet import router as cabinet_router
 from app.routes.bot_users import router as bot_users_router
 from app.routes.bot_bookings import router as bot_bookings_router
 from app.routes.rituals import router as rituals_router
+# from app.routes.posts import router as posts_router  # лента постов (времено отключено — файла нет)
+from app.rate_limiter import limiter  # лимитер из отдельного модуля
 
+from app.routes.ai_barber import router as ai_barber_router  # роутер ИИ-ассистента
 
-# Разрешённые источники для CORS — читаем из ENV,
-# по умолчанию оставляю localhost для локальной разработки
+# Разрешённые источники для CORS
 ALLOWED_ORIGINS = os.getenv(
     "ALLOWED_ORIGINS",
     "http://localhost:3000",
 ).split(",")
-
 
 # Текущая среда: development / production
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
@@ -37,13 +36,7 @@ PROJECT_NAME = os.getenv("PROJECT_NAME", "Gentlemen Barber API")
 IS_PROD = ENVIRONMENT == "production"
 IS_ADMIN_INSTANCE = PROJECT_NAME == "Gentlemen Barber API Admin"
 
-
-# Лимитер по IP — режем частоту запросов к чувствительным эндпоинтам
-limiter = Limiter(key_func=get_remote_address)
-
-
 # Основной экземпляр приложения FastAPI
-# На проде публичную документацию отключаю, но для админ-инстанса оставляю
 app = FastAPI(
     title=PROJECT_NAME,
     description="API для сайта и мини-аппа барбер-клуба",
@@ -53,14 +46,24 @@ app = FastAPI(
     redoc_url="/api/redoc" if IS_ADMIN_INSTANCE or not IS_PROD else None,
 )
 
-
-# Подключаю лимитер и middleware для ограничения частоты запросов
+# Подключаю лимитер и middleware
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(SlowAPIMiddleware)
 
+# Локализованный ответ 429 Too Many Requests
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(
+        status_code=429,
+        content={
+            "code": "TOO_MANY_REQUESTS",
+            "message": "Слишком много попыток. Подождите минуту и попробуйте снова.",
+            "retry_after": "60",
+        },
+        headers={"Retry-After": "60"},
+    )
 
-# Базовая CORS-конфигурация — фронт общается с API из указанных доменов
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
@@ -68,7 +71,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 class BookingIntent(BaseModel):
     """Модель для намерения записи через сайт (форма бронирования)."""
@@ -83,31 +85,29 @@ class BookingIntent(BaseModel):
     phone: str
     comment: str | None = None
 
-
-# Все роуты вешаю под /api, чтобы API было изолировано от фронтовых маршрутов
+# Роуты под /api
 app.include_router(reviews_router, prefix="/api")
 app.include_router(yclients_router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
 app.include_router(cabinet_router, prefix="/api")
 app.include_router(bot_users_router, prefix="/api")
 app.include_router(bot_bookings_router, prefix="/api")
-app.include_router(rituals_router, prefix="/api")  # /api/rituals/...
-
+app.include_router(rituals_router, prefix="/api")       # /api/rituals/...
+# app.include_router(posts_router, prefix="/api")       # /api/posts (отключено, файла нет)
+app.include_router(ai_barber_router, prefix="/api")     # /api/barber/chat
 
 # Длина сеанса по умолчанию — 1 час (в секундах)
 DEFAULT_SEANCE_LENGTH = 3600
-
 
 @app.post("/api/booking-intents/")
 @limiter.limit("5/minute")
 async def create_booking_intent(request: Request, intent: BookingIntent):
     """
-    Принимаю намерение записи с фронта, собираю payload под YCLIENTS
-    и создаю запись через их API.
+    Принимаю намерение записи с фронта (форма бронирования),
+    собираю payload под YCLIENTS и создаю запись через их API.
     """
     from app.yclients_client import create_yclients_record
 
-    # На всякий проверяю, что обязательные поля заполнены
     if not intent.masterId or not intent.ritualId or not intent.date or not intent.time:
         return {
             "status": "error",
@@ -134,7 +134,6 @@ async def create_booking_intent(request: Request, intent: BookingIntent):
 
     data = await create_yclients_record(payload)
 
-    # Если YCLIENTS вернули неуспех — прокидываю мету наружу
     if not data.get("success"):
         meta = data.get("meta") or data
         return {"status": "error", "yclients": meta}
@@ -150,12 +149,10 @@ async def create_booking_intent(request: Request, intent: BookingIntent):
         "raw": data,
     }
 
-
 @app.get("/")
 async def root():
     """Простой ping-эндпоинт, чтобы быстро проверить, что API живое."""
     return {"message": "Gentlemen Barber API is running!"}
-
 
 @app.get("/healthz", include_in_schema=False)
 async def healthcheck():
@@ -164,7 +161,6 @@ async def healthcheck():
     Не попадает в Swagger и openapi-схему.
     """
     return JSONResponse({"status": "ok"})
-
 
 if __name__ == "__main__":
     import uvicorn

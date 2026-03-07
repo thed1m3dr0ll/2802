@@ -58,6 +58,7 @@ export default function CabinetPage({ profile }: CabinetPageProps) {
           name="keywords"
           content="личный кабинет барбершоп, история визитов gentlemen, мои мастера, рекомендации по уходу, клубный кабинет gentlemen"
         />
+        <meta name="robots" content="noindex, nofollow" />
         <link rel="canonical" href={canonicalUrl} />
 
         <meta property="og:type" content="website" />

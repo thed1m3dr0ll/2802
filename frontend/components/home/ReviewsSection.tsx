@@ -19,7 +19,7 @@ type Props = {
 function getSourceLabel(source: ReviewSource) {
   if (source === "yandex") return "Яндекс Карты";
   if (source === "2gis") return "2ГИС";
-  return "Сайт клуба Джентльмены Культуры";
+  return "Сайт клуба «Джентльмены Культуры»";
 }
 
 export function ReviewsSection({ reviews, loading, error }: Props) {
@@ -31,8 +31,8 @@ export function ReviewsSection({ reviews, loading, error }: Props) {
     >
       <div className="container-custom">
         <div className="mx-auto mb-8 max-w-3xl text-center md:mb-10">
-          <p className="label-small mb-2 text-club-muted">
-            гости о клубе gentlemen
+          <p className="label-small mb-2 uppercase tracking-[0.22em] text-club-muted">
+            гости о клубе «Джентльмены Культуры»
           </p>
           <h2
             id="reviews-title"
@@ -41,33 +41,35 @@ export function ReviewsSection({ reviews, loading, error }: Props) {
             5.0 по отзывам гостей клуба в Нижнем Новгороде
           </h2>
           <p className="mt-3 text-[13px] text-club-soft md:text-[14px]">
-            Ниже — несколько живых отзывов гостей «Джентльменов Культуры».
-            Полные списки можно посмотреть на Яндекс Картах и в 2ГИС.
+            Ниже — несколько коротких отзывов гостей клуба. Полные списки можно
+            посмотреть на Яндекс Картах и в 2ГИС.
           </p>
         </div>
 
+        {/* Линк-плашки на внешние отзывы с лёгким свечением */}
         <div className="mb-6 flex flex-col items-center justify-center gap-3 md:mb-8 md:flex-row">
           <a
             href="https://yandex.ru/maps/org/dzhentlmeny_kultury/101569682800/reviews/?ll=43.875272%2C56.348966&z=17"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-[11px] uppercase tracking-[0.16em] text-club-soft transition hover:bg-white/10"
+            className="inline-flex items-center gap-2 rounded-full border border-white/14 bg-[rgba(5,3,7,0.85)] px-4 py-2 text-[11px] uppercase tracking-[0.16em] text-club-soft shadow-[0_10px_26px_rgba(0,0,0,0.85)] transition-all duration-250 hover:border-white/26 hover:bg-white/8 hover:shadow-[0_16px_40px_rgba(0,0,0,0.95)]"
           >
-            <span className="h-2 w-2 rounded-full bg-[#ffcc00]" />
-            отзывы о клубе на яндекс картах
+            <span className="h-2 w-2 rounded-full bg-[#ffcc00] shadow-[0_0_0_4px_rgba(255,204,0,0.26)]" />
+            отзывы на яндекс картах
           </a>
           <a
             href="https://2gis.ru/n_novgorod/firm/70000001080133566/tab/reviews"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-[11px] uppercase tracking-[0.16em] text-club-soft transition hover:bg-white/10"
+            className="inline-flex items-center gap-2 rounded-full border border-white/14 bg-[rgba(5,3,7,0.85)] px-4 py-2 text-[11px] uppercase tracking-[0.16em] text-club-soft shadow-[0_10px_26px_rgba(0,0,0,0.85)] transition-all duration-250 hover:border-white/26 hover:bg-white/8 hover:shadow-[0_16px_40px_rgba(0,0,0,0.95)]"
           >
-            <span className="h-2 w-2 rounded-full bg-[#00b25c]" />
-            отзывы о клубе в 2ГИС
+            <span className="h-2 w-2 rounded-full bg-[#00b25c] shadow-[0_0_0_4px_rgba(0,178,92,0.26)]" />
+            отзывы в 2гис
           </a>
         </div>
 
-        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 md:grid-cols-3">
+        {/* Решётка отзывов */}
+        <div className="reviews-grid mx-auto grid max-w-5xl grid-cols-1 gap-8 md:grid-cols-3">
           {loading && (
             <p className="col-span-full text-center text-club-muted">
               Загружаем отзывы гостей…
@@ -91,9 +93,9 @@ export function ReviewsSection({ reviews, loading, error }: Props) {
               return (
                 <article
                   key={review.id}
-                  className="card-glass flex h-full flex-col justify-between px-6 py-6 hover-lift"
+                  className="card-glass review-card flex h-full flex-col justify-between px-6 py-6 transition-all duration-250 hover:-translate-y-[3px] hover:shadow-[0_18px_40px_rgba(0,0,0,0.9)]"
                 >
-                  <p className="card-dark-text mb-4 text-[14px] italic">
+                  <p className="card-dark-text mb-4 text-[14px] italic text-club-soft">
                     «{review.text}»
                   </p>
                   <div className="flex items-baseline justify-between gap-3">
@@ -106,7 +108,7 @@ export function ReviewsSection({ reviews, loading, error }: Props) {
                         {formattedDate ? ` • ${formattedDate}` : ""}
                       </p>
                     </div>
-                    <p className="text-[14px] text-[var(--accent-red)] whitespace-nowrap">
+                    <p className="whitespace-nowrap text-[14px] text-[var(--accent-red)]">
                       {"★".repeat(review.rating)}
                     </p>
                   </div>
@@ -116,8 +118,8 @@ export function ReviewsSection({ reviews, loading, error }: Props) {
 
           {!loading && !error && reviews.length === 0 && (
             <p className="col-span-full text-center text-club-muted">
-              Первые отзывы уже в пути — пока можно посмотреть оценки в Яндекс
-              Картах и 2ГИС.
+              Первые отзывы уже в пути — сейчас можно посмотреть оценки клуба в
+              Яндекс Картах и 2ГИС.
             </p>
           )}
 

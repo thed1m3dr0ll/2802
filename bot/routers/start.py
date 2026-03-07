@@ -2,14 +2,16 @@
 
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 import aiohttp
 
 from config import settings
 from .ritual import RitualStates, goal_keyboard
 
+
 router = Router()
+
 
 # тот же маппинг ролей, что и в backend/lib
 YCLIENTS_ROLES: dict[int, str] = {
@@ -18,6 +20,10 @@ YCLIENTS_ROLES: dict[int, str] = {
     3498548: "top_master",
     4910723: "top_master",
 }
+
+
+TELEGRAM_PUBLIC_LINK = "https://t.me/barberRomanChernov"
+VK_PUBLIC_LINK = "https://vk.ru/barbershop_gentlemen"
 
 
 # ====== Вспомогательные запросы к backend ======
@@ -80,6 +86,29 @@ def choose_barber_keyboard() -> InlineKeyboardBuilder:
     return kb
 
 
+def socials_keyboard() -> InlineKeyboardMarkup:
+    """
+    Кнопки с переходами в публичные площадки клуба.
+    """
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="Наш Telegram",
+                    url=TELEGRAM_PUBLIC_LINK,
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="Мы во ВКонтакте",
+                    url=VK_PUBLIC_LINK,
+                )
+            ],
+        ]
+    )
+    return kb
+
+
 # ====== Хэндлеры ======
 
 
@@ -98,16 +127,23 @@ async def cmd_start(message: Message):
         welcome_name = message.from_user.first_name or ""
 
     if welcome_name:
-        prefix = f"{welcome_name}, добро пожаловать в Gentlemen Barber Club.\n\n"
+        prefix = f"{welcome_name}, привет, ты в клубе «Джентльмены Культуры».\n\n"
     else:
-        prefix = "Добро пожаловать в Gentlemen Barber Club.\n\n"
+        prefix = "Привет, ты в клубе «Джентльмены Культуры».\n\n"
 
+    # Основное приветствие с выбором мастера
     await message.answer(
         prefix
-        + "Я ваш персональный ассистент: помогу спокойно выбрать мастера, ритуал и удобное время — "
-        "так, как это сделал бы внимательный администратор.\n\n"
+        + "Я твой персональный ассистент: помогу спокойно выбрать мастера, ритуал и удобное время — "
+        "как внимательный администратор в барбершопе.\n\n"
         "С кем сегодня будет комфортнее всего?",
         reply_markup=choose_barber_keyboard().as_markup(),
+    )
+
+    # Отдельным сообщением — приглашение в публичные площадки
+    await message.answer(
+        "Если хочешь следить за атмосферой и новостями клуба — заходи сюда:",
+        reply_markup=socials_keyboard(),
     )
 
 
@@ -138,7 +174,7 @@ async def barber_chosen(callback: CallbackQuery, state: FSMContext):
     await callback.message.edit_reply_markup(reply_markup=None)
     await callback.message.answer(
         f"Благодарю, зафиксировал выбор: {barber_human}.\n\n"
-        "Сейчас аккуратно подберём ритуал под ваше состояние и задачи.",
+        "Сейчас аккуратно подберём ритуал под твоё состояние и задачи.",
     )
 
     await state.clear()
@@ -149,7 +185,7 @@ async def barber_chosen(callback: CallbackQuery, state: FSMContext):
     await state.set_state(RitualStates.goal)
 
     await callback.message.answer(
-        "Скажите, пожалуйста, какой у вас запрос на сегодня:",
+        "Скажи, пожалуйста, какой у тебя запрос на сегодня:",
         reply_markup=goal_keyboard().as_markup(),
     )
 

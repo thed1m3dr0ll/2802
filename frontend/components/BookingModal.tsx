@@ -1,15 +1,18 @@
 // components/BookingModal.tsx
 import { useState, useEffect, useRef } from "react";
 import { trackBookingSuccess } from "../lib/analytics";
+import { YCLIENTS_ROLES } from "../lib/openYclients";
 import {
-  YCLIENTS_ROLES,
-  YCLIENTS_SERVICES_BY_ROLE,
-} from "../lib/openYclients.ts";
+  LOGICAL_RITUALS,
+  resolveServiceIdForRitual,
+  LogicalRitualKey,
+  MasterRole,
+} from "../lib/ritualsConfig";
 
 type BookingInitialContext = {
   masterId?: string;
   masterName?: string;
-  ritualId?: string;
+  ritualKey?: LogicalRitualKey;
   ritualName?: string;
 } | null;
 
@@ -19,13 +22,6 @@ type BookingModalProps = {
   initialContext?: BookingInitialContext;
 };
 
-type RitualService = {
-  id: string;
-  name: string;
-  price?: number;
-  duration?: number; // минуты
-};
-
 type Staff = {
   id: string;
   name: string;
@@ -33,7 +29,9 @@ type Staff = {
   description?: string;
 };
 
-type Step = 1 | 2 | 3 | 4 | 5;
+type Step = 1 | 2 | 3 | 4 | 5 | 6;
+type RitualSubStep = 1 | 2;
+type TimeSubStep = 1 | 2;
 
 type FieldErrors = {
   name?: string;
@@ -43,36 +41,13 @@ type FieldErrors = {
 
 type FormStatus = "idle" | "submitting" | "success" | "error";
 
-const ritualGroups = [
-  {
-    id: "group-hair",
-    title: "Стрижка и образ",
-    items: ["Детская стрижка", "Стрижка ножницами", "Стрижка машинкой"],
-  },
-  {
-    id: "group-beard",
-    title: "Борода и бритьё",
-    items: [
-      "Опасное бритье",
-      "Камуфляж бороды",
-      "Детокс уход бороды и кожи лица",
-    ],
-  },
-  {
-    id: "group-care",
-    title: "Уход и кожа",
-    items: [
-      "Премиум уход за кожей головы и волосами",
-      "Черная маска",
-      "Патчи",
-    ],
-  },
-  {
-    id: "group-extra",
-    title: "Дополнительно",
-    items: ["Камуфляж головы", "Укладка", "Удаление воском"],
-  },
-];
+type PathType = "by_master" | "by_datetime" | null;
+
+type AvailabilityByStaff = {
+  staff_id: number;
+  staff_name?: string;
+  slots: { datetime: string; time: string }[];
+};
 
 export default function BookingModal({
   isOpen,
@@ -82,18 +57,48 @@ export default function BookingModal({
   const [status, setStatus] = useState<FormStatus>("idle");
   const [globalError, setGlobalError] = useState<string | null>(null);
 
-  const [rituals, setRituals] = useState<RitualService[]>([]);
   const [masters, setMasters] = useState<Staff[]>([]);
-  const [openRitualGroupId, setOpenRitualGroupId] = useState<string | null>(
-    null,
+
+  // путь (ветка)
+  const [path, setPath] = useState<PathType>(null);
+
+  // мастер
+  const [masterRole, setMasterRole] = useState<MasterRole | null>(null);
+  const [masterId, setMasterId] = useState<string>(
+    initialContext?.masterId ?? "",
   );
 
+  // ритуал
+  const [selectedRitualKey, setSelectedRitualKey] =
+    useState<LogicalRitualKey | null>(initialContext?.ritualKey ?? null);
+  const [ritualStep, setRitualStep] = useState<RitualSubStep>(1);
+  const [selectedRitualGroupId, setSelectedRitualGroupId] = useState<
+    "group-hair" | "group-beard" | "group-care" | null
+  >(null);
+
+  // дата/время
   const [date, setDate] = useState<string>("");
-  const [masterId, setMasterId] = useState<string>("");
-  const [ritualId, setRitualId] = useState<string | null>(null);
+  const [availableDatesByRole, setAvailableDatesByRole] = useState<string[]>(
+    [],
+  );
+  const [availableDatesByStaff, setAvailableDatesByStaff] =
+    useState<string[]>([]);
+
   const [slots, setSlots] = useState<string[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
 
+  const [availabilitiesByRole, setAvailabilitiesByRole] = useState<
+    AvailabilityByStaff[]
+  >([]);
+  const [selectedTimeInDatePath, setSelectedTimeInDatePath] = useState<
+    string | null
+  >(null);
+  const [selectedMasterIdInDatePath, setSelectedMasterIdInDatePath] =
+    useState<string | null>(null);
+
+  const [timeStep, setTimeStep] = useState<TimeSubStep>(1);
+
+  // контакты
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [comment, setComment] = useState("");
@@ -101,143 +106,236 @@ export default function BookingModal({
 
   const [step, setStep] = useState<Step>(1);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
+  const [isLoadingDates, setIsLoadingDates] = useState(false);
+  const [isLoadingAvailabilitiesByRole, setIsLoadingAvailabilitiesByRole] =
+    useState(false);
+
   const [showSuccessToast, setShowSuccessToast] = useState(false);
 
   const nameInputRef = useRef<HTMLInputElement | null>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
-  const dateInputRef = useRef<HTMLInputElement | null>(null);
 
   const masterIdFromContext = initialContext?.masterId;
   const masterNameFromContext = initialContext?.masterName;
-  const ritualNameFromContext = initialContext?.ritualName;
 
   const isSending = status === "submitting";
 
-  // автоустановка мастера из контекста
+  // Если модалку открыли сразу с мастером – сразу ставим путь "by_master"
   useEffect(() => {
     if (!isOpen) return;
     if (masterIdFromContext) {
+      setPath("by_master");
       setMasterId(masterIdFromContext);
-      setStep(2);
+      const role = (YCLIENTS_ROLES[masterIdFromContext] ||
+        "top_master") as MasterRole;
+      setMasterRole(role);
+      setStep(3);
     }
   }, [isOpen, masterIdFromContext]);
 
-  // Фокус обратно на триггер
   useEffect(() => {
     if (!isOpen && triggerRef.current) {
       triggerRef.current.focus();
     }
   }, [isOpen]);
 
-  // Фокус на поле имени на последнем шаге
   useEffect(() => {
-    if (isOpen && step === 5 && nameInputRef.current) {
+    if (isOpen && step === 6 && nameInputRef.current) {
       nameInputRef.current.focus();
     }
   }, [isOpen, step]);
 
-  // ESC для закрытия
   useEffect(() => {
     if (!isOpen) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !isSending) {
-        onClose();
-      }
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !isSending) onClose();
     };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
   }, [isOpen, isSending, onClose]);
 
-  // Сброс состояния при закрытии
+  // сброс при закрытии
   useEffect(() => {
     if (!isOpen) {
       setStatus("idle");
       setGlobalError(null);
-      setDate("");
+
       setMasters([]);
-      setRituals([]);
-      setMasterId("");
-      setRitualId(null);
+
+      setSelectedRitualKey(initialContext?.ritualKey ?? null);
+      setRitualStep(1);
+      setSelectedRitualGroupId(null);
+
+      setPath(null);
+      setMasterRole(null);
+
+      setDate("");
+      setAvailableDatesByRole([]);
+      setAvailableDatesByStaff([]);
+
+      setMasterId(initialContext?.masterId ?? "");
       setSlots([]);
       setSelectedSlot(null);
+
+      setAvailabilitiesByRole([]);
+      setSelectedTimeInDatePath(null);
+      setSelectedMasterIdInDatePath(null);
+
+      setTimeStep(1);
+
       setName("");
       setPhone("");
       setComment("");
       setErrors({});
+
       setStep(1);
       setIsLoadingSlots(false);
-      setOpenRitualGroupId(null);
+      setIsLoadingDates(false);
+      setIsLoadingAvailabilitiesByRole(false);
     }
-  }, [isOpen]);
+  }, [isOpen, initialContext]);
 
-  // Загрузка услуг и мастеров
+  // загрузка мастеров
   useEffect(() => {
     if (!isOpen) return;
 
     const controller = new AbortController();
 
-    async function loadDictionaries() {
+    async function loadMasters() {
       try {
-        const ritualsRes = await fetch("/api/yclients/services", {
+        const res = await fetch("/api/yclients/staff", {
           signal: controller.signal,
         });
-        const rawRituals = await ritualsRes.json();
-
-        const rawList: any[] = Array.isArray(rawRituals)
-          ? rawRituals
-          : Array.isArray(rawRituals?.data)
-          ? rawRituals.data
-          : [];
-
-        const ritualsData: RitualService[] = rawList.map((item) => ({
-          id: String(item.id),
-          name: item.title || item.name,
-          price:
-            typeof item.cost === "number"
-              ? item.cost
-              : typeof item.price === "number"
-              ? item.price
-              : undefined,
-          duration:
-            typeof item.seance_length === "number"
-              ? Math.round(item.seance_length / 60)
-              : typeof item.duration === "number"
-              ? item.duration
-              : undefined,
-        }));
-
-        setRituals(ritualsData);
-
-        const mastersRes = await fetch("/api/yclients/staff", {
-          signal: controller.signal,
-        });
-        const rawMasters = await mastersRes.json();
-        const mastersData: Staff[] = Array.isArray(rawMasters)
-          ? rawMasters
-          : Array.isArray(rawMasters?.data)
-          ? rawMasters.data
+        const raw = await res.json();
+        const mastersData: Staff[] = Array.isArray(raw)
+          ? raw
+          : Array.isArray(raw?.data)
+          ? raw.data
           : [];
         setMasters(mastersData);
       } catch (e) {
         if (e instanceof DOMException && e.name === "AbortError") return;
-        console.error("Failed to load YCLIENTS dictionaries", e);
+        console.error("Failed to load staff", e);
         setGlobalError(
-          "Не удалось загрузить данные для записи. Попробуйте ещё раз.",
+          "Не удалось загрузить список мастеров. Попробуйте обновить страницу.",
         );
       }
     }
 
-    loadDictionaries();
-
+    loadMasters();
     return () => controller.abort();
   }, [isOpen]);
 
-  // Загрузка слотов по дате + мастеру + ритуалу
+  // загрузка доступных дней
   useEffect(() => {
     if (!isOpen) return;
-    if (!date || !masterId || !ritualId) {
+
+    const shouldLoadForDatePath = path === "by_datetime" && step === 2;
+    const shouldLoadForMasterPath = path === "by_master" && step === 5;
+    if (!shouldLoadForDatePath && !shouldLoadForMasterPath) return;
+
+    const controller = new AbortController();
+
+    async function loadDates() {
+      try {
+        setIsLoadingDates(true);
+        setAvailableDatesByRole([]);
+        setAvailableDatesByStaff([]);
+        setGlobalError(null);
+
+        // ВЕТКА "сначала дата и время": отдаём все дни текущего месяца
+        if (path === "by_datetime") {
+          const now = new Date();
+          const year = now.getFullYear();
+          const month = now.getMonth();
+          const lastDay = new Date(year, month + 1, 0).getDate();
+
+          const dates: string[] = [];
+          for (let d = 1; d <= lastDay; d++) {
+            const day = String(d).padStart(2, "0");
+            const m = String(month + 1).padStart(2, "0");
+            dates.push(`${year}-${m}-${day}`);
+          }
+
+          setAvailableDatesByRole(dates);
+          return;
+        }
+
+        // дальше только для by_master — тут ритуал уже выбран
+        if (!selectedRitualKey) return;
+
+        const effectiveMasterId =
+          path === "by_master" ? masterId : selectedMasterIdInDatePath || "";
+
+        const serviceId = resolveServiceIdForRitual(selectedRitualKey!, {
+          masterRole:
+            masterRole ||
+            (effectiveMasterId
+              ? ((YCLIENTS_ROLES[effectiveMasterId] as MasterRole) ||
+                  "top_master")
+              : null),
+        });
+
+        if (!serviceId) {
+          setGlobalError(
+            "Не удалось определить формат услуги. Попробуйте выбрать другой ритуал.",
+          );
+          return;
+        }
+
+        if (path === "by_master") {
+          if (effectiveMasterId) {
+            const url = `/api/yclients/available-days-by-staff?service_id=${serviceId}&staff_id=${Number(
+              effectiveMasterId,
+            )}`;
+            const res = await fetch(url, { signal: controller.signal });
+            const data = await res.json();
+            const dates: string[] = Array.isArray(data)
+              ? data
+              : Array.isArray(data?.data)
+              ? data.data
+              : [];
+            setAvailableDatesByStaff(dates);
+          } else if (masterRole) {
+            const url = `/api/yclients/available-days-by-role?service_id=${serviceId}&role=${masterRole}`;
+            const res = await fetch(url, { signal: controller.signal });
+            const data = await res.json();
+            const dates: string[] = Array.isArray(data)
+              ? data
+              : Array.isArray(data?.data)
+              ? data.data
+              : [];
+            setAvailableDatesByRole(dates);
+          }
+        }
+      } catch (e) {
+        if (e instanceof DOMException && e.name === "AbortError") return;
+        console.error("Failed to load available days", e);
+        setGlobalError(
+          "Не удалось загрузить доступные дни. Попробуйте позже или смените способ подбора.",
+        );
+      } finally {
+        setIsLoadingDates(false);
+      }
+    }
+
+    loadDates();
+    return () => controller.abort();
+  }, [
+    isOpen,
+    step,
+    path,
+    selectedRitualKey,
+    masterId,
+    masterRole,
+    selectedMasterIdInDatePath,
+  ]);
+
+  // загрузка слотов (by_master)
+  useEffect(() => {
+    if (!isOpen) return;
+    if (path !== "by_master") return;
+    if (!date || !selectedRitualKey) {
       setSlots([]);
       setSelectedSlot(null);
       return;
@@ -250,26 +348,29 @@ export default function BookingModal({
         setIsLoadingSlots(true);
         setGlobalError(null);
 
+        const effectiveMasterId = masterId || selectedMasterIdInDatePath || "";
+        const roleKey: MasterRole =
+          masterRole ||
+          (effectiveMasterId
+            ? ((YCLIENTS_ROLES[effectiveMasterId] as MasterRole) ||
+                "top_master")
+            : "top_master");
+
+        const serviceId = resolveServiceIdForRitual(selectedRitualKey!, {
+          masterRole: roleKey,
+        });
+
+        if (!serviceId) {
+          setGlobalError(
+            "Не удалось подобрать услугу для выбранного формата. Попробуйте другой ритуал.",
+          );
+          return;
+        }
+
         const params = new URLSearchParams();
         params.set("date", date);
-        params.set("staff_id", masterId);
-
-        if (ritualId) {
-          const ritual = rituals.find((r) => r.id === ritualId);
-          const ritualName = ritual?.name;
-
-          let serviceIdToUse = ritualId;
-
-          if (ritualName) {
-            const role = YCLIENTS_ROLES[masterId] ?? "top_master";
-            const byRole = YCLIENTS_SERVICES_BY_ROLE[ritualName];
-            if (byRole) {
-              serviceIdToUse = byRole[role];
-            }
-          }
-
-          params.set("service_id", serviceIdToUse);
-        }
+        params.set("service_id", String(serviceId));
+        if (effectiveMasterId) params.set("staff_id", effectiveMasterId);
 
         const res = await fetch(
           `/api/yclients/availability?${params.toString()}`,
@@ -284,9 +385,9 @@ export default function BookingModal({
         setSlots(slotsData);
         setSelectedSlot(null);
 
-        if (slotsData.length === 0) {
+        if (!slotsData.length) {
           setGlobalError(
-            "В этот день у выбранного мастера нет свободных окон. Попробуйте другую дату или мастера.",
+            "В этот день свободных слотов под выбранный формат нет. Попробуйте другую дату или мастера.",
           );
         }
       } catch (e) {
@@ -302,10 +403,86 @@ export default function BookingModal({
       }
     }
 
-    loadSlots();
+    if (date && (masterId || masterRole || selectedMasterIdInDatePath)) {
+      loadSlots();
+    }
 
     return () => controller.abort();
-  }, [isOpen, date, masterId, ritualId, rituals]);
+  }, [
+    isOpen,
+    path,
+    date,
+    selectedRitualKey,
+    masterId,
+    masterRole,
+    selectedMasterIdInDatePath,
+  ]);
+
+  // загрузка availabilities (by_datetime) — ТЕПЕРЬ РАБОТАЕТ ПО date + ritual
+  useEffect(() => {
+    if (!isOpen) return;
+    if (path !== "by_datetime") return;
+    if (!date || !selectedRitualKey) {
+      setAvailabilitiesByRole([]);
+      setSelectedTimeInDatePath(null);
+      setSelectedMasterIdInDatePath(null);
+      return;
+    }
+
+    const controller = new AbortController();
+
+    async function loadAvailabilities() {
+      try {
+        setIsLoadingAvailabilitiesByRole(true);
+        setGlobalError(null);
+
+        const roleKey: MasterRole = masterRole || "top_master";
+        const serviceId = resolveServiceIdForRitual(selectedRitualKey!, {
+          masterRole: roleKey,
+        });
+
+        if (!serviceId) {
+          setGlobalError(
+            "Не удалось подобрать услугу для выбранного формата. Попробуйте другой ритуал.",
+          );
+          return;
+        }
+
+        const url = `/api/yclients/availability-by-role?service_id=${serviceId}&date=${date}&role=${roleKey}`;
+        const res = await fetch(url, { signal: controller.signal });
+        const data = await res.json();
+        const list: AvailabilityByStaff[] = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.data)
+          ? data.data
+          : [];
+
+        setAvailabilitiesByRole(list);
+        setSelectedTimeInDatePath(null);
+        setSelectedMasterIdInDatePath(null);
+
+        if (!list.length) {
+          setGlobalError(
+            "На выбранный день нет свободных слотов под этот формат. Попробуйте другую дату.",
+          );
+        }
+      } catch (e) {
+        if (e instanceof DOMException && e.name === "AbortError") return;
+        console.error("Failed to load availabilities by role", e);
+        setAvailabilitiesByRole([]);
+        setSelectedTimeInDatePath(null);
+        setSelectedMasterIdInDatePath(null);
+        setGlobalError(
+          "Не удалось загрузить свободное время. Попробуйте выбрать другую дату.",
+        );
+      } finally {
+        setIsLoadingAvailabilitiesByRole(false);
+      }
+    }
+
+    loadAvailabilities();
+    return () => controller.abort();
+  }, [isOpen, path, date, selectedRitualKey, masterRole]);
 
   if (!isOpen) return null;
 
@@ -330,8 +507,50 @@ export default function BookingModal({
     setGlobalError(null);
 
     if (!validateContacts()) return;
-    if (!date || !masterId || !ritualId || !selectedSlot) {
-      setGlobalError("Проверьте, что выбраны мастер, дата, ритуал и время.");
+    if (!selectedRitualKey) {
+      setGlobalError("Выберите ритуал для записи.");
+      return;
+    }
+
+    let finalDate = date;
+    let finalTime: string | null = null;
+    let finalMasterId: string | null = null;
+
+    if (path === "by_master") {
+      finalTime = selectedSlot;
+      finalMasterId = masterId || selectedMasterIdInDatePath;
+    }
+
+    if (path === "by_datetime") {
+      if (!date || !selectedTimeInDatePath || !selectedMasterIdInDatePath) {
+        setGlobalError(
+          "Проверьте, что выбраны дата, время и мастер для визита.",
+        );
+        return;
+      }
+      finalDate = date;
+      finalTime = selectedTimeInDatePath;
+      finalMasterId = selectedMasterIdInDatePath;
+    }
+
+    if (!finalDate || !finalTime || !finalMasterId) {
+      setGlobalError("Проверьте, что выбраны мастер, дата и время визита.");
+      return;
+    }
+
+    const roleKey: MasterRole =
+      masterRole ||
+      ((YCLIENTS_ROLES[finalMasterId] as MasterRole | undefined) ??
+        "top_master");
+
+    const serviceIdToUse = resolveServiceIdForRitual(selectedRitualKey!, {
+      masterRole: roleKey,
+    });
+
+    if (!serviceIdToUse) {
+      setGlobalError(
+        "Не удалось подобрать услугу для бронирования. Попробуйте другой ритуал.",
+      );
       return;
     }
 
@@ -339,30 +558,23 @@ export default function BookingModal({
     let hadError = false;
 
     try {
-      const ritual = rituals.find((r) => r.id === ritualId);
+      const ritual = LOGICAL_RITUALS.find((r) => r.key === selectedRitualKey);
       const ritualNameActual =
-        ritualNameFromContext || ritual?.name || undefined;
-
-      let serviceIdToUse = ritualId;
-      if (ritualNameActual) {
-        const role = YCLIENTS_ROLES[masterId] ?? "top_master";
-        const byRole = YCLIENTS_SERVICES_BY_ROLE[ritualNameActual];
-        if (byRole) {
-          serviceIdToUse = byRole[role];
-        }
-      }
+        initialContext?.ritualName || ritual?.name || undefined;
 
       const intentPayload = {
-        ritualId: ritualId || undefined,
+        ritualKey: selectedRitualKey,
         ritualName: ritualNameActual,
-        masterId,
+        masterId: finalMasterId,
         masterName:
-          masterNameFromContext || masters.find((m) => m.id === masterId)?.name,
-        date,
-        time: selectedSlot || undefined,
+          masterNameFromContext ||
+          masters.find((m) => m.id === finalMasterId)?.name,
+        date: finalDate,
+        time: finalTime,
         name,
         phone,
         comment,
+        path,
       };
 
       try {
@@ -375,7 +587,7 @@ export default function BookingModal({
         console.error("Failed to send booking intent", err);
       }
 
-      const datetime = `${date} ${selectedSlot}`;
+      const datetime = `${finalDate} ${finalTime}`;
 
       try {
         const res = await fetch("/api/yclients/book", {
@@ -383,7 +595,7 @@ export default function BookingModal({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             serviceId: Number(serviceIdToUse),
-            staffId: Number(masterId),
+            staffId: Number(finalMasterId),
             datetime,
             name,
             phone,
@@ -419,7 +631,7 @@ export default function BookingModal({
         hadError = true;
         setStatus("error");
         setGlobalError(
-          "Сервис записи временно недоступен. Мы свяжемся с вами для подтверждения.",
+          "Сервис записи временно недоступен. Попробуйте позже.",
         );
         return;
       }
@@ -440,9 +652,11 @@ export default function BookingModal({
     }
   };
 
+  const selectedRitual =
+    selectedRitualKey &&
+    LOGICAL_RITUALS.find((r) => r.key === selectedRitualKey);
   const selectedRitualName =
-    ritualNameFromContext ||
-    (ritualId ? rituals.find((r) => r.id === ritualId)?.name : undefined);
+    initialContext?.ritualName || selectedRitual?.name;
 
   const selectedMaster =
     masters.find((m) => m.id === (masterIdFromContext || masterId || "")) ||
@@ -473,7 +687,7 @@ export default function BookingModal({
     done: boolean;
   }) => (
     <div
-      className={`flex items-center gap-2 rounded-full px-3 py-1 text-xs ${
+      className={`flex items-center gap-2 rounded-full px-2.5 py-1 text-[10px] md:text-[11px] ${
         active
           ? "bg-[var(--accent-soft)] text-[var(--accent-strong)] shadow-sm"
           : done
@@ -482,7 +696,7 @@ export default function BookingModal({
       }`}
     >
       <span
-        className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] ${
+        className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] ${
           active
             ? "bg-[var(--accent-strong)] text-[var(--text-on-accent)]"
             : done
@@ -492,10 +706,7 @@ export default function BookingModal({
       >
         {index}
       </span>
-      <span className="max-w-[80px] text-left md:max-w-none">
-        {/* для будущих шагов делаем подпись более бледной, без намёка на заполненность */}
-        {label}
-      </span>
+      <span className="max-w-[80px] text-left md:max-w-none">{label}</span>
     </div>
   );
 
@@ -518,16 +729,31 @@ export default function BookingModal({
     }
   };
 
+  const allTimesFromAvailabilities: string[] = Array.from(
+    new Set(
+      availabilitiesByRole.flatMap((item) =>
+        (item.slots || []).map((s) => s.time),
+      ),
+    ),
+  ).sort();
+
+  const mastersForSelectedTime: AvailabilityByStaff[] =
+    selectedTimeInDatePath && availabilitiesByRole.length
+      ? availabilitiesByRole.filter((item) =>
+          (item.slots || []).some((s) => s.time === selectedTimeInDatePath),
+        )
+      : [];
+
   return (
     <div
-      className="fixed inset-0 z-[100] bg-[radial-gradient(circle_at_top,_rgba(0,0,0,0.85)_0,_rgba(0,0,0,0.96)_55%,_rgba(0,0,0,0.98)_100%)] overflow-y-auto px-3 py-6 backdrop-blur-md md:px-6 md:py-10"
+      className="fixed inset-0 z-[100] bg-[radial-gradient(circle_at_top,_rgba(0,0,0,0.85)_0,_rgba(0,0,0,0.96)_55%,_rgba(0,0,0,0.98)_100%)] overflow-y-auto px-3 py-5 text-[13px] leading-snug backdrop-blur-md md:px-6 md:py-9 md:text-[14px]"
       onClick={handleOverlayClick}
       role="dialog"
       aria-modal="true"
       aria-labelledby="booking-modal-title"
     >
       <div className="mx-auto flex min-h-[100dvh] items-center justify-center">
-        <div className="relative w-full max-w-[720px] rounded-3xl bg-[var(--surface-elevated)]/98 px-6 py-6 shadow-[0_32px_120px_rgba(0,0,0,0.9)] md:px-9 md:py-8">
+        <div className="relative w-full max-w-[720px] rounded-3xl bg-[var(--surface-elevated)]/98 px-5 py-5 shadow-[0_32px_120px_rgba(0,0,0,0.9)] md:px-8 md:py-7">
           <button
             type="button"
             onClick={onClose}
@@ -538,23 +764,23 @@ export default function BookingModal({
             ×
           </button>
 
-          <div className="mb-4 space-y-3 md:mb-5">
-            <p className="mb-1 text-[10px] uppercase tracking-[0.16em] text-[var(--text-muted)] md:text-[11px]">
+          <div className="mb-3 space-y-2.5 md:mb-4">
+            <p className="mb-0.5 text-[10px] uppercase tracking-[0.16em] text-[var(--text-muted)] md:text-[11px]">
               клубная запись
             </p>
             <h2
               id="booking-modal-title"
-              className="text-[22px] font-semibold leading-snug tracking-[0.02em] text-[var(--text-main)] md:text-[28px]"
+              className="text-[19px] font-semibold leading-snug tracking-[0.02em] text-[var(--text-main)] md:text-[24px]"
             >
               Запись в клуб по шагам
             </h2>
-            <p className="text-[11px] text-[var(--text-muted)] md:text-[12px]">
-              Сначала выберите мастера, затем удобную дату, ритуал, время и
-              контакты. Администратор подтвердит запись сообщением или звонком.
+            <p className="text-[11px] md:text-[12px] text-[var(--text-muted)]">
+              Каждый экран — один выбор. Сначала способ, затем мастер или время,
+              ритуал и контакты.
             </p>
 
-            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-soft)]/95 px-3 py-2.5 text-[11px] text-[var(--text-muted-strong)]">
-              <div className="grid grid-cols-2 gap-x-4 gap-y-1 md:flex md:flex-wrap md:gap-4">
+            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-soft)]/95 px-3 py-2 text-[11px] text-[var(--text-muted-strong)]">
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1 md:flex md:flex-wrap md:gap-4">
                 <span>
                   Мастер:{" "}
                   <span
@@ -595,13 +821,22 @@ export default function BookingModal({
                   Время:{" "}
                   <span
                     className={
-                      date && selectedSlot
+                      (path === "by_master" && date && selectedSlot) ||
+                      (path === "by_datetime" &&
+                        date &&
+                        selectedTimeInDatePath &&
+                        selectedMasterIdInDatePath)
                         ? "font-medium text-[var(--accent-strong)]"
                         : "text-[var(--text-muted-soft)]"
                     }
                   >
-                    {date && selectedSlot
+                    {path === "by_master" && date && selectedSlot
                       ? `${date}, ${selectedSlot}`
+                      : path === "by_datetime" &&
+                        date &&
+                        selectedTimeInDatePath &&
+                        selectedMasterIdInDatePath
+                      ? `${date}, ${selectedTimeInDatePath}`
                       : "не выбрано"}
                   </span>
                 </span>
@@ -609,614 +844,821 @@ export default function BookingModal({
             </div>
           </div>
 
-          {/* прогресс-бар: текущий шаг и пройденные, без подсветки будущих */}
-          <div className="mb-4 flex flex-wrap gap-2 border-b border-[var(--border-subtle)] pb-3">
-            <StepPill index={1} label="Мастер" active={step === 1} done={step > 1} />
-            <StepPill index={2} label="Дата" active={step === 2} done={step > 2} />
-            <StepPill index={3} label="Ритуал" active={step === 3} done={step > 3} />
-            <StepPill index={4} label="Время" active={step === 4} done={step > 4} />
+          <div className="mb-3 flex flex-wrap gap-1.5 border-b border-[var(--border-subtle)] pb-2.5">
+            <StepPill
+              index={1}
+              label="Способ"
+              active={step === 1}
+              done={step > 1}
+            />
+            <StepPill
+              index={2}
+              label="Дата и время"
+              active={step === 2}
+              done={step > 2}
+            />
+            <StepPill
+              index={3}
+              label="Мастер"
+              active={step === 3}
+              done={step > 3}
+            />
+            <StepPill
+              index={4}
+              label="Ритуал"
+              active={step === 4}
+              done={step > 4}
+            />
             <StepPill
               index={5}
-              label="Контакты"
+              label="Дата и время"
               active={step === 5}
+              done={step > 5}
+            />
+            <StepPill
+              index={6}
+              label="Контакты"
+              active={step === 6}
               done={false}
             />
           </div>
 
           {globalError && (
-            <div className="mb-3 rounded-2xl border border-red-500/60 bg-red-500/10 px-3 py-2.5 text-[11px] text-red-100">
+            <div className="mb-3 rounded-2xl border border-red-500/60 bg-red-500/10 px-3 py-2 text-[11px] text-red-100">
               {globalError}
             </div>
           )}
 
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            {step === 1 && (
-              <div className="space-y-4">
-                <p className="text-[12px] font-medium text-[var(--text-main)]">
-                  С кем вы хотите работать?
-                </p>
+          {/* ШАГ 1: способ */}
+          {step === 1 && (
+            <div className="space-y-3 md:space-y-4">
+              <p className="text-[11px] md:text-[12px] text-[var(--text-muted-strong)]">
+                Как удобнее подобрать визит: от мастера или от даты и времени?
+              </p>
 
-                {masters.length === 0 && (
-                  <p className="text-[11px] text-[var(--text-muted)]">
-                    Мастера пока не загружены. Попробуйте обновить страницу чуть
-                    позже.
-                  </p>
-                )}
-
-                {masters.length > 0 && (
-                  <div className="space-y-2">
-                    {masters.map((m) => {
-                      const isActive = masterId === m.id;
-                      const roleLabel =
-                        YCLIENTS_ROLES[m.id] === "art_director"
-                          ? "арт‑директор клуба"
-                          : "топ‑барбер";
-
-                      return (
-                        <button
-                          key={m.id}
-                          type="button"
-                          className={`flex w-full items-start justify-between rounded-2xl border px-4 py-3.5 text-left text-[13px] transition ${
-                            isActive
-                              ? "border-[var(--accent-strong)] bg-[var(--accent-soft)]/90 text-[var(--accent-strong)] shadow-[0_10px_30px_rgba(0,0,0,0.45)]"
-                              : "border-[var(--border-subtle)] bg-[var(--surface-soft)]/95 text-[var(--text-main)] hover:border-[var(--accent-strong)] hover:bg-[var(--surface-elevated)]"
-                          }`}
-                          onClick={() => {
-                            setMasterId(m.id);
-                            setDate("");
-                            setRitualId(null);
-                            setSlots([]);
-                            setSelectedSlot(null);
-                            setErrors((prev) => ({ ...prev, date: undefined }));
-                            setStep(2);
-                          }}
-                          aria-pressed={isActive}
-                        >
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium">{m.name}</span>
-                              <span className="rounded-full bg-[var(--surface-elevated)] px-2 py-[2px] text-[10px] uppercase tracking-[0.14em] text-[var(--text-muted)]">
-                                {roleLabel}
-                              </span>
-                            </div>
-                            <p className="text-[11px] text-[var(--text-muted)]">
-                              {getMasterDescription(m)}
-                            </p>
-                            <p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-[var(--accent-strong)]">
-                              нажмите, чтобы выбрать мастера
-                            </p>
-                          </div>
-                          {isActive && (
-                            <span className="ml-3 mt-1 rounded-full bg-[var(--accent-strong)]/10 px-3 py-1 text-[11px] text-[var(--accent-strong)]">
-                              выбран для визита
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-
-                <div className="mt-4 flex justify-between border-t border-[var(--border-subtle)] pt-3">
-                  <span className="text-[11px] text-[var(--text-muted)]">
-                    Шаг 1 из 5
-                  </span>
-                  <button
-                    type="button"
-                    disabled={!masterId}
-                    onClick={() => masterId && setStep(2)}
-                    className="rounded-full bg-[var(--accent-strong)] px-5 py-2 text-[13px] font-medium text-[var(--text-on-accent)] transition disabled:opacity-40 hover:bg-[var(--accent-strong-hover)]"
-                  >
-                    Далее
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {step === 2 && (
-              <div className="space-y-4">
-                <div>
-                  <p className="mb-1 text-[12px] font-medium text-[var(--text-main)]">
-                    Когда вам удобно прийти к выбранному мастеру?
-                  </p>
-                  <p className="mb-2 text-[11px] text-[var(--text-muted)]">
-                    Нажмите на поле или значок календаря, чтобы выбрать дату.
-                    После этого покажем доступные ритуалы и свободные окна.
-                  </p>
-
-                  <div className="relative">
-                    <input
-                      ref={dateInputRef}
-                      id="booking-date"
-                      type="date"
-                      className={`w-full rounded-full border border-[var(--border-subtle)] bg-[var(--surface-soft)] px-4 py-2 pr-10 text-[13px] text-[var(--accent-red)] outline-none focus:border-[var(--accent-strong)] focus:ring-1 focus:ring-[var(--accent-soft)]/60 ${
-                        errors.date ? "border-red-500" : ""
-                      }`}
-                      value={date}
-                      onChange={(e) => {
-                        setDate(e.target.value);
-                        setRitualId(null);
-                        setSlots([]);
-                        setSelectedSlot(null);
-                        setErrors((prev) => ({ ...prev, date: undefined }));
-                      }}
-                    />
-                    <button
-                      type="button"
-                      className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-[var(--text-muted)]"
-                      tabIndex={-1}
-                      aria-hidden="true"
-                    >
-                      📅
-                    </button>
-                  </div>
-                  {errors.date && (
-                    <p className="mt-1 text-[11px] text-red-400">
-                      {errors.date}
-                    </p>
-                  )}
-                </div>
-
-                <div className="mt-4 flex justify-between border-t border-[var(--border-subtle)] pt-3">
-                  <button
-                    type="button"
-                    onClick={() => setStep(1)}
-                    className="rounded-full border border-[var(--border-subtle)] px-5 py-2 text-[12px] text-[var(--text-muted)] hover:border-[var(--accent-soft)] hover:text-[var(--text-main)]"
-                  >
-                    Назад
-                  </button>
-                  <button
-                    type="button"
-                    disabled={!date}
-                    onClick={() => {
-                      if (!date) {
-                        setErrors((prev) => ({
-                          ...prev,
-                          date: "Выберите дату визита",
-                        }));
-                        return;
-                      }
-                      setStep(3);
-                    }}
-                    className="rounded-full bg-[var(--accent-strong)] px-5 py-2 text-[13px] font-medium text-[var(--text-on-accent)] transition disabled:opacity-40 hover:bg-[var(--accent-strong-hover)]"
-                  >
-                    Далее
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {step === 3 && (
-              <div className="space-y-4">
-                <p className="text-[12px] font-medium text-[var(--text-main)]">
-                  Какой ритуал вам нужен?
-                </p>
-
-                {(!masterId || !date) && (
-                  <p className="text-[11px] text-[var(--text-muted)]">
-                    Сначала выберите мастера и дату, чтобы мы показали актуальные
-                    ритуалы.
-                  </p>
-                )}
-
-                {masterId && date && (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <p className="text-[11px] uppercase tracking-[0.14em] text-[var(--text-muted)]">
-                        популярное
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {rituals
-                          .filter((r) =>
-                            [
-                              "Мужская стрижка",
-                              'Комплекс "стрижка + борода"',
-                              "Моделирование бороды",
-                              "Стрижка отец + сын",
-                            ].includes(r.name),
-                          )
-                          .map((r) => {
-                            const isActive = ritualId === r.id;
-                            return (
-                              <button
-                                key={r.id}
-                                type="button"
-                                className={`min-h-[40px] rounded-full border px-4 py-2 text-[13px] transition ${
-                                  isActive
-                                    ? "border-[var(--accent-strong)] bg-[var(--accent-soft)] text-[var(--accent-strong)] shadow-sm"
-                                    : "border-[var(--border-subtle)] bg-[var(--surface-soft)] text-[var(--text-main)] hover:border-[var(--accent-soft)] hover:bg-[var(--surface-elevated)]"
-                                }`}
-                                onClick={() => {
-                                  setRitualId(r.id);
-                                }}
-                                aria-pressed={isActive}
-                              >
-                                {r.name}
-                                {typeof r.price === "number" && (
-                                  <span className="ml-1 text-[11px] text-[var(--text-muted-strong)]">
-                                    · {r.price.toLocaleString("ru-RU")} ₽
-                                  </span>
-                                )}
-                                {typeof r.duration === "number" && (
-                                  <span className="ml-1 text-[11px] text-[var(--text-muted-strong)]">
-                                    · {r.duration} мин
-                                  </span>
-                                )}
-                                {isActive && (
-                                  <span className="ml-1 text-[11px] text-[var(--accent-strong)]">
-                                    • выбрано
-                                  </span>
-                                )}
-                              </button>
-                            );
-                          })}
-                      </div>
-                    </div>
-
-                    <div className="space-y-3 pt-1">
-                      {ritualGroups.map((group) => {
-                        const groupRituals = rituals.filter((r) =>
-                          group.items.includes(r.name),
-                        );
-                        if (!groupRituals.length) return null;
-
-                        const isOpenGroup = openRitualGroupId === group.id;
-
-                        return (
-                          <div key={group.id}>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setOpenRitualGroupId((prev) =>
-                                  prev === group.id ? null : group.id,
-                                )
-                              }
-                              className="flex w-full items-center justify-between rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-soft)] px-4 py-3 text-left"
-                            >
-                              <span className="text-[12px] font-medium text-[var(--text-main)]">
-                                {group.title}
-                              </span>
-                              <span className="text-[11px] text-[var(--text-muted)] transition-transform">
-                                {isOpenGroup ? "˄" : "˅"}
-                              </span>
-                            </button>
-
-                            {isOpenGroup && (
-                              <div className="mt-2 flex flex-wrap gap-2 rounded-2xl bg-[var(--surface-elevated)] px-4 py-3">
-                                {groupRituals.map((r) => {
-                                  const isActive = ritualId === r.id;
-                                  return (
-                                    <button
-                                      key={r.id}
-                                      type="button"
-                                      className={`min-h-[36px] rounded-full border px-3 py-1.5 text-[12px] transition ${
-                                        isActive
-                                          ? "border-[var(--accent-strong)] bg-[var(--accent-soft)] text-[var(--accent-strong)] shadow-sm"
-                                          : "border-[var(--border-subtle)] bg-[var(--surface-soft)] text-[var(--text-main)] hover:border-[var(--accent-soft)] hover:bg-[var(--surface-elevated)]"
-                                      }`}
-                                      onClick={() => {
-                                        setRitualId(r.id);
-                                      }}
-                                      aria-pressed={isActive}
-                                    >
-                                      {r.name}
-                                      {typeof r.price === "number" && (
-                                        <span className="ml-1 text-[11px] text-[var(--text-muted-strong)]">
-                                          · {r.price.toLocaleString("ru-RU")} ₽
-                                        </span>
-                                      )}
-                                      {typeof r.duration === "number" && (
-                                        <span className="ml-1 text-[11px] text-[var(--text-muted-strong)]">
-                                          · {r.duration} мин
-                                        </span>
-                                      )}
-                                      {isActive && (
-                                        <span className="ml-1 text-[10px] text-[var(--accent-strong)]">
-                                          • выбрано
-                                        </span>
-                                      )}
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                <div className="mt-4 flex justify-between border-t border-[var(--border-subtle)] pt-3">
-                  <button
-                    type="button"
-                    onClick={() => setStep(2)}
-                    className="rounded-full border border-[var(--border-subtle)] px-5 py-2 text-[12px] text-[var(--text-muted)] hover:border-[var(--accent-soft)] hover:text-[var(--text-main)]"
-                  >
-                    Назад
-                  </button>
-                  <button
-                    type="button"
-                    disabled={!ritualId}
-                    onClick={() => {
-                      if (!ritualId) return;
-                      if (isLoadingSlots) {
-                        setGlobalError(
-                          "Секунду, ещё загружаем свободные слоты под мастера…",
-                        );
-                        return;
-                      }
-                      setStep(4);
-                    }}
-                    className="rounded-full bg-[var(--accent-strong)] px-5 py-2 text-[13px] font-medium text-[var(--text-on-accent)] transition disabled:opacity-40 hover:bg-[var(--accent-strong-hover)]"
-                  >
-                    Далее
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {step === 4 && (
-              <div className="space-y-4 md:space-y-5">
-                <div>
-                  <div className="mb-1 flex items-center justify_between gap-2">
-                    <p className="text-[12px] font-medium text-[var(--text-main)]">
-                      Во сколько вам удобно?
-                    </p>
-                    <p className="text-[10px] text-[var(--text-muted)]">
-                      В популярные дни вечерние слоты разбирают за 1–2 дня.
-                    </p>
-                  </div>
-
-                  {(!date || !masterId || !ritualId) && (
-                    <p className="text-[11px] text-[var(--text-muted)]">
-                      Сначала выберите мастера, дату и ритуал, чтобы мы показали
-                      подходящие окна.
-                    </p>
-                  )}
-
-                  {date &&
-                    masterId &&
-                    ritualId &&
-                    isLoadingSlots && (
-                      <div className="mt-1 space-y-2">
-                        <p className="text-[11px] text-[var(--text-muted)]">
-                          Идёт загрузка свободных слотов…
-                        </p>
-                        <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
-                          {Array.from({ length: 6 }).map((_, idx) => (
-                            <div
-                              key={idx}
-                              className="h-9 w-full animate-pulse rounded-full bg-[rgba(255,255,255,0.06)]"
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                  {date &&
-                    masterId &&
-                    ritualId &&
-                    !isLoadingSlots &&
-                    slots.length === 0 && (
-                      <div className="mt-1 space-y-3">
-                        <p className="text-[11px] text-[var(--text-muted)]">
-                          В этот день у выбранного мастера нет свободных окон.
-                          Попробуйте другую дату — администратор всё равно
-                          уточнит детали и подтвердит время.
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          <button
-                            type="button"
-                            onClick={() => setStep(2)}
-                            className="rounded-full border border-[var(--border-subtle)] px-4 py-1.5 text-[12px] text-[var(--text-main)] hover:border-[var(--accent-soft)] hover:bg-[var(--surface-elevated)]"
-                          >
-                            Изменить дату
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setStep(1)}
-                            className="rounded-full border border-[var(--border-subtle)] px-4 py-1.5 text-[12px] text-[var(--text-main)] hover:border-[var(--accent-soft)] hover:bg-[var(--surface-elevated)]"
-                          >
-                            Выбрать другого мастера
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                  {date &&
-                    masterId &&
-                    ritualId &&
-                    !isLoadingSlots &&
-                    slots.length > 0 && (
-                      <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
-                        {slots.map((slot) => {
-                          const isActive = selectedSlot === slot;
-                          return (
-                            <button
-                              key={slot}
-                              type="button"
-                              className={`min-h-[40px] rounded-full px-3 py-2.5 text-[13px] transition ${
-                                isActive
-                                  ? "bg-[var(--accent-strong)] text-[var(--text-on-accent)] shadow-sm"
-                                  : "bg-[var(--surface-soft)] text-[var(--text-main)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-strong)]"
-                              }`}
-                              onClick={() => {
-                                setSelectedSlot(slot);
-                              }}
-                              aria-pressed={isActive}
-                            >
-                              {slot}
-                              {isActive && (
-                                <span className="ml-1 text-[11px] text-[var(--text-on-accent)]/80">
-                                  • выбрано
-                                </span>
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
-                </div>
-
-                <div className="mt-4 flex justify-between border-t border-[var(--border-subtle)] pt-3">
-                  <button
-                    type="button"
-                    onClick={() => setStep(3)}
-                    className="rounded-full border border-[var(--border-subtle)] px-5 py-2 text-[12px] text-[var(--text-muted)] hover:border-[var(--accent-soft)] hover:text-[var(--text-main)]"
-                  >
-                    Назад
-                  </button>
-                  <button
-                    type="button"
-                    disabled={!selectedSlot}
-                    onClick={() => selectedSlot && setStep(5)}
-                    className="rounded-full bg-[var(--accent-strong)] px-5 py-2 text-[13px] font-medium text-[var(--text-on-accent)] transition disabled:opacity-40 hover:bg-[var(--accent-strong-hover)]"
-                  >
-                    Далее
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {step === 5 && (
-              <div className="space-y-3 md:space-y-4">
-                <div className="space-y-3">
-                  <div>
-                    <p className="mb-1 text-[12px] font-medium text-[var(--text-main)]">
-                      Как к вам обращаться?
-                    </p>
-                    <input
-                      ref={nameInputRef}
-                      type="text"
-                      name="name"
-                      className={`w-full rounded-full border border-[var(--border-subtle)] bg-[var(--surface-soft)] px-4 py-2 text-[13px] text-[var(--text-main)] outline-none focus:border-[var(--accent-strong)] focus:ring-1 focus:ring-[var(--accent-soft)]/60 ${
-                        errors.name ? "border-red-500" : ""
-                      }`}
-                      placeholder="Имя"
-                      value={name}
-                      onChange={(e) => {
-                        setName(e.target.value);
-                        if (errors.name) {
-                          setErrors((prev) => ({ ...prev, name: undefined }));
-                        }
-                      }}
-                      required
-                      aria-invalid={!!errors.name}
-                      aria-describedby={errors.name ? "name-error" : undefined}
-                    />
-                    {errors.name && (
-                      <p
-                        id="name-error"
-                        className="mt-1 text-[11px] text-red-400"
-                      >
-                        {errors.name}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <p className="mb-1 text-[12px] font-medium text-[var(--text-main)]">
-                      Телефон для подтверждения
-                    </p>
-                    <input
-                      type="tel"
-                      name="phone"
-                      className={`w-full rounded-full border border-[var(--border-subtle)] bg-[var(--surface-soft)] px-4 py-2 text-[13px] text-[var(--text-main)] outline-none focus:border-[var(--accent-strong)] focus:ring-1 focus:ring-[var(--accent-soft)]/60 ${
-                        errors.phone ? "border-red-500" : ""
-                      }`}
-                      placeholder="+7 (___) ___-__-__"
-                      value={phone}
-                      onChange={(e) => {
-                        setPhone(e.target.value);
-                        if (errors.phone) {
-                          setErrors((prev) => ({ ...prev, phone: undefined }));
-                        }
-                      }}
-                      required
-                      aria-invalid={!!errors.phone}
-                      aria-describedby={errors.phone ? "phone-error" : undefined}
-                    />
-                    {errors.phone && (
-                      <p
-                        id="phone-error"
-                        className="mt-1 text-[11px] text-red-400"
-                      >
-                        {errors.phone}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="mb-1 flex items-center gap-2">
-                    <p className="text-[12px] font-medium text-[var(--text-main)]">
-                      Комментарий (по желанию)
-                    </p>
-                    <span
-                      className="cursor-default text-[12px] text-[var(--text-muted)]"
-                      title="Например: формат встречи, пожелания по образу или времени визита."
-                    >
-                      ℹ️
+              <div className="space-y-2.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPath("by_master");
+                    setTimeStep(1);
+                    setStep(3);
+                  }}
+                  className={`w-full rounded-2xl border px-3 py-2.5 text-left text-[12px] transition ${
+                    path === "by_master"
+                      ? "border-[var(--accent-strong)] bg-[rgba(255,255,255,0.02)]"
+                      : "border-[var(--border-subtle)] bg-[rgba(9,5,4,0.9)] hover:border-[var(--accent-soft)]"
+                  }`}
+                >
+                  <div className="mb-0.5 flex items-center justify-between gap-2">
+                    <span className="font-medium text-[var(--text-main)]">
+                      Сначала мастер
                     </span>
                   </div>
-                  <textarea
-                    className="w-full rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-soft)] px-4 py-3 text-[13px] text-[var(--text-main)] outline-none focus:border-[var(--accent-strong)] focus:ring-1 focus:ring-[var(--accent-soft)]/60"
-                    placeholder={commentPlaceholder}
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    rows={3}
-                  />
-                </div>
-
-                <div className="space-y-2 pt-1">
-                  <button
-                    type="submit"
-                    className="flex w-full items-center justify-center rounded-full bg-[var(--accent-strong)] px-5 py-3 text-[13px] font-medium uppercase tracking-[0.12em] text-[var(--text-on-accent)] transition disabled:opacity-60 hover:bg-[var(--accent-strong-hover)]"
-                    disabled={isSending}
-                  >
-                    {isSending ? (
-                      <>
-                        <span className="spinner-small mr-2" />
-                        отправляем запрос в клуб…
-                      </>
-                    ) : (
-                      "подтвердить запись"
-                    )}
-                  </button>
-                  <p className="text-center text-[11px] text-[var(--text-muted)]">
-                    В популярные дни вечерние слоты закрываются заранее — если
-                    что‑то пойдёт не так, администратор предложит ближайшее
-                    доступное время.
+                  <p className="text-[11px] text-[var(--text-muted-strong)]">
+                    Сначала выберете барбера, затем под него подберём ритуал,
+                    дату и время визита.
                   </p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPath("by_datetime");
+                    setTimeStep(1);
+                    setStep(2);
+                  }}
+                  className={`w-full rounded-2xl border px-3 py-2.5 text-left text-[12px] transition ${
+                    path === "by_datetime"
+                      ? "border-[var(--accent-strong)] bg-[rgba(255,255,255,0.02)]"
+                      : "border-[var(--border-subtle)] bg-[rgba(9,5,4,0.9)] hover:border-[var(--accent-soft)]"
+                  }`}
+                >
+                  <div className="mb-0.5 flex items-center justify-between gap-2">
+                    <span className="font-medium text-[var(--text-main)]">
+                      Сначала дата и время
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[var(--text-muted-strong)]">
+                    Сначала выбираете удобный день, затем ритуал, далее время и
+                    мастера, свободного в это время.
+                  </p>
+                </button>
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  disabled={!path}
+                  onClick={() => {
+                    if (path === "by_master") {
+                      setStep(3);
+                    } else if (path === "by_datetime") {
+                      setStep(2);
+                    }
+                  }}
+                  className="rounded-full bg-[var(--accent-strong)] px-4 py-1.5 text-[12px] font-medium text-[var(--text-on-accent)] hover:bg-[var(--accent-strong-hover)] disabled:opacity-60"
+                >
+                  Продолжить
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ВЕТКА 1: сначала дата и время → ритуалы → мастер */}
+
+          {step === 2 && path === "by_datetime" && (
+            <>
+              {/* Подшаг 1: выбор даты */}
+              {timeStep === 1 && (
+                <div className="space-y-3 md:space-y-4">
+                  <p className="text-[11px] md:text-[12px] text-[var(--text-muted-strong)]">
+                    Выберите удобный день визита.
+                  </p>
+
+                  <div className="space-y-1.5">
+                    <p className="text-[11px] text-[var(--text-muted)]">
+                      Дата визита
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {isLoadingDates && (
+                        <span className="text-[11px] text-[var(--text-muted-soft)]">
+                          Загружаем доступные дни…
+                        </span>
+                      )}
+                      {!isLoadingDates &&
+                        !!availableDatesByRole.length &&
+                        availableDatesByRole.map((d) => (
+                          <button
+                            key={d}
+                            type="button"
+                            onClick={() => {
+                              setDate(d);
+                            }}
+                            className={`rounded-full border px-3 py-1.5 text-[11px] transition ${
+                              date === d
+                                ? "border-[var(--accent-strong)] bg-[rgba(255,255,255,0.03)] text-[var(--accent-strong)]"
+                                : "border-[var(--border-subtle)] text-[var(--text-muted-strong)] hover:border-[var(--accent-soft)]"
+                            }`}
+                          >
+                            {d}
+                          </button>
+                        ))}
+                      {!isLoadingDates && !availableDatesByRole.length && (
+                        <span className="text-[11px] text-[var(--text-muted-soft)]">
+                          Доступные дни появятся после загрузки.
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDate("");
+                        setTimeStep(1);
+                        setStep(1);
+                      }}
+                      className="text-[11px] text-[var(--text-muted-strong)] hover:text-[var(--text-main)]"
+                    >
+                      ← Вернуться к способу
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!date}
+                      onClick={() => {
+                        setStep(4);
+                        setRitualStep(1);
+                      }}
+                      className="rounded-full bg-[var(--accent-strong)] px-4 py-1.5 text-[12px] font-medium text-[var(--text-on-accent)] hover:bg-[var(--accent-strong-hover)] disabled:opacity-60"
+                    >
+                      Далее к ритуалам
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Подшаг 2: выбор времени — будет показан ПОСЛЕ ритуала */}
+              {timeStep === 2 && (
+                <div className="space-y-3 md:space-y-4">
+                  <p className="text-[11px] md:text-[12px] text-[var(--text-muted-strong)]">
+                    Теперь выберите удобное время в этот день.
+                  </p>
+
+                  <div className="space-y-1.5">
+                    <p className="text-[11px] text-[var(--text-muted)]">
+                      Время визита
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {isLoadingAvailabilitiesByRole && (
+                        <span className="text-[11px] text-[var(--text-muted-soft)]">
+                          Загружаем доступное время…
+                        </span>
+                      )}
+                      {!isLoadingAvailabilitiesByRole &&
+                        !!allTimesFromAvailabilities.length &&
+                        allTimesFromAvailabilities.map((time) => (
+                          <button
+                            key={time}
+                            type="button"
+                            onClick={() => {
+                              setSelectedTimeInDatePath(time);
+                            }}
+                            className={`rounded-full border px-3 py-1.5 text-[11px] transition ${
+                              selectedTimeInDatePath === time
+                                ? "border-[var(--accent-strong)] bg-[rgba(255,255,255,0.03)] text-[var(--accent-strong)]"
+                                : "border-[var(--border-subtle)] text-[var(--text-muted-strong)] hover:border-[var(--accent-soft)]"
+                            }`}
+                          >
+                            {time}
+                          </button>
+                        ))}
+                      {!isLoadingAvailabilitiesByRole &&
+                        !allTimesFromAvailabilities.length &&
+                        date && (
+                          <span className="text-[11px] text-[var(--text-muted-soft)]">
+                            На выбранный день нет свободных слотов под этот
+                            формат.
+                          </span>
+                        )}
+                      {!date && (
+                        <span className="text-[11px] text-[var(--text-muted-soft)]">
+                          Сначала выберите дату.
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify_between">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTimeStep(1);
+                        setStep(4);
+                        setRitualStep(2);
+                      }}
+                      className="text-[11px] text-[var(--text-muted-strong)] hover:text-[var(--text-main)]"
+                    >
+                      ← Вернуться к ритуалу
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!selectedTimeInDatePath}
+                      onClick={() => {
+                        setStep(3);
+                      }}
+                      className="rounded-full bg-[var(--accent-strong)] px-4 py-1.5 text-[12px] font-medium text-[var(--text-on-accent)] hover:bg-[var(--accent-strong-hover)] disabled:opacity-60"
+                    >
+                      Далее к мастеру
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* ВЕТКА 2: сначала мастер → ритуалы → дата/время */}
+
+          {step === 3 && path === "by_master" && (
+            <div className="space-y-3 md:space-y-4">
+              <p className="text-[11px] md:text-[12px] text-[var(--text-muted-strong)]">
+                Сначала выберите мастера, затем подберём ритуал и время визита.
+              </p>
+
+              <div className="space-y-2">
+                {masters.map((master) => {
+                  const isActive = masterId === master.id;
+                  return (
+                    <button
+                      key={master.id}
+                      type="button"
+                      onClick={() => {
+                        setMasterId(master.id);
+                        setMasterRole(
+                          (YCLIENTS_ROLES[master.id] as MasterRole) ||
+                            "top_master",
+                        );
+                      }}
+                      className={`w-full rounded-2xl border px-3 py-2.5 text-left text-[12px] transition ${
+                        isActive
+                          ? "border-[var(--accent-strong)] bg-[rgba(255,255,255,0.06)] shadow-[0_0_0_1px_rgba(255,255,255,0.08)]"
+                          : "border-[var(--border-subtle)] bg-[rgba(9,5,4,0.9)] hover:border-[var(--accent-soft)]"
+                      }`}
+                    >
+                      <div className="mb-0.5 flex items-center justify-between gap-2">
+                        <span
+                          className={
+                            isActive
+                              ? "font-semibold text-[var(--accent-strong)]"
+                              : "font-medium text-[var(--text-main)]"
+                          }
+                        >
+                          {master.name}
+                        </span>
+                        {master.position && (
+                          <span className="text-[10px] uppercase tracking-[0.12em] text-[var(--text-muted-soft)]">
+                            {master.position}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-[var(--text-muted-strong)]">
+                        {getMasterDescription(master)}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="text-[11px] text-[var(--text-muted-strong)] hover:text-[var(--text-main)]"
+                >
+                  ← Вернуться к способу
+                </button>
+                <button
+                  type="button"
+                  disabled={!masterId}
+                  onClick={() => {
+                    setStep(4);
+                    setRitualStep(1);
+                  }}
+                  className="rounded-full bg-[var(--accent-strong)] px-4 py-1.5 text-[12px] font-medium text-[var(--text-on-accent)] hover:bg-[var(--accent-strong-hover)] disabled:opacity-60"
+                >
+                  Далее к ритуалам
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ВЕТКА 1 (продолжение): мастер после даты/времени и ритуала – ШАГ 3 */}
+
+          {step === 3 && path === "by_datetime" && (
+            <div className="space-y-3 md:space-y-4">
+              <p className="text-[11px] md:text-[12px] text-[var(--text-muted-strong)]">
+                Выберите мастера, свободного в выбранный слот.
+              </p>
+
+              <div className="grid gap-2 md:grid-cols-2">
+                {mastersForSelectedTime.map((item) => {
+                  const isActive =
+                    selectedMasterIdInDatePath === String(item.staff_id);
+                  return (
+                    <button
+                      key={item.staff_id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedMasterIdInDatePath(String(item.staff_id));
+                        setMasterId(String(item.staff_id));
+                      }}
+                      className={`rounded-2xl border px-3 py-2.5 text-left text-[12px] transition ${
+                        isActive
+                          ? "border-[var(--accent-strong)] bg-[rgba(255,255,255,0.06)] shadow-[0_0_0_1px_rgba(255,255,255,0.08)]"
+                          : "border-[var(--border-subtle)] bg-[rgba(9,5,4,0.9)] hover:border-[var(--accent-soft)]"
+                      }`}
+                    >
+                      <div className="mb-0.5 flex items-center justify-between gap-2">
+                        <span
+                          className={
+                            isActive
+                              ? "font-semibold text-[var(--accent-strong)]"
+                              : "font-medium text-[var(--text-main)]"
+                          }
+                        >
+                          {item.staff_name || "Мастер клуба"}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+                {!mastersForSelectedTime.length && selectedTimeInDatePath && (
+                  <span className="text-[11px] text-[var(--text-muted-soft)]">
+                    На выбранное время сейчас нет свободных мастеров.
+                  </span>
+                )}
+                {!selectedTimeInDatePath && (
+                  <span className="text-[11px] text-[var(--text-muted-soft)]">
+                    Сначала выберите время визита.
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStep(2);
+                    setTimeStep(2);
+                  }}
+                  className="text-[11px] text-[var(--text-muted-strong)] hover:text-[var(--text-main)]"
+                >
+                  ← Вернуться ко времени
+                </button>
+                <button
+                  type="button"
+                  disabled={!selectedMasterIdInDatePath}
+                  onClick={() => setStep(6)}
+                  className="rounded-full bg-[var(--accent-strong)] px-4 py-1.5 text-[12px] font-medium text-[var(--text-on-accent)] hover:bg-[var(--accent-strong-hover)] disabled:opacity-60"
+                >
+                  Далее к контактам
+                </button>
+              </div>
+            </div>
+          )}
+
+                    {/* ОБЩИЙ ШАГ 4: ритуалы – подшаг 1: выбор группы */}
+          {step === 4 && ritualStep === 1 && (
+            <div className="space-y-3 md:space-y-4">
+              <p className="text-[11px] md:text-[12px] text-[var(--text-muted-strong)]">
+                Сначала выберите направление ритуала. На следующем шаге покажем
+                конкретные варианты внутри группы.
+              </p>
+
+              <div className="space-y-2.5">
+                {[
+                  {
+                    id: "group-hair",
+                    title: "Стрижка и образ",
+                    desc: "Ритуалы, связанные со стрижкой и формой.",
+                  },
+                  {
+                    id: "group-beard",
+                    title: "Борода и бритьё",
+                    desc: "Работа с бородой, усами и бритьём.",
+                  },
+                  {
+                    id: "group-care",
+                    title: "Уход и кожа",
+                    desc: "Уходовые ритуалы для головы и кожи.",
+                  },
+                ].map((group) => (
+                  <button
+                    key={group.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedRitualGroupId(
+                        group.id as
+                          | "group-hair"
+                          | "group-beard"
+                          | "group-care",
+                      );
+                      setRitualStep(2);
+                    }}
+                    className={`w-full rounded-2xl border px-3 py-2.5 text-left text-[12px] transition ${
+                      selectedRitualGroupId === group.id
+                        ? "border-[var(--accent-strong)] bg-[rgba(255,255,255,0.02)]"
+                        : "border-[var(--border-subtle)] bg-[rgba(9,5,4,0.9)] hover:border-[var(--accent-soft)]"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-medium text-[var(--text-main)]">
+                        {group.title}
+                      </span>
+                      <span className="text-[10px] uppercase tracking-[0.12em] text-[var(--text-muted-soft)]">
+                        выбрать →
+                      </span>
+                    </div>
+                    <p className="mt-0.5 text-[11px] text-[var(--text-muted-strong)]">
+                      {group.desc}
+                    </p>
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (path === "by_master") {
+                      setStep(3);
+                    } else if (path === "by_datetime") {
+                      setStep(2);
+                    }
+                    setRitualStep(1);
+                  }}
+                  className="text-[11px] text-[var(--text-muted-strong)] hover:text-[var(--text-main)]"
+                >
+                  ← Вернуться назад
+                </button>
+                <button
+                  type="button"
+                  disabled={!selectedRitualGroupId}
+                  onClick={() => setRitualStep(2)}
+                  className="rounded-full bg-[var(--accent-strong)] px-4 py-1.5 text-[12px] font-medium text-[var(--text-on-accent)] hover:bg-[var(--accent-strong-hover)] disabled:opacity-60"
+                >
+                  Выбрать ритуал
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ОБЩИЙ ШАГ 4: ритуалы – подшаг 2: выбор ритуала */}
+          {step === 4 && ritualStep === 2 && selectedRitualGroupId && (
+            <div className="space-y-3 md:space-y-4">
+              <p className="text-[11px] md:text-[12px] text-[var(--text-muted-strong)]">
+                Выберите ритуал внутри группы.
+              </p>
+
+              <div className="space-y-2">
+                {LOGICAL_RITUALS.filter(
+                  (r) => r.groupId === selectedRitualGroupId,
+                ).map((ritual) => {
+                  const isActive = selectedRitualKey === ritual.key;
+                  return (
+                    <button
+                      key={ritual.key}
+                      type="button"
+                      onClick={() => {
+                        setSelectedRitualKey(ritual.key);
+                      }}
+                      className={`w-full rounded-2xl border px-3 py-2 text-left text-[11px] md:text-[12px] transition ${
+                        isActive
+                          ? "border-[var(--accent-strong)] bg-[rgba(255,255,255,0.04)] shadow-[0_0_0_1px_rgba(255,255,255,0.06)]"
+                          : "border-[var(--border-subtle)] bg-[rgba(9,5,4,0.9)] hover:border-[var(--accent-soft)] hover:bg-[rgba(255,255,255,0.02)]"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span
+                          className={
+                            isActive
+                              ? "font-semibold text-[var(--accent-strong)]"
+                              : "font-medium text-[var(--text-main)]"
+                          }
+                        >
+                          {ritual.name}
+                        </span>
+                        <span className="text-[11px] text-[var(--text-muted-strong)]">
+                          ~ {ritual.durationMinutes} мин · от {ritual.price} ₽
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => setRitualStep(1)}
+                  className="text-[11px] text-[var(--text-muted-strong)] hover:text-[var(--text-main)]"
+                >
+                  ← Вернуться к группам
+                </button>
+                <button
+                  type="button"
+                  disabled={!selectedRitualKey}
+                  onClick={() => {
+                    if (path === "by_master") {
+                      setStep(5);
+                      setTimeStep(1);
+                    } else if (path === "by_datetime") {
+                      // после выбора ритуала во второй ветке идём выбирать время
+                      setStep(2);
+                      setTimeStep(2);
+                    }
+                  }}
+                  className="rounded-full bg-[var(--accent-strong)] px-4 py-1.5 text-[12px] font-medium text-[var(--text-on-accent)] hover:bg-[var(--accent-strong-hover)] disabled:opacity-60"
+                >
+                  Продолжить
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ВЕТКА 2 (продолжение): после ритуала выбираем дату/время под мастера – ШАГ 5 */}
+          {step === 5 && path === "by_master" && (
+            <>
+              {timeStep === 1 && (
+                <div className="space-y-3 md:space-y-4">
+                  <p className="text-[11px] md:text-[12px] text-[var(--text-muted-strong)]">
+                    Выберите день визита под выбранного мастера и ритуал.
+                  </p>
+
+                  <div className="space-y-1.5">
+                    <p className="text-[11px] text-[var(--text-muted)]">
+                      Дата визита
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {isLoadingDates && (
+                        <span className="text-[11px] text-[var(--text-muted-soft)]">
+                          Загружаем доступные дни…
+                        </span>
+                      )}
+                      {!isLoadingDates &&
+                        (availableDatesByStaff.length > 0 ||
+                          availableDatesByRole.length > 0) &&
+                        (availableDatesByStaff.length
+                          ? availableDatesByStaff
+                          : availableDatesByRole
+                        ).map((d) => (
+                          <button
+                            key={d}
+                            type="button"
+                            onClick={() => {
+                              setDate(d);
+                              setTimeStep(2);
+                            }}
+                            className={`rounded-full border px-3 py-1.5 text-[11px] transition ${
+                              date === d
+                                ? "border-[var(--accent-strong)] bg-[rgba(255,255,255,0.03)] text-[var(--accent-strong)]"
+                                : "border-[var(--border-subtle)] text-[var(--text-muted-strong)] hover:border-[var(--accent-soft)]"
+                            }`}
+                          >
+                            {d}
+                          </button>
+                        ))}
+                      {!isLoadingDates &&
+                        !availableDatesByStaff.length &&
+                        !availableDatesByRole.length && (
+                          <span className="text-[11px] text-[var(--text-muted-soft)]">
+                            Доступные дни появятся после выбора мастера и
+                            ритуала.
+                          </span>
+                        )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTimeStep(1);
+                        setStep(4);
+                      }}
+                      className="text-[11px] text-[var(--text-muted-strong)] hover:text-[var(--text-main)]"
+                    >
+                      ← Вернуться к ритуалам
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {timeStep === 2 && (
+                <div className="space-y-3 md:space-y-4">
+                  <p className="text-[11px] md:text-[12px] text-[var(--text-muted-strong)]">
+                    Выберите время визита в выбранный день.
+                  </p>
+
+                  <div className="space-y-1.5">
+                    <p className="text-[11px] text-[var(--text-muted)]">
+                      Время визита
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {isLoadingSlots && (
+                        <span className="text-[11px] text-[var(--text-muted-soft)]">
+                          Загружаем доступное время…
+                        </span>
+                      )}
+                      {!isLoadingSlots &&
+                        !!slots.length &&
+                        slots.map((time) => (
+                          <button
+                            key={time}
+                            type="button"
+                            onClick={() => setSelectedSlot(time)}
+                            className={`rounded-full border px-3 py-1.5 text-[11px] transition ${
+                              selectedSlot === time
+                                ? "border-[var(--accent-strong)] bg-[rgba(255,255,255,0.03)] text-[var(--accent-strong)]"
+                                : "border-[var(--border-subtle)] text-[var(--text-muted-strong)] hover:border-[var(--accent-soft)]"
+                            }`}
+                          >
+                            {time}
+                          </button>
+                        ))}
+                      {!isLoadingSlots && !slots.length && date && (
+                        <span className="text-[11px] text-[var(--text-muted-soft)]">
+                          На выбранный день пока нет свободных слотов под этот
+                          формат.
+                        </span>
+                      )}
+                      {!date && (
+                        <span className="text-[11px] text-[var(--text-muted-soft)]">
+                          Сначала выберите дату.
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => setTimeStep(1)}
+                      className="text-[11px] text-[var(--text-muted-strong)] hover:text-[var(--text-main)]"
+                    >
+                      ← Вернуться к дате
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!selectedSlot}
+                      onClick={() => setStep(6)}
+                      className="rounded-full bg-[var(--accent-strong)] px-4 py-1.5 text-[12px] font-medium text-[var(--text-on-accent)] hover:bg-[var(--accent-strong-hover)] disabled:opacity-60"
+                    >
+                      Далее к контактам
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* ШАГ 6: контакты */}
+          {step === 6 && (
+            <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
+              <p className="text-[11px] md:text-[12px] text-[var(--text-muted-strong)]">
+                Оставьте контакты, чтобы мы подтвердили запись и уточнили
+                детали.
+              </p>
+
+              <div className="grid gap-2.5 md:grid-cols-2">
+                <div className="space-y-1">
+                  <label className="block text-[11px] text-[var(--text-muted)]">
+                    Имя
+                  </label>
+                  <input
+                    ref={nameInputRef}
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className={`h-9 w-full rounded-full border bg-[rgba(9,5,4,0.9)] px-3 text-[12px] text-[var(--text-main)] outline-none transition placeholder:text-[var(--text-muted-soft)] ${
+                      errors.name
+                        ? "border-red-500/70"
+                        : "border-[var(--border-subtle)] focus:border-[var(--accent-soft)]"
+                    }`}
+                    placeholder="Как к вам обращаться"
+                  />
+                  {errors.name && (
+                    <p className="text-[10px] text-red-300">{errors.name}</p>
+                  )}
                 </div>
 
-                <p className="text-[11px] leading-relaxed text-[var(--text-muted)]">
-                  Нажимая кнопку, вы соглашаетесь на обработку персональных
-                  данных. Мы используем их только для связи по вашей записи в
-                  клуб «Джентльмены Культуры».
-                </p>
-
-                <div className="mt-4 flex justify-between border-t border-[var(--border-subtle)] pt-3">
-                  <button
-                    type="button"
-                    onClick={() => setStep(4)}
-                    className="rounded-full border border-[var(--border-subtle)] px-5 py-2 text-[12px] text-[var(--text-muted)] hover:border-[var(--accent-soft)] hover:text-[var(--text-main)]"
-                  >
-                    Назад
-                  </button>
+                <div className="space-y-1">
+                  <label className="block text-[11px] text-[var(--text-muted)]">
+                    Телефон
+                  </label>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className={`h-9 w-full rounded-full border bg-[rgba(9,5,4,0.9)] px-3 text-[12px] text-[var(--text-main)] outline-none transition placeholder:text-[var(--text-muted-soft)] ${
+                      errors.phone
+                        ? "border-red-500/70"
+                        : "border-[var(--border-subtle)] focus:border-[var(--accent-soft)]"
+                    }`}
+                    placeholder="+7 (___) ___-__-__"
+                  />
+                  {errors.phone && (
+                    <p className="text-[10px] text-red-300">{errors.phone}</p>
+                  )}
                 </div>
               </div>
-            )}
-          </form>
+
+              <div className="space-y-1">
+                <label className="block text-[11px] text-[var(--text-muted)]">
+                  Комментарий (если есть пожелания по визиту)
+                </label>
+                <textarea
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  rows={3}
+                  className="w-full rounded-2xl border border-[var(--border-subtle)] bg-[rgba(9,5,4,0.9)] px-3 py-2 text-[12px] text-[var(--text-main)] outline-none transition placeholder:text-[var(--text-muted-soft)] focus:border-[var(--accent-soft)]"
+                  placeholder={commentPlaceholder}
+                />
+              </div>
+
+              <div className="flex items-center justify-between pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (path === "by_master") {
+                      setStep(5);
+                    } else if (path === "by_datetime") {
+                      setStep(3);
+                    }
+                  }}
+                  className="text-[11px] text-[var(--text-muted-strong)] hover:text-[var(--text-main)]"
+                  disabled={isSending}
+                >
+                  ← Вернуться назад
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSending}
+                  className="rounded-full bg-[var(--accent-strong)] px-5 py-1.5 text-[12px] font-medium text-[var(--text-on-accent)] hover:bg-[var(--accent-strong-hover)] disabled:opacity-60"
+                >
+                  {isSending ? "Создаём запись…" : "Подтвердить запись"}
+                </button>
+              </div>
+            </form>
+          )}
 
           {showSuccessToast && (
             <div className="pointer-events-none fixed bottom-4 left-1/2 z-[110] -translate-x-1/2 transform px-4 md:bottom-6 md:px-0">
               <div className="pointer-events-auto flex items-center gap-3 rounded-full bg-[rgba(22,16,13,0.96)] px-4 py-3 shadow-lg">
                 <span className="h-2 w-2 rounded-full bg-[#4ade80]" />
                 <p className="text-[12px] text-[var(--text-main)]">
-                  Запрос на запись отправлен. Администратор клуба свяжется с вами
-                  для подтверждения времени.
+                  Запись создана. Детали визита мы уточним с вами лично.
                 </p>
               </div>
             </div>
@@ -1241,3 +1683,4 @@ export default function BookingModal({
     </div>
   );
 }
+

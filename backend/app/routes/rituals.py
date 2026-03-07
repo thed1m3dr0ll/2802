@@ -1,11 +1,16 @@
 # backend/app/routes/rituals.py
 
-from typing import List, Optional
+from typing import List, Optional, Literal, Dict
 
 from fastapi import APIRouter, Query
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/rituals", tags=["rituals"])
+
+
+# ==== Типы ====
+
+MasterRole = Literal["art_director", "top_master"]
 
 
 class Ritual(BaseModel):
@@ -22,7 +27,17 @@ class RitualItem(BaseModel):
     name: str
 
 
-# ==== МАППИНГ УСЛУГ ПО РОЛЯМ (из lib/yclientsConfig.ts) ====
+class LogicalRitual(BaseModel):
+    key: str
+    name: str
+    duration_minutes: int
+    price_from: int
+    group_id: Literal["group-hair", "group-beard", "group-care"]
+    service_id_by_role: Dict[MasterRole, int]
+
+
+# ==== МАППИНГ УСЛУГ ПО РОЛЯМ (как у тебя) ====
+
 
 YCLIENTS_SERVICES_BY_ROLE: dict[str, dict[str, str]] = {
     "Мужская стрижка": {
@@ -92,7 +107,191 @@ YCLIENTS_SERVICES_BY_ROLE: dict[str, dict[str, str]] = {
 }
 
 
-# ===== Список всех ритуалов для выбора в боте =====
+# ==== Логический список всех ритуалов (16 штук) ====
+# duration_minutes и price_from берём из прайса (топ-мастер как "от")
+
+
+LOGICAL_RITUALS: list[LogicalRitual] = [
+    LogicalRitual(
+        key="complex_hair_beard",
+        name='Комплекс "стрижка + борода"',
+        duration_minutes=120,  # 7200 / 60
+        price_from=2400,
+        group_id="group-hair",
+        service_id_by_role={
+            "art_director": 21342282,
+            "top_master": 17404423,
+        },
+    ),
+    LogicalRitual(
+        key="mens_haircut",
+        name="Мужская стрижка",
+        duration_minutes=60,
+        price_from=1500,
+        group_id="group-hair",
+        service_id_by_role={
+            "art_director": 21341952,
+            "top_master": 17209453,
+        },
+    ),
+    LogicalRitual(
+        key="beard_modeling",
+        name="Моделирование бороды",
+        duration_minutes=60,
+        price_from=1100,
+        group_id="group-beard",
+        service_id_by_role={
+            "art_director": 21342075,
+            "top_master": 17404445,
+        },
+    ),
+    LogicalRitual(
+        key="premium_scalp_care",
+        name="Премиум уход за кожей головы и волосами",
+        duration_minutes=15,
+        price_from=1000,
+        group_id="group-care",
+        service_id_by_role={
+            "art_director": 21357675,
+            "top_master": 19282256,
+        },
+    ),
+    LogicalRitual(
+        key="beard_detox",
+        name="Детокс уход бороды и кожи лица",
+        duration_minutes=15,
+        price_from=1000,
+        group_id="group-beard",
+        service_id_by_role={
+            "art_director": 21357723,
+            "top_master": 19281924,
+        },
+    ),
+    LogicalRitual(
+        key="scissors_haircut",
+        name="Стрижка ножницами",
+        duration_minutes=60,
+        price_from=2000,
+        group_id="group-hair",
+        service_id_by_role={
+            "art_director": 21357735,
+            "top_master": 17404481,
+        },
+    ),
+    LogicalRitual(
+        key="father_son",
+        name="Стрижка отец + сын",
+        duration_minutes=120,
+        price_from=2500,
+        group_id="group-hair",
+        service_id_by_role={
+            "art_director": 21357765,
+            "top_master": 17404475,
+        },
+    ),
+    LogicalRitual(
+        key="kids_haircut",
+        name="Детская стрижка",
+        duration_minutes=60,
+        price_from=1200,
+        group_id="group-hair",
+        service_id_by_role={
+            "art_director": 21357813,
+            "top_master": 17404447,
+        },
+    ),
+    LogicalRitual(
+        key="machine_haircut",
+        name="Стрижка машинкой",
+        duration_minutes=30,
+        price_from=1100,
+        group_id="group-hair",
+        service_id_by_role={
+            "art_director": 21357876,
+            "top_master": 17404449,
+        },
+    ),
+    LogicalRitual(
+        key="dangerous_shave",
+        name="Опасное бритье",
+        duration_minutes=60,
+        price_from=1200,
+        group_id="group-beard",
+        service_id_by_role={
+            "art_director": 21358053,
+            "top_master": 17404464,
+        },
+    ),
+    LogicalRitual(
+        key="head_camouflage",
+        name="Камуфляж головы",
+        duration_minutes=30,
+        price_from=1100,
+        group_id="group-care",
+        service_id_by_role={
+            "art_director": 21358224,
+            "top_master": 17404491,
+        },
+    ),
+    LogicalRitual(
+        key="beard_camouflage",
+        name="Камуфляж бороды",
+        duration_minutes=30,
+        price_from=1000,
+        group_id="group-beard",
+        service_id_by_role={
+            "art_director": 21358284,
+            "top_master": 17404495,
+        },
+    ),
+    LogicalRitual(
+        key="black_mask",
+        name="Черная маска",
+        duration_minutes=30,
+        price_from=1000,
+        group_id="group-care",
+        service_id_by_role={
+            "art_director": 24827991,
+            "top_master": 17404469,
+        },
+    ),
+    LogicalRitual(
+        key="styling",
+        name="Укладка",
+        duration_minutes=15,
+        price_from=500,
+        group_id="group-hair",
+        service_id_by_role={
+            "art_director": 24828258,
+            "top_master": 17404468,
+        },
+    ),
+    LogicalRitual(
+        key="wax_removal",
+        name="Удаление воском",
+        duration_minutes=15,
+        price_from=400,
+        group_id="group-care",
+        service_id_by_role={
+            "art_director": 24828141,
+            "top_master": 17404455,
+        },
+    ),
+    LogicalRitual(
+        key="patches",
+        name="Патчи",
+        duration_minutes=5,
+        price_from=300,
+        group_id="group-care",
+        service_id_by_role={
+            "art_director": 24828357,
+            "top_master": 17965734,
+        },
+    ),
+]
+
+
+# ===== Список всех ритуалов для выбора (как было) =====
 
 ALL_RITUALS: list[RitualItem] = [
     RitualItem(id=1, name="Мужская стрижка"),
@@ -119,6 +318,11 @@ async def list_rituals() -> List[RitualItem]:
     return ALL_RITUALS
 
 
+@router.get("/logical", response_model=List[LogicalRitual])
+async def list_logical_rituals() -> List[LogicalRitual]:
+    return LOGICAL_RITUALS
+
+
 def _ritual_config_by_zone(goal: str, zone: str) -> tuple[str, int, int]:
     """
     Возвращает (name, duration_minutes, price_from) базового ритуала
@@ -129,18 +333,16 @@ def _ritual_config_by_zone(goal: str, zone: str) -> tuple[str, int, int]:
     if zone == "hair":
         # event -> стрижка ножницами, остальное -> мужская стрижка
         if goal == "event":
-            # Стрижка ножницами: 2000 / 2500 → от 2000
             return "Стрижка ножницами", 60, 2000
         else:
-            # Мужская стрижка: 1500 / 1700 → от 1500
             return "Мужская стрижка", 45, 1500
 
     elif zone == "beard":
-        # Моделирование бороды: 1100 / 1300 → от 1100
+        # Моделирование бороды
         return "Моделирование бороды", 30, 1100
 
     else:  # both
-        # Комплекс стрижка+борода: 2400 / 2800 → от 2400
+        # Комплекс стрижка+борода
         return 'Комплекс "стрижка + борода"', 75, 2400
 
 
@@ -150,7 +352,7 @@ def _apply_budget_adjustments(
     budget: str,
 ) -> tuple[int, int]:
     """
-    Для бюджета меняем только длительность, цену оставляем строго по прайсу.
+    Для бюджета меняем только длительность, цену оставляем по прайсу.
     """
     d = duration_minutes
     p = price_from
@@ -174,7 +376,6 @@ async def get_ritual_recommendations(
     для топ-мастера и арт-директора.
     """
 
-    # нормализация, чтобы не упасть на неожиданных значениях
     if goal not in {"refresh", "change", "event"}:
         goal = "refresh"
     if zone not in {"hair", "beard", "both"}:

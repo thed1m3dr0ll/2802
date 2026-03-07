@@ -35,63 +35,64 @@ export default function Header({ onBookClick }: HeaderProps) {
   };
 
   useEffect(() => {
-    const onScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-
+    const onScroll = () => setIsScrolled(window.scrollY > 10);
     onScroll();
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // закрывать мобильное меню при смене маршрута
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
 
-  // блокировка скролла body, когда меню открыто
   useEffect(() => {
-    if (!mobileOpen) {
-      // когда меню закрыто — ничего не делаем
-      return;
-    }
-
+    if (!mobileOpen) return;
     const original = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-
     return () => {
       document.body.style.overflow = original || "auto";
     };
   }, [mobileOpen]);
 
+  const headerBase =
+    "fixed inset-x-0 top-0 z-40 transition-all duration-200 ease-out";
+  const headerScrolled =
+    "bg-[rgba(10,6,4,0.96)]/95 backdrop-blur-md border-b border-[rgba(245,239,230,0.12)] shadow-[0_10px_40px_rgba(0,0,0,0.7)]";
+  const headerTransparent =
+    "bg-gradient-to-b from-[rgba(10,6,4,0.98)]/95 to-transparent";
+
   return (
-    <header className="site-header fixed inset-x-0 top-0 z-40">
+    <header className="site-header">
       <div
-        className={`flex items-center transition-colors duration-200 ${
-          isScrolled
-            ? "border-b border-[rgba(245,239,230,0.08)] bg-[rgba(10,6,4,0.96)] backdrop-blur-md"
-            : "bg-transparent"
+        className={`${headerBase} ${
+          isScrolled ? headerScrolled : headerTransparent
         }`}
       >
-        <div className="relative flex w-full items-center justify-between px-3 py-1.5 md:px-6 md:py-3">
-          <div className="relative flex h-[46px] w-[46px] items-center justify-center overflow-hidden rounded-full border border-[rgba(245,239,230,0.42)] bg-[#C13A32] md:h-[70px] md:w-[70px]">
-            <div className="pointer-events-none absolute inset-[-45%] bg-[radial-gradient(circle_at_30%_0%,rgba(255,150,100,0.98),transparent_65%),radial-gradient(circle_at_80%_120%,rgba(255,80,60,0.85),transparent_60%)] opacity-95" />
-            <Image
-              src="/images/Logotip-bez-fona.svg"
-              alt="Барбершоп‑клуб «Джентльмены Культуры»"
-              width={64}
-              height={64}
-              className="relative h-[40px] w-[40px] object-contain drop-shadow-[0_0_18px_rgba(0,0,0,0.95)] md:h-[60px] md:w-[60px]"
-              priority
-            />
-          </div>
-          <div className="hidden flex-col leading-tight sm:flex">
-            <span className="text-[10px] uppercase tracking-[0.22em] text-club-soft">
-              gentlemen
-            </span>
-            <span className="text-[8px] uppercase tracking-[0.18em] text-club-muted">
-              barbershop club
-            </span>
+        <div className="container-custom flex h-[58px] items-center justify-between gap-3 md:h-[72px]">
+          {/* Логотип + подпись */}
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-[rgba(245,239,230,0.32)] bg-[#BF3730] shadow-[0_10px_25px_rgba(0,0,0,0.75)] transition-transform duration-200 hover:-translate-y-[1px] md:h-12 md:w-12"
+            >
+              <Image
+                src="/images/Logotip-bez-fona.svg"
+                alt="Барбершоп‑клуб «Джентльмены Культуры»"
+                width={40}
+                height={40}
+                className="h-7 w-7 object-contain md:h-9 md:w-9"
+                priority
+              />
+            </Link>
+
+            <div className="hidden flex-col leading-tight md:flex">
+              <span className="text-[10px] uppercase tracking-[0.22em] text-club-soft">
+                gentlemen
+              </span>
+              <span className="text-[8px] uppercase tracking-[0.18em] text-club-muted">
+                barbershop club
+              </span>
+            </div>
           </div>
 
           {/* Навигация — md+ */}
@@ -102,7 +103,7 @@ export default function Header({ onBookClick }: HeaderProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`text-[13px] uppercase tracking-[0.22em] transition-colors lg:text-[14px] ${
+                  className={`text-[12px] uppercase tracking-[0.2em] transition-colors lg:text-[13px] ${
                     isActive
                       ? "text-[var(--text-main)]"
                       : "text-[var(--text-muted)] hover:text-[var(--text-muted-strong)]"
@@ -114,12 +115,12 @@ export default function Header({ onBookClick }: HeaderProps) {
             })}
           </nav>
 
-          {/* Справа: телефон и запись */}
+          {/* Справа: телефон / CTA / бургер */}
           <div className="flex items-center gap-2 md:gap-4">
             <a
               href="tel:+79877553000"
               onClick={handlePhoneClick}
-              className="hidden text-[12px] uppercase tracking-[0.2em] text-[var(--accent-gold-soft)] transition-colors hover:opacity-80 md:inline lg:text-[13px]"
+              className="hidden text-[12px] uppercase tracking-[0.2em] text-[var(--accent-gold-soft)] transition-opacity hover:opacity-80 md:inline lg:text-[13px]"
             >
               +7 987 755 30 00
             </a>
@@ -127,16 +128,16 @@ export default function Header({ onBookClick }: HeaderProps) {
             <button
               type="button"
               onClick={handleClick}
-              className="hidden rounded-full border border-[rgba(245,239,230,0.32)] bg-[rgba(255,96,72,0.08)] px-3 py-1.5 text-[10px] uppercase tracking-[0.2em] text-[var(--text-main)] transition-colors hover:border-[rgba(245,239,230,0.5)] hover:bg-[rgba(255,96,72,0.16)] md:block md:px-5 md:py-2.5 md:text-[11px]"
+              className="hidden rounded-full border border-[rgba(245,239,230,0.35)] bg-[rgba(255,96,72,0.14)] px-4 py-2 text-[10px] uppercase tracking-[0.2em] text-[var(--text-main)] shadow-[0_10px_30px_rgba(0,0,0,0.7)] transition-all hover:-translate-y-[1px] hover:border-[rgba(245,239,230,0.6)] hover:bg-[rgba(255,96,72,0.2)] md:inline-flex md:px-5 md:py-2.5 md:text-[11px]"
             >
               записаться
             </button>
 
-            {/* Бургер — только на мобилке */}
+            {/* Бургер — только мобилка */}
             <button
               type="button"
               onClick={() => setMobileOpen((prev) => !prev)}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-[rgba(245,239,230,0.3)] bg-[rgba(10,6,4,0.9)] md:hidden"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-[rgba(245,239,230,0.3)] bg-[rgba(10,6,4,0.96)] md:hidden"
               aria-label={mobileOpen ? "Закрыть меню" : "Открыть меню"}
             >
               <span className="sr-only">Меню</span>
@@ -152,7 +153,7 @@ export default function Header({ onBookClick }: HeaderProps) {
         </div>
       </div>
 
-      {/* Backdrop + мобильное меню */}
+      {/* Мобильное меню */}
       {mobileOpen && (
         <>
           {/* Backdrop */}
@@ -161,8 +162,8 @@ export default function Header({ onBookClick }: HeaderProps) {
             onClick={() => setMobileOpen(false)}
           />
 
-          {/* Меню поверх backdrop, прижато к верху под хедером */}
-          <div className="fixed inset-x-0 top-[56px] z-40 border-t border-[rgba(245,239,230,0.1)] bg-[rgba(5,3,7,0.98)] backdrop-blur-md md:hidden">
+          {/* Дроуэр под хедером */}
+          <div className="fixed inset-x-0 top-[58px] z-40 border-t border-[rgba(245,239,230,0.1)] bg-[rgba(5,3,7,0.98)] backdrop-blur-md md:hidden">
             <div className="container-custom py-4">
               <nav className="space-y-2">
                 {navItems.map((item) => {
@@ -175,7 +176,7 @@ export default function Header({ onBookClick }: HeaderProps) {
                       className={`block rounded-full px-4 py-2 text-[11px] uppercase tracking-[0.2em] ${
                         isActive
                           ? "bg-[rgba(255,255,255,0.06)] text-[var(--text-main)]"
-                          : "text-[var(--text-muted)] hover:bg-[rgba(255,255,255,0.04)] hover:text-[var(--text-main)]"
+                          : "text-[var(--text-muted)] hover:bg-[rgba(255,255,255,0.05)] hover:text-[var(--text-main)]"
                       }`}
                     >
                       {item.label}
@@ -195,7 +196,7 @@ export default function Header({ onBookClick }: HeaderProps) {
                 <button
                   type="button"
                   onClick={handleClick}
-                  className="w-full rounded-full border border-[rgba(245,239,230,0.32)] bg-[rgba(255,96,72,0.12)] px-4 py-2 text-[11px] uppercase tracking-[0.2em] text-[var(--text-main)]"
+                  className="w-full rounded-full border border-[rgba(245,239,230,0.32)] bg-[rgba(255,96,72,0.16)] px-4 py-2 text-[11px] uppercase tracking-[0.2em] text-[var(--text-main)]"
                 >
                   записаться в клуб
                 </button>
@@ -206,7 +207,7 @@ export default function Header({ onBookClick }: HeaderProps) {
       )}
 
       {/* отступ под фиксированный хедер */}
-      <div className="h-[56px] md:h-[76px]" />
+      <div className="h-[58px] md:h-[72px]" />
     </header>
   );
 }

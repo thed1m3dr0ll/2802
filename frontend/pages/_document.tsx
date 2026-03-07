@@ -1,5 +1,6 @@
-// pages/_document.tsx
+// frontend/pages/_document.tsx
 import { Html, Head, Main, NextScript } from "next/document";
+import { SchemaOrgLocalBusiness } from "../components/SchemaOrgLocalBusiness";
 
 const BASE_URL = "https://www.gentlemenbarber.ru";
 
@@ -25,7 +26,7 @@ export default function Document() {
         <meta property="og:type" content="website" />
         <meta
           property="og:title"
-          content="Gentlemen Barbershop Club — барбершоп‑клуб в Нижнем Новгороде"
+          content="Джентльмены Культуры — барбершоп‑клуб в Нижнем Новгороде"
         />
         <meta
           property="og:description"
@@ -38,7 +39,7 @@ export default function Document() {
         />
         <meta
           property="og:site_name"
-          content="Gentlemen Barbershop Club"
+          content="Джентльмены Культуры"
         />
 
         {/* preconnect к шрифтам и внешним сервисам */}
@@ -84,6 +85,9 @@ export default function Document() {
             `,
           }}
         />
+
+        {/* Schema.org LocalBusiness / HairSalon */}
+        <SchemaOrgLocalBusiness />
       </Head>
       <body>
         <noscript>

@@ -16,6 +16,7 @@ from passlib.context import CryptContext
 from pydantic import BaseModel, EmailStr
 
 from app.db import get_db_connection
+from app.rate_limiter import limiter
 
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "change-me-in-prod")
 JWT_ALGORITHM = "HS256"
@@ -152,7 +153,9 @@ async def register(
 
 
 @router.post("/login", response_model=UserProfile)
+@limiter.limit("5/minute")
 async def login(
+    request: Request,
     data: LoginRequest,
     response: Response,
     conn: asyncpg.Connection = Depends(get_conn),
@@ -200,7 +203,11 @@ async def login(
 
 
 @router.post("/logout")
-async def logout(response: Response):
+@limiter.limit("20/minute")
+async def logout(
+    request: Request,
+    response: Response,
+):
     response.delete_cookie(key="access_token", path="/")
     return {"status": "ok"}
 
@@ -211,7 +218,9 @@ async def profile(current_user: asyncpg.Record = Depends(get_current_user)):
 
 
 @router.post("/change-password")
+@limiter.limit("10/minute")
 async def change_password(
+    request: Request,
     data: ChangePasswordRequest,
     current_user: asyncpg.Record = Depends(get_current_user),
     conn: asyncpg.Connection = Depends(get_conn),

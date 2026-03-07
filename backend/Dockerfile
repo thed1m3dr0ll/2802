@@ -2,6 +2,9 @@ FROM python:3.12-slim-bookworm AS backend
 
 WORKDIR /app
 
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
 # копируем requirements и локальные wheels
 COPY requirements.txt .
 COPY wheelhouse ./wheelhouse
@@ -13,9 +16,6 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # копируем код
 COPY . .
 COPY entrypoint.sh /entrypoint.sh
-
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1
 
 RUN chmod +x /entrypoint.sh
 
